@@ -21,7 +21,6 @@ class PickerFilePicker extends Picker<FilePickerResult> {
   Future<List<ItemFile?>> pickFiles() async {
     FilePickerResult? pickFiles = await _filePicker.pickFiles(
       allowMultiple: true,
-      withReadStream: true,
     );
     var list = pickFiles?.files.map((file) async {
       var bytes = file.bytes;
@@ -42,11 +41,8 @@ class PickerFilePicker extends Picker<FilePickerResult> {
 
   Future<String?> retrieveChecksum(PlatformFile file) async {
     Uint8List? bytes = file.bytes;
-    Stream<List<int>>? readStream = file.readStream;
     String? digest = bytes != null
         ? sha256.convert(bytes.toList()).toString()
-        : readStream != null
-        ? (await sha256.bind(readStream).first).toString()
         : null;
     return digest;
   }

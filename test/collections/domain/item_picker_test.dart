@@ -68,33 +68,6 @@ void main() {
       expect(filesResult.value[0]?.checksum, null);
     },
   );
-
-  test(
-    'FileItemPicker should return the checksum from a read stream',
-    () async {
-      var filesResult = await FileItemPicker(
-        filePicker: TestPicker(
-          filePickerResult: FilePickerResult([
-            TestPickerResultBuilder()
-                .withName('file name')
-                .withPath('a path')
-                .withSize(1)
-                .withReadStreamFor(Uint8List(1))
-                .build()
-                .result(),
-          ]),
-        ),
-      ).pickFiles();
-
-      expect((filesResult as Ok<List<ItemFile?>>).value[0]?.size, 1);
-      expect((filesResult).value[0]?.name, "file name");
-      expect((filesResult).value[0]?.path, "a path");
-      expect(
-        filesResult.value[0]?.checksum,
-        '6e340b9cffb37a989ca544e6bb780a2c78901d3fb33738768511a30617afa01d',
-      );
-    },
-  );
 }
 
 class TestPickerResultBuilder {
@@ -102,7 +75,6 @@ class TestPickerResultBuilder {
   String? _path;
   int? _size;
   Uint8List? _bytes;
-  Stream<List<int>>? _readStream;
 
   TestPickerResultBuilder withName(String name) {
     _name = name;
@@ -121,12 +93,6 @@ class TestPickerResultBuilder {
 
   TestPickerResultBuilder withBytes(Uint8List bytes) {
     _bytes = bytes;
-    _readStream = Stream.value(List<int>.from(bytes));
-    return this;
-  }
-
-  TestPickerResultBuilder withReadStreamFor(Uint8List bytes) {
-    _readStream = Stream.value(List<int>.from(bytes));
     return this;
   }
 
@@ -136,7 +102,6 @@ class TestPickerResultBuilder {
       size: _size ?? 3,
       path: _path,
       bytes: _bytes,
-      readStream: _readStream,
     );
   }
 }
@@ -153,12 +118,10 @@ class TestPickerResult {
     required int size,
     String? path,
     Uint8List? bytes,
-    Stream<List<int>>? readStream,
   }) : _name = name,
        _size = size,
        _path = path,
-       _bytes = bytes,
-       _readStream = readStream;
+       _bytes = bytes;
 
   static PlatformFile aResult() {
     return TestPickerResult(name: 'A name', size: 1).result();
