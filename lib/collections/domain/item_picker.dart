@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'dart:typed_data';
 
 import 'package:crypto/crypto.dart';
@@ -57,6 +58,7 @@ class ItemFile {
   final int size;
   final Uint8List? bytes;
   final String? checksum;
+  final File file;
 
   ItemFile({
     required this.path,
@@ -64,7 +66,7 @@ class ItemFile {
     required this.size,
     this.bytes,
     required this.checksum,
-  });
+  }) : file = File(path);
 
   @override
   String toString() {

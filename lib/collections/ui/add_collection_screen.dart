@@ -1,5 +1,3 @@
-import 'dart:io';
-
 import 'package:alexandria/video/video_player.dart';
 import 'package:flutter/material.dart';
 
@@ -12,17 +10,13 @@ class AddCollectionScreen extends StatefulWidget {
 }
 
 class _AddCollectionScreenState extends State<AddCollectionScreen> {
-  List<File> _files = [];
+  List<ItemFile> _files = [];
 
   void _handleFiles(List<ItemFile?> files) {
-    List<File> filesToPlay = [];
-    for (var file in files) {
-      if (file != null) {
-        filesToPlay.add(File(file.path));
-      }
-    }
     setState(() {
-      _files = filesToPlay;
+      if (files.isNotEmpty) {
+        _files = files.nonNulls.toList();
+      }
     });
   }
 
@@ -58,7 +52,9 @@ class _AddCollectionScreenState extends State<AddCollectionScreen> {
                     vertical: 6.0,
                     horizontal: 8,
                   ),
-                  child: Row(children: [VideoPlayerWidget(videoFile: file)]),
+                  child: Row(
+                    children: [VideoPlayerWidget(videoFile: file.file)],
+                  ),
                 );
               },
             ),
