@@ -119,22 +119,7 @@ class _CollectionFormState extends State<CollectionForm> {
                       ),
                     ),
                   ),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                    children: [
-                      MetadataDropDownMenu(),
-                      Spacer(flex: 1),
-                      Flexible(
-                        flex: 2,
-                        child: TextFormField(
-                          decoration: InputDecoration(
-                            border: const UnderlineInputBorder(),
-                            labelText: 'Value',
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
+                  MetadataField(),
                 ],
               ),
             ],
@@ -160,6 +145,33 @@ class _TagsState extends State<Tags> {
           decoration: InputDecoration(
             border: OutlineInputBorder(),
             labelText: 'Tags',
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class MetadataField extends StatefulWidget {
+  @override
+  State<StatefulWidget> createState() => _MetadataFieldState();
+}
+
+class _MetadataFieldState extends State<MetadataField> {
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+      children: [
+        MetadataDropDownMenu(),
+        Spacer(flex: 1),
+        Flexible(
+          flex: 2,
+          child: TextFormField(
+            decoration: InputDecoration(
+              border: const UnderlineInputBorder(),
+              labelText: 'Value',
+            ),
           ),
         ),
       ],
