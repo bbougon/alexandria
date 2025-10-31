@@ -40,6 +40,15 @@ class AlexandriaApp extends StatelessWidget {
         title: 'Namer App',
         theme: ThemeData(
           colorScheme: ColorScheme.fromSeed(seedColor: Colors.blueAccent),
+          textTheme: TextTheme(
+            labelLarge: TextStyle(fontSize: 14),
+            bodyLarge: TextStyle(fontSize: 14),
+            displayLarge: const TextStyle(
+              fontSize: 36,
+              fontWeight: FontWeight.bold,
+            ),
+            titleLarge: const TextStyle(fontSize: 36),
+          ),
         ),
         home: AlexandriaHomePage(),
       ),

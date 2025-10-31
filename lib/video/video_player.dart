@@ -26,45 +26,39 @@ class _VideoPlayerState extends State<VideoPlayerWidget> {
 
   @override
   Widget build(BuildContext context) {
-    return SizedBox(
-      width: 300,
-      height: 200,
-      child: Stack(
-        fit: StackFit.loose,
-        children: [
-          Positioned.fill(
-            child: _controller.value.isInitialized
-                ? VideoPlayer(_controller)
-                : Container(),
-          ),
-          Align(
-            alignment: Alignment(0, 0),
-            child: ElevatedButton(
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.black.withValues(
-                  alpha: 0.5,
-                  blue: 0.5,
-                  green: 0.5,
-                  red: 0.5,
-                ),
-                shape: const CircleBorder(),
-                padding: const EdgeInsets.all(12),
-                elevation: 0,
+    return Stack(
+      fit: StackFit.expand,
+      children: [
+        _controller.value.isInitialized
+            ? VideoPlayer(_controller)
+            : Container(),
+        Align(
+          alignment: Alignment(0, 0),
+          child: ElevatedButton(
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.black.withValues(
+                alpha: 0.5,
+                blue: 0.5,
+                green: 0.5,
+                red: 0.5,
               ),
-              onPressed: () {
-                setState(() {
-                  _controller.value.isPlaying
-                      ? _controller.pause()
-                      : _controller.play();
-                });
-              },
-              child: Icon(
-                _controller.value.isPlaying ? Icons.pause : Icons.play_arrow,
-              ),
+              shape: const CircleBorder(),
+              padding: const EdgeInsets.all(4),
+              elevation: 0,
+            ),
+            onPressed: () {
+              setState(() {
+                _controller.value.isPlaying
+                    ? _controller.pause()
+                    : _controller.play();
+              });
+            },
+            child: Icon(
+              _controller.value.isPlaying ? Icons.pause : Icons.play_arrow,
             ),
           ),
-        ],
-      ),
+        ),
+      ],
     );
   }
 

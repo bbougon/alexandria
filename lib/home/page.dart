@@ -7,11 +7,7 @@ class HomePage extends StatelessWidget {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Row(
-            children: [
-              Text('Home page')
-            ],
-          )
+          Row(children: [Text('Home page')]),
         ],
       ),
     );
