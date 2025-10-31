@@ -69,10 +69,7 @@ class _AddCollectionScreenState extends State<AddCollectionScreen> {
                           width: 300,
                           child: Column(children: [CollectionForm(file: file)]),
                         ),
-                        SizedBox(
-                          width: 300,
-                          child: Column(children: [MetadataRow()]),
-                        ),
+                        SizedBox(width: 300, child: Column(children: [Tags()])),
                       ],
                     ),
                   ),
@@ -148,12 +145,12 @@ class _CollectionFormState extends State<CollectionForm> {
   }
 }
 
-class MetadataRow extends StatefulWidget {
+class Tags extends StatefulWidget {
   @override
-  State<StatefulWidget> createState() => _MetadataRowState();
+  State<StatefulWidget> createState() => _TagsState();
 }
 
-class _MetadataRowState extends State<MetadataRow> {
+class _TagsState extends State<Tags> {
   @override
   Widget build(BuildContext context) {
     return Column(
