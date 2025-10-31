@@ -65,10 +65,14 @@ class _AddCollectionScreenState extends State<AddCollectionScreen> {
                             child: VideoPlayerWidget(videoFile: file.file),
                           ),
                         ),
-                        Expanded(
+                        SizedBox(
+                          width: 300,
                           child: Column(children: [CollectionForm(file: file)]),
                         ),
-                        Expanded(child: Column(children: [MetadataRow()])),
+                        SizedBox(
+                          width: 300,
+                          child: Column(children: [MetadataRow()]),
+                        ),
                       ],
                     ),
                   ),
@@ -155,7 +159,7 @@ class _MetadataRowState extends State<MetadataRow> {
     return Column(
       children: [
         TextField(
-          maxLines: 5,
+          maxLines: 2,
           decoration: InputDecoration(
             border: OutlineInputBorder(),
             labelText: 'Tags',
