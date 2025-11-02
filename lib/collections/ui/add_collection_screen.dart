@@ -70,7 +70,7 @@ class _AddCollectionScreenState extends State<AddCollectionScreen> {
                         ),
                         SizedBox(
                           width: 300,
-                          child: Column(children: [CollectionForm(file: file)]),
+                          child: Column(children: [CollectionName(file: file)]),
                         ),
                         SizedBox(
                           width: 300,
@@ -110,16 +110,16 @@ class _AddCollectionScreenState extends State<AddCollectionScreen> {
   }
 }
 
-class CollectionForm extends StatefulWidget {
+class CollectionName extends StatefulWidget {
   final ItemFile file;
 
-  CollectionForm({super.key, required this.file});
+  CollectionName({super.key, required this.file});
 
   @override
-  State<StatefulWidget> createState() => _CollectionFormState();
+  State<StatefulWidget> createState() => _CollectionNameState();
 }
 
-class _CollectionFormState extends State<CollectionForm> {
+class _CollectionNameState extends State<CollectionName> {
   @override
   Widget build(BuildContext context) {
     return Row(
