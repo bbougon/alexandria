@@ -1,5 +1,8 @@
 import 'dart:collection';
 
+import 'package:alexandria/collections/ui/text_field_tags.dart';
+import 'package:alexandria/collections/ui/text_field_tags_controller.dart';
+import 'package:alexandria/common/colors.dart';
 import 'package:alexandria/video/video_player.dart';
 import 'package:flutter/material.dart';
 
@@ -69,7 +72,31 @@ class _AddCollectionScreenState extends State<AddCollectionScreen> {
                           width: 300,
                           child: Column(children: [CollectionForm(file: file)]),
                         ),
-                        SizedBox(width: 300, child: Column(children: [Tags()])),
+                        SizedBox(
+                          width: 300,
+                          child: Column(
+                            children: [
+                              Tags(),
+                              MetadataField(),
+                              Expanded(
+                                child: Align(
+                                  alignment: Alignment.bottomRight,
+                                  child: Row(
+                                    crossAxisAlignment: CrossAxisAlignment.end,
+                                    mainAxisAlignment: MainAxisAlignment.end,
+                                    children: [
+                                      ElevatedButton.icon(
+                                        onPressed: () {},
+                                        label: Text('Submit'),
+                                        icon: Icon(Icons.send),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
                       ],
                     ),
                   ),
@@ -119,7 +146,6 @@ class _CollectionFormState extends State<CollectionForm> {
                       ),
                     ),
                   ),
-                  MetadataField(),
                 ],
               ),
             ],
@@ -136,15 +162,101 @@ class Tags extends StatefulWidget {
 }
 
 class _TagsState extends State<Tags> {
+  late double _distanceToField;
+  final _stringTagController = StringTagController();
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    _distanceToField = MediaQuery.of(context).size.width;
+  }
+
   @override
   Widget build(BuildContext context) {
     return Column(
       children: [
-        TextField(
-          maxLines: 2,
-          decoration: InputDecoration(
-            border: OutlineInputBorder(),
-            labelText: 'Tags',
+        TextFieldTags(
+          textfieldTagsController: _stringTagController,
+          textSeparators: const [' ', ','],
+          inputFieldBuilder: (context, inputFieldValues) => TextField(
+            controller: inputFieldValues.textEditingController,
+            focusNode: inputFieldValues.focusNode,
+            maxLines: 3,
+            decoration: InputDecoration(
+              isDense: true,
+              border: const OutlineInputBorder(
+                borderSide: BorderSide(color: grey, width: 2.0),
+              ),
+              focusedBorder: const OutlineInputBorder(
+                borderSide: BorderSide(color: grey, width: 2.0),
+              ),
+              hintText: inputFieldValues.tags.isNotEmpty ? '' : "Enter tag...",
+              errorText: inputFieldValues.error,
+              prefixIconConstraints: BoxConstraints(
+                maxWidth: _distanceToField * 0.8,
+              ),
+              prefixIcon: inputFieldValues.tags.isNotEmpty
+                  ? SingleChildScrollView(
+                      controller: inputFieldValues.tagScrollController,
+                      scrollDirection: Axis.vertical,
+                      child: Padding(
+                        padding: const EdgeInsets.only(
+                          top: 4,
+                          bottom: 4,
+                          left: 4,
+                        ),
+                        child: Wrap(
+                          runSpacing: 2.0,
+                          spacing: 2.0,
+                          children: inputFieldValues.tags.map((String tag) {
+                            return Container(
+                              decoration: const BoxDecoration(
+                                borderRadius: BorderRadius.all(
+                                  Radius.circular(20.0),
+                                ),
+                                color: grey,
+                              ),
+                              margin: const EdgeInsets.symmetric(
+                                horizontal: 3.0,
+                              ),
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 5.0,
+                                vertical: 3.0,
+                              ),
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.start,
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  InkWell(
+                                    child: Text(
+                                      '#$tag',
+                                      style: const TextStyle(
+                                        color: Colors.white,
+                                      ),
+                                    ),
+                                  ),
+                                  const SizedBox(width: 2.0),
+                                  InkWell(
+                                    child: const Icon(
+                                      Icons.cancel,
+                                      size: 14.0,
+                                      color: Color.fromARGB(255, 233, 233, 233),
+                                    ),
+                                    onTap: () {
+                                      inputFieldValues.onTagRemoved(tag);
+                                    },
+                                  ),
+                                ],
+                              ),
+                            );
+                          }).toList(),
+                        ),
+                      ),
+                    )
+                  : null,
+            ),
+            onChanged: inputFieldValues.onTagChanged,
+            onSubmitted: inputFieldValues.onTagSubmitted,
           ),
         ),
       ],
