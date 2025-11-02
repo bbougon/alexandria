@@ -282,6 +282,7 @@ class _MetadataFieldState extends State<MetadataField> {
         Flexible(
           flex: 2,
           child: TextFormField(
+            key: Key('metadata-field-value'),
             controller: _metadataValueController,
             decoration: InputDecoration(
               border: const UnderlineInputBorder(),
@@ -326,6 +327,7 @@ class _MetadataDropDownMenuState extends State<MetadataDropDownMenu> {
     return IconTheme(
       data: const IconThemeData(size: 8),
       child: DropdownMenu<String>(
+        key: Key('metadata-field-key'),
         initialSelection: list.first,
         controller: widget.controller,
         onSelected: (value) => setState(() => dropdownValue = value!),
