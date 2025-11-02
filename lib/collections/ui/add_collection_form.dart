@@ -11,9 +11,11 @@ import 'text_field_tags.dart';
 class AddCollectionForm extends StatefulWidget {
   final ItemFile file;
   late final TextEditingController _collectionNameController;
+  late final MetadataController _metadataController;
 
   AddCollectionForm({super.key, required this.file}) {
     _collectionNameController = TextEditingController(text: file.name);
+    _metadataController = MetadataController();
   }
 
   @override
@@ -51,7 +53,7 @@ class _AddCollectionFormState extends State<AddCollectionForm> {
               child: Column(
                 children: [
                   Tags(),
-                  MetadataField(),
+                  MetadataField(controller: widget._metadataController),
                   Expanded(
                     child: Align(
                       alignment: Alignment.bottomRight,
@@ -65,7 +67,7 @@ class _AddCollectionFormState extends State<AddCollectionForm> {
                                 context: context,
                                 builder: (BuildContext context) => AlertDialog(
                                   title: Text(
-                                    widget._collectionNameController.text,
+                                    '${widget._collectionNameController.text} - ${widget._metadataController.metadata.entries.map((m) => '${m.key} : ${m.value}')}',
                                   ),
                                 ),
                               );
@@ -241,25 +243,55 @@ class _TagsState extends State<Tags> {
   }
 }
 
+class Metadata {
+  final String key;
+  final String value;
+
+  const Metadata(this.key, this.value);
+}
+
+class MetadataController extends ChangeNotifier {
+  Map<String, String> metadata = {};
+
+  void addMetadata(Metadata metadata) {
+    this.metadata[metadata.key] = metadata.value;
+    notifyListeners();
+  }
+}
+
 class MetadataField extends StatefulWidget {
+  final MetadataController controller;
+
+  MetadataField({super.key, required this.controller});
+
   @override
   State<StatefulWidget> createState() => _MetadataFieldState();
 }
 
 class _MetadataFieldState extends State<MetadataField> {
+  TextEditingController _metadataKeyController = TextEditingController();
+  TextEditingController _metadataValueController = TextEditingController();
+
   @override
   Widget build(BuildContext context) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
       children: [
-        MetadataDropDownMenu(),
+        MetadataDropDownMenu(controller: _metadataKeyController),
         Spacer(flex: 1),
         Flexible(
           flex: 2,
           child: TextFormField(
+            controller: _metadataValueController,
             decoration: InputDecoration(
               border: const UnderlineInputBorder(),
               labelText: 'Value',
+            ),
+            onChanged: (value) => widget.controller.addMetadata(
+              Metadata(
+                _metadataKeyController.text,
+                _metadataValueController.text,
+              ),
             ),
           ),
         ),
@@ -269,7 +301,9 @@ class _MetadataFieldState extends State<MetadataField> {
 }
 
 class MetadataDropDownMenu extends StatefulWidget {
-  const MetadataDropDownMenu({super.key});
+  final TextEditingController controller;
+
+  const MetadataDropDownMenu({super.key, required this.controller});
 
   @override
   State<MetadataDropDownMenu> createState() => _MetadataDropDownMenuState();
@@ -293,6 +327,7 @@ class _MetadataDropDownMenuState extends State<MetadataDropDownMenu> {
       data: const IconThemeData(size: 8),
       child: DropdownMenu<String>(
         initialSelection: list.first,
+        controller: widget.controller,
         onSelected: (value) => setState(() => dropdownValue = value!),
         dropdownMenuEntries: menuEntries,
         textStyle: const TextStyle(fontSize: 14),
