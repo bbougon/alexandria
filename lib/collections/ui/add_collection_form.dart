@@ -1,5 +1,6 @@
 import 'dart:collection';
 
+import 'package:alexandria/collections/collections.dart';
 import 'package:alexandria/collections/ui/text_field_tags_controller.dart';
 import 'package:flutter/material.dart';
 
@@ -13,8 +14,9 @@ class AddCollectionForm extends StatefulWidget {
   late final TextEditingController _collectionNameController;
   late final MetadataController _metadataController;
   late final StringTagController<String> _tagsController;
+  final ValueChanged<CollectionItem> onChanged;
 
-  AddCollectionForm({super.key, required this.file}) {
+  AddCollectionForm({super.key, required this.file, required this.onChanged}) {
     _collectionNameController = TextEditingController(text: file.name);
     _metadataController = MetadataController();
     _tagsController = StringTagController();
@@ -25,6 +27,20 @@ class AddCollectionForm extends StatefulWidget {
 }
 
 class _AddCollectionFormState extends State<AddCollectionForm> {
+  late CollectionItem _collectionItem;
+
+  void _onChanged() {
+    setState(() {
+      _collectionItem = CollectionItem(
+        file: widget.file,
+        name: widget._collectionNameController.text,
+        metadata: widget._metadataController.metadata,
+        tags: widget._tagsController.getTags ?? [],
+      );
+    });
+    widget.onChanged(_collectionItem);
+  }
+
   @override
   Widget build(BuildContext context) {
     return Padding(
@@ -64,16 +80,7 @@ class _AddCollectionFormState extends State<AddCollectionForm> {
                         mainAxisAlignment: MainAxisAlignment.end,
                         children: [
                           ElevatedButton.icon(
-                            onPressed: () {
-                              showDialog(
-                                context: context,
-                                builder: (BuildContext context) => AlertDialog(
-                                  title: Text(
-                                    '${widget._collectionNameController.text} - ${widget._metadataController.metadata.entries.map((m) => '${m.key} : ${m.value}')} - Tags : ${widget._tagsController.getTags?.join(', ')}',
-                                  ),
-                                ),
-                              );
-                            },
+                            onPressed: () => _onChanged(),
                             label: Text('Submit'),
                             icon: Icon(Icons.send),
                           ),

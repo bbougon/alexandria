@@ -54,7 +54,11 @@ class _CollectionsScreenState extends State<CollectionsScreen> {
                             onPressed: () => Navigator.pop(context),
                             icon: Icon(Icons.close),
                           ),
-                          body: SafeArea(child: AddCollectionScreen()),
+                          body: SafeArea(
+                            child: AddCollectionScreen(
+                              screenNotifier: widget.screenNotifier,
+                            ),
+                          ),
                         ),
                       ),
                     );
@@ -74,6 +78,7 @@ class _CollectionsScreenState extends State<CollectionsScreen> {
                           child: ListenableBuilder(
                             listenable: Listenable.merge([
                               widget.screenNotifier.loadCollections,
+                              widget.screenNotifier.addItem,
                             ]),
                             builder: (context, child) {
                               if (widget

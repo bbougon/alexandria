@@ -9,11 +9,13 @@ class CollectionsScreenNotifier extends ChangeNotifier {
     required CollectionsRepository collectionsRepository,
   }) : _collectionsRepository = collectionsRepository {
     loadCollections = SimpleCommand(_loadCollections);
+    addItem = ParameterizedCommand(_addItem);
   }
 
   final CollectionsRepository _collectionsRepository;
   List<Collection>? _collections;
   late final SimpleCommand<void> loadCollections;
+  late final ParameterizedCommand<void, CollectionItem> addItem;
   List<Collection>? get collections => _collections;
 
   Future<Result<void>> _loadCollections() async {
@@ -25,6 +27,14 @@ class CollectionsScreenNotifier extends ChangeNotifier {
       case Error<List<Collection>>():
         notifyListeners();
     }
+    return result;
+  }
+
+  Future<Result<void>> _addItem(CollectionItem item) async {
+    final result = _collectionsRepository.add(
+      Collection('New collection', [item]),
+    );
+    notifyListeners();
     return result;
   }
 }
