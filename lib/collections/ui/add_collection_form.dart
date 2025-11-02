@@ -12,10 +12,12 @@ class AddCollectionForm extends StatefulWidget {
   final ItemFile file;
   late final TextEditingController _collectionNameController;
   late final MetadataController _metadataController;
+  late final StringTagController<String> _tagsController;
 
   AddCollectionForm({super.key, required this.file}) {
     _collectionNameController = TextEditingController(text: file.name);
     _metadataController = MetadataController();
+    _tagsController = StringTagController();
   }
 
   @override
@@ -52,7 +54,7 @@ class _AddCollectionFormState extends State<AddCollectionForm> {
               width: 300,
               child: Column(
                 children: [
-                  Tags(),
+                  Tags(controller: widget._tagsController),
                   MetadataField(controller: widget._metadataController),
                   Expanded(
                     child: Align(
@@ -67,7 +69,7 @@ class _AddCollectionFormState extends State<AddCollectionForm> {
                                 context: context,
                                 builder: (BuildContext context) => AlertDialog(
                                   title: Text(
-                                    '${widget._collectionNameController.text} - ${widget._metadataController.metadata.entries.map((m) => '${m.key} : ${m.value}')}',
+                                    '${widget._collectionNameController.text} - ${widget._metadataController.metadata.entries.map((m) => '${m.key} : ${m.value}')} - Tags : ${widget._tagsController.getTags?.join(', ')}',
                                   ),
                                 ),
                               );
@@ -136,13 +138,16 @@ class _CollectionNameState extends State<CollectionName> {
 }
 
 class Tags extends StatefulWidget {
+  final StringTagController controller;
+
+  Tags({super.key, required this.controller});
+
   @override
   State<StatefulWidget> createState() => _TagsState();
 }
 
 class _TagsState extends State<Tags> {
   late double _distanceToField;
-  final _stringTagController = StringTagController();
 
   @override
   void didChangeDependencies() {
@@ -155,7 +160,7 @@ class _TagsState extends State<Tags> {
     return Column(
       children: [
         TextFieldTags(
-          textfieldTagsController: _stringTagController,
+          textfieldTagsController: widget.controller,
           textSeparators: const [' ', ','],
           inputFieldBuilder: (context, inputFieldValues) => TextField(
             controller: inputFieldValues.textEditingController,
