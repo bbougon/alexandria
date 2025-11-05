@@ -1,4 +1,5 @@
 import 'package:alexandria/collections/collections.dart';
+import 'package:alexandria/collections/domain/item_picker.dart';
 import 'package:alexandria/common/command.dart';
 import 'package:flutter/material.dart';
 
@@ -36,5 +37,23 @@ class CollectionsScreenNotifier extends ChangeNotifier {
     );
     notifyListeners();
     return result;
+  }
+
+  Future<Result<void>> initializeCollection(
+    String collectionName,
+    List<ItemFile> files,
+  ) async {
+    List<CollectionItem> items = files
+        .map(
+          (f) => CollectionItem(
+            file: f,
+            name: f.name,
+            metadata: <String, String>{},
+            tags: [],
+          ),
+        )
+        .toList();
+    notifyListeners();
+    return _collectionsRepository.add(Collection(collectionName, items));
   }
 }
