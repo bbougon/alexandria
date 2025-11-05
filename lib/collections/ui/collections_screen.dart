@@ -1,8 +1,7 @@
+import 'package:alexandria/collections/ui/collection_form.dart';
 import 'package:flutter/material.dart';
 
 import '../../common/error_indicator.dart';
-import '../../common/result.dart';
-import '../domain/item_picker.dart';
 import 'collections_body.dart';
 import 'collections_screen_notifier.dart';
 
@@ -26,16 +25,6 @@ class _CollectionsScreenState extends State<CollectionsScreen> {
   void dispose() {
     widget.screenNotifier.loadCollections.removeListener(_listener);
     super.dispose();
-  }
-
-  List<ItemFile> _files = [];
-
-  void _handleFiles(List<ItemFile?> files) {
-    setState(() {
-      if (files.isNotEmpty) {
-        _files = files.nonNulls.toList();
-      }
-    });
   }
 
   @override
@@ -67,60 +56,8 @@ class _CollectionsScreenState extends State<CollectionsScreen> {
                         ),
                         child: Padding(
                           padding: EdgeInsets.all(12.0),
-                          child: Column(
-                            mainAxisSize: MainAxisSize.min,
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Row(
-                                children: [
-                                  Text(
-                                    "Create a collection".toUpperCase(),
-                                    style: TextStyle(
-                                      fontSize: 16,
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                              SizedBox(height: 15),
-                              TextFormField(
-                                decoration: InputDecoration(
-                                  border: const UnderlineInputBorder(),
-                                  labelText: 'Collection name',
-                                ),
-                              ),
-                              SizedBox(height: 15),
-                              Row(
-                                children: [
-                                  TextButton.icon(
-                                    onPressed: () async {
-                                      var pickedFiles = await FileItemPicker()
-                                          .pickFiles();
-                                      switch (pickedFiles) {
-                                        case Ok<List<ItemFile?>>():
-                                          _handleFiles(pickedFiles.value);
-                                        case Error<List<ItemFile?>>():
-                                          throw UnimplementedError();
-                                      }
-                                    },
-                                    label: Text('...browse'),
-                                  ),
-                                ],
-                              ),
-                              SizedBox(height: 15),
-                              Row(
-                                children: [
-                                  TextButton(
-                                    onPressed: () => Navigator.pop(context),
-                                    child: Text('Create'),
-                                  ),
-                                  TextButton(
-                                    onPressed: () => Navigator.pop(context),
-                                    child: Text('Cancel'),
-                                  ),
-                                ],
-                              ),
-                            ],
+                          child: CollectionForm(
+                            notifier: widget.screenNotifier,
                           ),
                         ),
                       ),
