@@ -1,4 +1,4 @@
-import 'package:alexandria/collections/ui/add_collection_screen.dart';
+import 'package:alexandria/collections/ui/add_collection_dialog.dart';
 import 'package:flutter/material.dart';
 
 import '../../common/error_indicator.dart';
@@ -55,7 +55,7 @@ class _CollectionsScreenState extends State<CollectionsScreen> {
                             icon: Icon(Icons.close),
                           ),
                           body: SafeArea(
-                            child: AddCollectionScreen(
+                            child: AddCollectionDialog(
                               screenNotifier: widget.screenNotifier,
                             ),
                           ),

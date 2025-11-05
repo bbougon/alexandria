@@ -8,15 +8,15 @@ import '../../common/result.dart';
 import '../collections.dart';
 import '../domain/item_picker.dart';
 
-class AddCollectionScreen extends StatefulWidget {
+class AddCollectionDialog extends StatefulWidget {
   final CollectionsScreenNotifier screenNotifier;
 
-  AddCollectionScreen({super.key, required this.screenNotifier});
+  AddCollectionDialog({super.key, required this.screenNotifier});
   @override
-  State<StatefulWidget> createState() => _AddCollectionScreenState();
+  State<StatefulWidget> createState() => _AddCollectionDialogState();
 }
 
-class _AddCollectionScreenState extends State<AddCollectionScreen> {
+class _AddCollectionDialogState extends State<AddCollectionDialog> {
   List<ItemFile> _files = [];
 
   void _handleFiles(List<ItemFile?> files) {
