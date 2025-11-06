@@ -68,46 +68,57 @@ class _CollectionsScreenState extends State<CollectionsScreen> {
                 ),
               ],
             ),
-            Expanded(
-              child: Column(
+            Flexible(
+              child: Row(
                 children: [
                   Expanded(
-                    child: Row(
+                    flex: 1,
+                    child: Column(
                       children: [
                         Expanded(
-                          child: ListenableBuilder(
-                            listenable: Listenable.merge([
-                              widget.screenNotifier.loadCollections,
-                              widget.screenNotifier.addItem,
-                            ]),
-                            builder: (context, child) {
-                              if (widget
-                                  .screenNotifier
-                                  .loadCollections
-                                  .running) {
-                                return const Center(
-                                  child: CircularProgressIndicator(),
-                                );
-                              }
-                              if (widget.screenNotifier.loadCollections.error) {
-                                return Center(
-                                  child: ErrorIndicator(
-                                    title: 'Erreur',
-                                    label: 'Erreur',
-                                    onPressed: () => {},
+                          child: Row(
+                            children: [
+                              Expanded(
+                                child: ListenableBuilder(
+                                  listenable: Listenable.merge([
+                                    widget.screenNotifier.loadCollections,
+                                    widget.screenNotifier.addItem,
+                                  ]),
+                                  builder: (context, child) {
+                                    if (widget
+                                        .screenNotifier
+                                        .loadCollections
+                                        .running) {
+                                      return const Center(
+                                        child: CircularProgressIndicator(),
+                                      );
+                                    }
+                                    if (widget
+                                        .screenNotifier
+                                        .loadCollections
+                                        .error) {
+                                      return Center(
+                                        child: ErrorIndicator(
+                                          title: 'Erreur',
+                                          label: 'Erreur',
+                                          onPressed: () => {},
+                                        ),
+                                      );
+                                    }
+                                    return child!;
+                                  },
+                                  child: CollectionsBody(
+                                    screenNotifier: widget.screenNotifier,
                                   ),
-                                );
-                              }
-                              return child!;
-                            },
-                            child: CollectionsBody(
-                              screenNotifier: widget.screenNotifier,
-                            ),
+                                ),
+                              ),
+                            ],
                           ),
                         ),
                       ],
                     ),
                   ),
+                  Expanded(flex: 9, child: Text("COLLECTION DETAILS")),
                 ],
               ),
             ),
