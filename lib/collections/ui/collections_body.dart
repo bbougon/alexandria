@@ -23,7 +23,7 @@ class CollectionsBody extends StatelessWidget {
                 return _Collection(collection: collection);
               }, childCount: collections.length),
             ),
-            const SliverToBoxAdapter(child: SizedBox(height: 200)),
+            SliverToBoxAdapter(child: SizedBox(height: 100, width: 200)),
           ],
         );
       },
@@ -39,10 +39,9 @@ class _Collection extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: EdgeInsets.only(top: 24, left: 24, right: 24),
+      padding: EdgeInsets.only(top: 16, left: 16, right: 16),
       child: Row(
         children: [
-          const SizedBox(width: 20),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -58,6 +57,7 @@ class _Collection extends StatelessWidget {
                   overflow: TextOverflow.ellipsis,
                   style: Theme.of(context).textTheme.bodyMedium,
                 ),
+                Divider(height: 8, thickness: 2.0),
               ],
             ),
           ),
