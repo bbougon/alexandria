@@ -2,8 +2,8 @@ import 'package:alexandria/collections/ui/collection_form.dart';
 import 'package:flutter/material.dart';
 
 import '../../common/error_indicator.dart';
+import '../domain/collections_screen_notifier.dart';
 import 'collections_body.dart';
-import 'collections_screen_notifier.dart';
 
 class CollectionsScreen extends StatefulWidget {
   const CollectionsScreen({super.key, required this.screenNotifier});

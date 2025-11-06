@@ -1,5 +1,5 @@
 import 'package:alexandria/collections/collections.dart';
-import 'package:alexandria/collections/ui/collections_screen_notifier.dart';
+import 'package:alexandria/collections/domain/collections_screen_notifier.dart';
 import 'package:flutter/material.dart';
 import 'package:logging/logging.dart';
 import 'package:provider/provider.dart';

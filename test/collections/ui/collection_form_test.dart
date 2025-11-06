@@ -1,7 +1,7 @@
 import 'package:alexandria/collections/collections.dart';
+import 'package:alexandria/collections/domain/collections_screen_notifier.dart';
 import 'package:alexandria/collections/domain/item_picker.dart';
 import 'package:alexandria/collections/ui/collection_form.dart';
-import 'package:alexandria/collections/ui/collections_screen_notifier.dart';
 import 'package:alexandria/common/result.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
