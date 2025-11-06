@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 
 import '../../common/result.dart';
+import '../domain/collections_screen_notifier.dart';
 import '../domain/item_picker.dart';
-import 'collections_screen_notifier.dart';
 
 class CollectionForm extends StatefulWidget {
   final CollectionsScreenNotifier notifier;

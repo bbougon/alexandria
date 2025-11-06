@@ -1,12 +1,18 @@
+import 'package:uuid/uuid.dart';
+
 import '../common/result.dart';
 import 'domain/item_picker.dart';
 
 class Collection {
   final String _name;
   final List<CollectionItem> _items;
+  late final String _id;
 
-  Collection(this._name, this._items);
+  Collection(this._name, this._items) {
+    _id = Uuid().v4();
+  }
 
+  String get id => _id;
   String get name => _name;
   List<CollectionItem> get items => _items;
 }
