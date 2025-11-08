@@ -1,4 +1,5 @@
 import 'package:alexandria/collections/ui/collection_form.dart';
+import 'package:alexandria/collections/ui/collection_items.dart';
 import 'package:flutter/material.dart';
 
 import '../../common/error_indicator.dart';
@@ -126,7 +127,19 @@ class _CollectionsScreenState extends State<CollectionsScreen> {
                   ),
                   Expanded(
                     flex: 9,
-                    child: Text(_selectedCollection?.items[0].name ?? 'Test'),
+                    child: Row(
+                      children: [
+                        Expanded(
+                          flex: 1,
+                          child: Column(
+                            children: [
+                              CollectionScreen(collection: _selectedCollection),
+                            ],
+                          ),
+                        ),
+                        Expanded(flex: 9, child: Column()),
+                      ],
+                    ),
                   ),
                 ],
               ),
