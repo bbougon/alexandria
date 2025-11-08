@@ -6,7 +6,7 @@ import 'package:alexandria/common/result.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
-import '../domain/item_picker_test.dart';
+import '../domain/builders.dart';
 import '../infra/collections_memory_repository.dart';
 
 class CollectionFormWrapper extends StatelessWidget {
