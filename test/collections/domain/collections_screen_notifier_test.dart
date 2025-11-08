@@ -4,7 +4,7 @@ import 'package:alexandria/collections/domain/item_picker.dart';
 import 'package:alexandria/common/result.dart';
 import 'package:flutter_test/flutter_test.dart';
 
-import '../ui/collection_form_test.dart';
+import '../infra/collections_memory_repository.dart';
 
 void main() {
   test('Collections notifier', () async {

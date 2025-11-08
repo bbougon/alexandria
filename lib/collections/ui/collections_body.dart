@@ -3,9 +3,14 @@ import 'package:alexandria/collections/domain/collections_screen_notifier.dart';
 import 'package:flutter/material.dart';
 
 class CollectionsBody extends StatelessWidget {
-  CollectionsBody({super.key, required this.screenNotifier});
+  CollectionsBody({
+    super.key,
+    required this.screenNotifier,
+    required this.onSelectedCollection,
+  });
 
   final CollectionsScreenNotifier screenNotifier;
+  final ValueChanged<String> onSelectedCollection;
 
   @override
   Widget build(BuildContext context) {
@@ -20,7 +25,12 @@ class CollectionsBody extends StatelessWidget {
             SliverList(
               delegate: SliverChildBuilderDelegate((context, index) {
                 final collection = collections[index];
-                return _Collection(collection: collection);
+                return GestureDetector(
+                  onTap: () {
+                    onSelectedCollection(collection.id);
+                  },
+                  child: _Collection(collection: collection),
+                );
               }, childCount: collections.length),
             ),
             SliverToBoxAdapter(child: SizedBox(height: 100, width: 200)),
