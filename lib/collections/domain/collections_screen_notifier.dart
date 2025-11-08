@@ -56,4 +56,14 @@ class CollectionsScreenNotifier extends ChangeNotifier {
     notifyListeners();
     return _collectionsRepository.add(Collection(collectionName, items));
   }
+
+  Future<Collection> getCollection(String collectionId) async {
+    var result = await _collectionsRepository.getCollection(collectionId);
+    switch (result) {
+      case Ok<Collection>():
+        return result.value;
+      case Error<Collection>():
+        throw UnimplementedError("Something wrong");
+    }
+  }
 }

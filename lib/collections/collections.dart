@@ -37,4 +37,6 @@ abstract class CollectionsRepository {
   Future<Result<List<Collection>>> all();
 
   Future<Result<void>> add(Collection collection);
+
+  Future<Result<Collection>> getCollection(String collectionId);
 }

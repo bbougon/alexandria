@@ -7,24 +7,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import '../domain/item_picker_test.dart';
-
-class CollectionsMemoryRepository implements CollectionsRepository {
-  List<Collection> _collections = [];
-
-  @override
-  Future<Result<void>> add(Collection collection) async {
-    _collections.add(collection);
-    return Result.ok(null);
-  }
-
-  @override
-  Future<Result<List<Collection>>> all() async {
-    return Result.ok(_collections);
-  }
-}
+import '../infra/collections_memory_repository.dart';
 
 class CollectionFormWrapper extends StatelessWidget {
-  CollectionForm collectionForm;
+  final CollectionForm collectionForm;
 
   CollectionFormWrapper({required this.collectionForm});
 

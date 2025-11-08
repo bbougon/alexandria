@@ -2,6 +2,7 @@ import 'package:alexandria/collections/ui/collection_form.dart';
 import 'package:flutter/material.dart';
 
 import '../../common/error_indicator.dart';
+import '../collections.dart';
 import '../domain/collections_screen_notifier.dart';
 import 'collections_body.dart';
 
@@ -15,6 +16,8 @@ class CollectionsScreen extends StatefulWidget {
 }
 
 class _CollectionsScreenState extends State<CollectionsScreen> {
+  Collection? _selectedCollection;
+
   @override
   void initState() {
     super.initState();
@@ -109,6 +112,9 @@ class _CollectionsScreenState extends State<CollectionsScreen> {
                                   },
                                   child: CollectionsBody(
                                     screenNotifier: widget.screenNotifier,
+                                    onSelectedCollection:
+                                        (String collectionId) =>
+                                            _onSelectedCollection(collectionId),
                                   ),
                                 ),
                               ),
@@ -118,7 +124,10 @@ class _CollectionsScreenState extends State<CollectionsScreen> {
                       ],
                     ),
                   ),
-                  Expanded(flex: 9, child: Text("COLLECTION DETAILS")),
+                  Expanded(
+                    flex: 9,
+                    child: Text(_selectedCollection?.items[0].name ?? 'Test'),
+                  ),
                 ],
               ),
             ),
@@ -141,5 +150,14 @@ class _CollectionsScreenState extends State<CollectionsScreen> {
         ),
       );
     }
+  }
+
+  void _onSelectedCollection(String collectionId) async {
+    Collection collection = await widget.screenNotifier.getCollection(
+      collectionId,
+    );
+    setState(() {
+      _selectedCollection = collection;
+    });
   }
 }
