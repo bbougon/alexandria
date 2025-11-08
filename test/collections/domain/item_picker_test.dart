@@ -4,6 +4,8 @@ import 'package:file_picker/file_picker.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_test/flutter_test.dart';
 
+import 'builders.dart';
+
 void main() {
   test('FileItemPicker should return files', () async {
     var filesResult = await FileItemPicker(
@@ -68,113 +70,4 @@ void main() {
       expect(filesResult.value[0]?.checksum, null);
     },
   );
-}
-
-class TestPickerResultBuilder {
-  String? _name;
-  String? _path;
-  int? _size;
-  Uint8List? _bytes;
-
-  TestPickerResultBuilder withName(String name) {
-    _name = name;
-    return this;
-  }
-
-  TestPickerResultBuilder withPath(String path) {
-    _path = path;
-    return this;
-  }
-
-  TestPickerResultBuilder withSize(int size) {
-    _size = size;
-    return this;
-  }
-
-  TestPickerResultBuilder withBytes(Uint8List bytes) {
-    _bytes = bytes;
-    return this;
-  }
-
-  TestPickerResult build() {
-    return TestPickerResult(
-      name: _name ?? 'A name',
-      size: _size ?? 3,
-      path: _path,
-      bytes: _bytes,
-    );
-  }
-}
-
-class TestPickerResult {
-  String _name = 'A name';
-  int _size = 1;
-  String? _path;
-  Uint8List? _bytes;
-  Stream<List<int>>? _readStream;
-
-  TestPickerResult({
-    required String name,
-    required int size,
-    String? path,
-    Uint8List? bytes,
-  }) : _name = name,
-       _size = size,
-       _path = path,
-       _bytes = bytes;
-
-  static PlatformFile aResult() {
-    return TestPickerResult(name: 'A name', size: 1).result();
-  }
-
-  PlatformFile result() {
-    return PlatformFile(
-      name: _name,
-      size: _size,
-      bytes: _bytes,
-      path: _path,
-      readStream: _readStream,
-    );
-  }
-}
-
-class TestPicker extends FilePicker {
-  final FilePickerResult? _filePickerResult;
-
-  TestPicker({FilePickerResult? filePickerResult})
-    : _filePickerResult = filePickerResult;
-
-  @override
-  Future<FilePickerResult?> pickFiles({
-    String? dialogTitle,
-    String? initialDirectory,
-    FileType type = FileType.any,
-    List<String>? allowedExtensions,
-    Function(FilePickerStatus)? onFileLoading,
-    @Deprecated(
-      'allowCompression is deprecated and has no effect. Use compressionQuality instead.',
-    )
-    bool allowCompression = false,
-    int compressionQuality = 0,
-    bool allowMultiple = false,
-    bool withData = false,
-    bool withReadStream = false,
-    bool lockParentWindow = false,
-    bool readSequential = false,
-  }) async {
-    return _filePickerResult;
-  }
-
-  static FilePicker? with2Files() {
-    return TestPicker(
-      filePickerResult: FilePickerResult([
-        TestPickerResult.aResult(),
-        TestPickerResult.aResult(),
-      ]),
-    );
-  }
-
-  static FilePicker? withNoFile() {
-    return TestPicker();
-  }
 }
