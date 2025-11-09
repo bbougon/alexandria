@@ -50,49 +50,66 @@ class _CollectionItemUpdateFormState extends State<CollectionItemUpdateForm> {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 6.0, horizontal: 8),
       child: SizedBox(
-        height: 200,
-        child: Row(
+        child: Column(
           spacing: 16,
           children: [
-            Flexible(
-              child: SizedBox(
-                width: 300,
-                child: VideoPlayerWidget(videoFile: widget.file.file),
-              ),
-            ),
-            SizedBox(
-              width: 300,
-              child: Column(
-                children: [
-                  CollectionName(
-                    textEditingController: widget._collectionNameController,
-                  ),
-                ],
-              ),
-            ),
-            SizedBox(
-              width: 300,
-              child: Column(
-                children: [
-                  Tags(controller: widget._tagsController),
-                  MetadataField(controller: widget._metadataController),
-                  Expanded(
-                    child: Align(
-                      alignment: Alignment.bottomRight,
-                      child: Row(
-                        crossAxisAlignment: CrossAxisAlignment.end,
-                        mainAxisAlignment: MainAxisAlignment.end,
-                        children: [
-                          ElevatedButton.icon(
-                            onPressed: () => _onChanged(),
-                            label: Text('Submit'),
-                            icon: Icon(Icons.send),
-                          ),
-                        ],
-                      ),
+            Row(
+              children: [
+                Flexible(
+                  flex: 10,
+                  child: Center(
+                    child: SizedBox(
+                      height: 400,
+                      width: 600,
+                      child: VideoPlayerWidget(videoFile: widget.file.file),
                     ),
                   ),
-                ],
+                ),
+              ],
+            ),
+            Row(
+              children: [
+                SizedBox(
+                  width: 300,
+                  child: Column(
+                    children: [
+                      CollectionName(
+                        textEditingController: widget._collectionNameController,
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+            Row(
+              spacing: 20,
+              mainAxisAlignment: MainAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Flexible(
+                  flex: 5,
+                  child: MetadataField(controller: widget._metadataController),
+                ),
+                Flexible(
+                  flex: 5,
+                  child: Tags(controller: widget._tagsController),
+                ),
+              ],
+            ),
+            Expanded(
+              child: Align(
+                alignment: Alignment.bottomRight,
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.end,
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
+                    ElevatedButton.icon(
+                      onPressed: () => _onChanged(),
+                      label: Text('Submit'),
+                      icon: Icon(Icons.send),
+                    ),
+                  ],
+                ),
               ),
             ),
           ],
@@ -176,7 +193,7 @@ class _TagsState extends State<Tags> {
           inputFieldBuilder: (context, inputFieldValues) => TextField(
             controller: inputFieldValues.textEditingController,
             focusNode: inputFieldValues.focusNode,
-            maxLines: 3,
+            maxLines: 5,
             decoration: InputDecoration(
               isDense: true,
               border: const OutlineInputBorder(
