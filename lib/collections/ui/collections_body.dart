@@ -2,7 +2,7 @@ import 'package:alexandria/collections/collections.dart';
 import 'package:alexandria/collections/domain/collections_screen_notifier.dart';
 import 'package:flutter/material.dart';
 
-class CollectionsBody extends StatelessWidget {
+class CollectionsBody extends StatefulWidget {
   CollectionsBody({
     super.key,
     required this.screenNotifier,
@@ -13,11 +13,18 @@ class CollectionsBody extends StatelessWidget {
   final ValueChanged<String> onSelectedCollection;
 
   @override
+  State<StatefulWidget> createState() => _CollectionsBodyState();
+}
+
+class _CollectionsBodyState extends State<CollectionsBody> {
+  Collection? _selectedCollection;
+
+  @override
   Widget build(BuildContext context) {
     return ListenableBuilder(
-      listenable: screenNotifier,
+      listenable: widget.screenNotifier,
       builder: (context, _) {
-        final collections = screenNotifier.collections;
+        final collections = widget.screenNotifier.collections;
         if (collections == null) return const SizedBox();
 
         return CustomScrollView(
@@ -27,9 +34,17 @@ class CollectionsBody extends StatelessWidget {
                 final collection = collections[index];
                 return GestureDetector(
                   onTap: () {
-                    onSelectedCollection(collection.id);
+                    widget.onSelectedCollection(collection.id);
+                    setState(() {
+                      _selectedCollection = collection;
+                    });
                   },
-                  child: _Collection(collection: collection),
+                  child: Container(
+                    color: collection == _selectedCollection
+                        ? Theme.of(context).colorScheme.inversePrimary
+                        : Theme.of(context).colorScheme.primaryContainer,
+                    child: _Collection(collection: collection),
+                  ),
                 );
               }, childCount: collections.length),
             ),
