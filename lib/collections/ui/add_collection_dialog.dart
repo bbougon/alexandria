@@ -1,12 +1,12 @@
 import 'dart:collection';
 
 import 'package:alexandria/collections/domain/collections_screen_notifier.dart';
-import 'package:alexandria/collections/ui/add_collection_form.dart';
 import 'package:flutter/material.dart';
 
 import '../../common/result.dart';
 import '../collections.dart';
 import '../domain/item_picker.dart';
+import 'collection_item_update_form.dart';
 
 class AddCollectionDialog extends StatefulWidget {
   final CollectionsScreenNotifier screenNotifier;
@@ -54,7 +54,7 @@ class _AddCollectionDialogState extends State<AddCollectionDialog> {
               itemCount: _files.length,
               itemBuilder: (context, index) {
                 final ItemFile file = _files[index];
-                return AddCollectionForm(
+                return CollectionItemUpdateForm(
                   file: file,
                   onChanged: (CollectionItem collectionItem) =>
                       widget.screenNotifier.addItem.execute(collectionItem),

@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import '../../common/error_indicator.dart';
 import '../collections.dart';
 import '../domain/collections_screen_notifier.dart';
+import 'collection_item_update_form.dart';
 import 'collections_body.dart';
 
 class CollectionsScreen extends StatefulWidget {
@@ -18,6 +19,7 @@ class CollectionsScreen extends StatefulWidget {
 
 class _CollectionsScreenState extends State<CollectionsScreen> {
   Collection? _selectedCollection;
+  CollectionItem? _selectedItem;
 
   @override
   void initState() {
@@ -29,6 +31,12 @@ class _CollectionsScreenState extends State<CollectionsScreen> {
   void dispose() {
     widget.screenNotifier.loadCollections.removeListener(_listener);
     super.dispose();
+  }
+
+  void _onSelectedItem(CollectionItem item) {
+    setState(() {
+      _selectedItem = item;
+    });
   }
 
   @override
@@ -130,14 +138,17 @@ class _CollectionsScreenState extends State<CollectionsScreen> {
                     child: Row(
                       children: [
                         Expanded(
-                          flex: 1,
+                          flex: 2,
                           child: Column(
                             children: [
-                              CollectionScreen(collection: _selectedCollection),
+                              CollectionScreen(
+                                collection: _selectedCollection,
+                                onSelectedItem: _onSelectedItem,
+                              ),
                             ],
                           ),
                         ),
-                        Expanded(flex: 9, child: Column()),
+                        Expanded(flex: 8, child: displayCollectionItemForm()),
                       ],
                     ),
                   ),
@@ -148,6 +159,18 @@ class _CollectionsScreenState extends State<CollectionsScreen> {
         ),
       ),
     );
+  }
+
+  Widget displayCollectionItemForm() {
+    final selectedItem = _selectedItem;
+    if (selectedItem != null) {
+      return CollectionItemUpdateForm(
+        file: selectedItem.file,
+        onChanged: (CollectionItem collectionItem) =>
+            widget.screenNotifier.addItem.execute(collectionItem),
+      );
+    }
+    return Column();
   }
 
   void _listener() {

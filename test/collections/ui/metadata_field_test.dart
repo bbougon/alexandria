@@ -1,4 +1,4 @@
-import 'package:alexandria/collections/ui/add_collection_form.dart';
+import 'package:alexandria/collections/ui/collection_item_update_form.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 

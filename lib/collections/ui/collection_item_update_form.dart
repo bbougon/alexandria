@@ -9,24 +9,28 @@ import '../../video/video_player.dart';
 import '../domain/item_picker.dart';
 import 'text_field_tags.dart';
 
-class AddCollectionForm extends StatefulWidget {
+class CollectionItemUpdateForm extends StatefulWidget {
   final ItemFile file;
   late final TextEditingController _collectionNameController;
   late final MetadataController _metadataController;
   late final StringTagController<String> _tagsController;
   final ValueChanged<CollectionItem> onChanged;
 
-  AddCollectionForm({super.key, required this.file, required this.onChanged}) {
+  CollectionItemUpdateForm({
+    super.key,
+    required this.file,
+    required this.onChanged,
+  }) {
     _collectionNameController = TextEditingController(text: file.name);
     _metadataController = MetadataController();
     _tagsController = StringTagController();
   }
 
   @override
-  State<StatefulWidget> createState() => _AddCollectionFormState();
+  State<StatefulWidget> createState() => _CollectionItemUpdateFormState();
 }
 
-class _AddCollectionFormState extends State<AddCollectionForm> {
+class _CollectionItemUpdateFormState extends State<CollectionItemUpdateForm> {
   late CollectionItem _collectionItem;
 
   void _onChanged() {
