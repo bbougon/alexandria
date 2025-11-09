@@ -45,6 +45,8 @@ class _CollectionBody extends StatefulWidget {
 }
 
 class _CollectionBodyState extends State<_CollectionBody> {
+  CollectionItem? _selectedItem;
+
   @override
   Widget build(BuildContext context) {
     return CustomScrollView(
@@ -55,8 +57,16 @@ class _CollectionBodyState extends State<_CollectionBody> {
             return GestureDetector(
               onTap: () {
                 widget.onSelectedItem(item!);
+                setState(() {
+                  _selectedItem = item;
+                });
               },
-              child: _Item(item: item),
+              child: Container(
+                color: item == _selectedItem
+                    ? Theme.of(context).colorScheme.inversePrimary
+                    : Theme.of(context).colorScheme.primaryContainer,
+                child: _Item(item: item),
+              ),
             );
           }, childCount: widget.collection?.items.length ?? 0),
         ),
