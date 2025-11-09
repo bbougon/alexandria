@@ -25,6 +25,17 @@ class _VideoPlayerState extends State<VideoPlayerWidget> {
   }
 
   @override
+  void didUpdateWidget(VideoPlayerWidget oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    _controller.pause();
+    _controller.dispose();
+    _controller = VideoPlayerController.file(widget.videoFile)
+      ..initialize().then((_) {
+        setState(() {});
+      });
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Stack(
       fit: StackFit.expand,

@@ -4,8 +4,13 @@ import '../collections.dart';
 
 class CollectionScreen extends StatefulWidget {
   final Collection? collection;
+  final ValueChanged<CollectionItem> onSelectedItem;
 
-  CollectionScreen({super.key, required this.collection});
+  CollectionScreen({
+    super.key,
+    required this.collection,
+    required this.onSelectedItem,
+  });
 
   @override
   State<StatefulWidget> createState() => _CollectionScreenState();
@@ -20,7 +25,10 @@ class _CollectionScreenState extends State<CollectionScreen> {
         builder: (context, child) {
           return child!;
         },
-        child: _CollectionBody(collection: widget.collection),
+        child: _CollectionBody(
+          collection: widget.collection,
+          onSelectedItem: widget.onSelectedItem,
+        ),
       ),
     );
   }
@@ -28,8 +36,9 @@ class _CollectionScreenState extends State<CollectionScreen> {
 
 class _CollectionBody extends StatefulWidget {
   final Collection? collection;
+  final ValueChanged<CollectionItem> onSelectedItem;
 
-  _CollectionBody({super.key, required this.collection});
+  _CollectionBody({required this.collection, required this.onSelectedItem});
 
   @override
   State<StatefulWidget> createState() => _CollectionBodyState();
@@ -45,11 +54,7 @@ class _CollectionBodyState extends State<_CollectionBody> {
             final item = widget.collection?.items[index];
             return GestureDetector(
               onTap: () {
-                showDialog(
-                  context: context,
-                  builder: (BuildContext context) =>
-                      AlertDialog(content: Text(item?.name ?? 'rien')),
-                );
+                widget.onSelectedItem(item!);
               },
               child: _Item(item: item),
             );
