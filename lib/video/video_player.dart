@@ -41,7 +41,10 @@ class _VideoPlayerState extends State<VideoPlayerWidget> {
       fit: StackFit.expand,
       children: [
         _controller.value.isInitialized
-            ? VideoPlayer(_controller)
+            ? AspectRatio(
+                aspectRatio: _controller.value.aspectRatio,
+                child: VideoPlayer(_controller),
+              )
             : Container(),
         Align(
           alignment: Alignment(0, 0),
