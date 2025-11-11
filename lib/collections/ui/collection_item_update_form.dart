@@ -1,5 +1,3 @@
-import 'dart:collection';
-
 import 'package:alexandria/collections/collections.dart';
 import 'package:alexandria/collections/ui/text_field_tags_controller.dart';
 import 'package:flutter/material.dart';
@@ -29,6 +27,8 @@ class CollectionItemUpdateForm extends StatefulWidget {
   @override
   State<StatefulWidget> createState() => _CollectionItemUpdateFormState();
 }
+
+const List<String> metadataKeys = <String>['Author', 'Style', 'Title'];
 
 class _CollectionItemUpdateFormState extends State<CollectionItemUpdateForm> {
   late CollectionItem _collectionItem;
@@ -87,11 +87,22 @@ class _CollectionItemUpdateFormState extends State<CollectionItemUpdateForm> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Flexible(
-                  flex: 5,
-                  child: MetadataField(controller: widget._metadataController),
+                  flex: 3,
+                  fit: FlexFit.loose,
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      ...metadataKeys.map(
+                        (key) => MetadataField(
+                          keyName: key,
+                          controller: widget._metadataController,
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
                 Flexible(
-                  flex: 5,
+                  flex: 7,
                   child: Tags(controller: widget._tagsController),
                 ),
               ],
@@ -135,27 +146,14 @@ class _CollectionNameState extends State<CollectionName> {
       children: [
         Flexible(
           child: Column(
-            spacing: 1,
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: [
-              Wrap(
-                spacing: 10,
-                children: [
-                  Padding(
-                    padding: const EdgeInsets.symmetric(
-                      vertical: 10.0,
-                      horizontal: 8,
-                    ),
-                    child: TextFormField(
-                      controller: widget.textEditingController,
-                      style: TextStyle(fontSize: 14),
-                      decoration: InputDecoration(
-                        border: const UnderlineInputBorder(),
-                        labelText: 'Name',
-                      ),
-                    ),
-                  ),
-                ],
+              TextFormField(
+                controller: widget.textEditingController,
+                style: TextStyle(fontSize: 14),
+                decoration: InputDecoration(
+                  border: const UnderlineInputBorder(),
+                  labelText: 'Name',
+                ),
               ),
             ],
           ),
@@ -294,84 +292,34 @@ class MetadataController extends ChangeNotifier {
 
 class MetadataField extends StatefulWidget {
   final MetadataController controller;
+  final String keyName;
 
-  MetadataField({super.key, required this.controller});
+  MetadataField({super.key, required this.controller, required this.keyName});
 
   @override
   State<StatefulWidget> createState() => _MetadataFieldState();
 }
 
 class _MetadataFieldState extends State<MetadataField> {
-  TextEditingController _metadataKeyController = TextEditingController();
   TextEditingController _metadataValueController = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
-    return Row(
+    return Column(
       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
       children: [
-        MetadataDropDownMenu(controller: _metadataKeyController),
-        Spacer(flex: 1),
-        Flexible(
-          flex: 2,
-          child: TextFormField(
-            key: Key('metadata-field-value'),
-            controller: _metadataValueController,
-            decoration: InputDecoration(
-              border: const UnderlineInputBorder(),
-              labelText: 'Value',
-            ),
-            onChanged: (value) => widget.controller.addMetadata(
-              Metadata(
-                _metadataKeyController.text,
-                _metadataValueController.text,
-              ),
-            ),
+        TextFormField(
+          key: Key('metadata-field-value-${widget.keyName.toLowerCase()}'),
+          controller: _metadataValueController,
+          decoration: InputDecoration(
+            border: const UnderlineInputBorder(),
+            labelText: widget.keyName,
+          ),
+          onChanged: (value) => widget.controller.addMetadata(
+            Metadata(widget.keyName, _metadataValueController.text),
           ),
         ),
       ],
-    );
-  }
-}
-
-class MetadataDropDownMenu extends StatefulWidget {
-  final TextEditingController controller;
-
-  const MetadataDropDownMenu({super.key, required this.controller});
-
-  @override
-  State<MetadataDropDownMenu> createState() => _MetadataDropDownMenuState();
-}
-
-typedef MetadataEntry = DropdownMenuEntry<String>;
-const List<String> list = <String>['Author', 'Style'];
-
-class _MetadataDropDownMenuState extends State<MetadataDropDownMenu> {
-  static final List<MetadataEntry> menuEntries =
-      UnmodifiableListView<MetadataEntry>(
-        list.map<MetadataEntry>(
-          (String name) => MetadataEntry(value: name, label: name),
-        ),
-      );
-  String dropdownValue = list.first;
-
-  @override
-  Widget build(BuildContext context) {
-    return IconTheme(
-      data: const IconThemeData(size: 8),
-      child: DropdownMenu<String>(
-        key: Key('metadata-field-key'),
-        initialSelection: list.first,
-        controller: widget.controller,
-        onSelected: (value) => setState(() => dropdownValue = value!),
-        dropdownMenuEntries: menuEntries,
-        textStyle: const TextStyle(fontSize: 14),
-        inputDecorationTheme: const InputDecorationTheme(
-          isDense: true,
-          suffixIconConstraints: BoxConstraints(minWidth: 8, minHeight: 8),
-          border: OutlineInputBorder(),
-        ),
-      ),
     );
   }
 }
