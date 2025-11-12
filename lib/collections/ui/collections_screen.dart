@@ -164,8 +164,12 @@ class _CollectionsScreenState extends State<CollectionsScreen> {
   Widget displayCollectionItemForm() {
     final selectedItem = _selectedItem;
     if (selectedItem != null) {
+      var selectedItemIndex = _selectedCollection?.items.indexOf(selectedItem);
       return CollectionItemUpdateForm(
-        file: selectedItem.file,
+        key: Key(
+          'collection-item-update-form-${_selectedCollection?.id}-$selectedItemIndex',
+        ),
+        item: selectedItem,
         onChanged: (CollectionItem collectionItem) =>
             widget.screenNotifier.addItem.execute(collectionItem),
       );

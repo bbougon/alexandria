@@ -4,11 +4,10 @@ import 'package:flutter/material.dart';
 
 import '../../common/colors.dart';
 import '../../video/video_player.dart';
-import '../domain/item_picker.dart';
 import 'text_field_tags.dart';
 
 class CollectionItemUpdateForm extends StatefulWidget {
-  final ItemFile file;
+  final CollectionItem item;
   late final TextEditingController _collectionNameController;
   late final MetadataController _metadataController;
   late final StringTagController<String> _tagsController;
@@ -16,10 +15,10 @@ class CollectionItemUpdateForm extends StatefulWidget {
 
   CollectionItemUpdateForm({
     super.key,
-    required this.file,
+    required this.item,
     required this.onChanged,
   }) {
-    _collectionNameController = TextEditingController(text: file.name);
+    _collectionNameController = TextEditingController(text: item.name);
     _metadataController = MetadataController();
     _tagsController = StringTagController();
   }
@@ -36,7 +35,7 @@ class _CollectionItemUpdateFormState extends State<CollectionItemUpdateForm> {
   void _onChanged() {
     setState(() {
       _collectionItem = CollectionItem(
-        file: widget.file,
+        file: widget.item.file,
         name: widget._collectionNameController.text,
         metadata: widget._metadataController.metadata,
         tags: widget._tagsController.getTags ?? [],
@@ -61,7 +60,9 @@ class _CollectionItemUpdateFormState extends State<CollectionItemUpdateForm> {
                     child: SizedBox(
                       height: 400,
                       width: 600,
-                      child: VideoPlayerWidget(videoFile: widget.file.file),
+                      child: VideoPlayerWidget(
+                        videoFile: widget.item.file.file,
+                      ),
                     ),
                   ),
                 ),
@@ -95,6 +96,7 @@ class _CollectionItemUpdateFormState extends State<CollectionItemUpdateForm> {
                       ...metadataKeys.map(
                         (key) => MetadataField(
                           keyName: key,
+                          initialValue: widget.item.metadata[key],
                           controller: widget._metadataController,
                         ),
                       ),
@@ -103,7 +105,10 @@ class _CollectionItemUpdateFormState extends State<CollectionItemUpdateForm> {
                 ),
                 Flexible(
                   flex: 7,
-                  child: Tags(controller: widget._tagsController),
+                  child: Tags(
+                    initialTags: widget.item.tags,
+                    controller: widget._tagsController,
+                  ),
                 ),
               ],
             ),
@@ -165,8 +170,9 @@ class _CollectionNameState extends State<CollectionName> {
 
 class Tags extends StatefulWidget {
   final StringTagController controller;
+  final List<String>? initialTags;
 
-  Tags({super.key, required this.controller});
+  Tags({super.key, required this.controller, this.initialTags});
 
   @override
   State<StatefulWidget> createState() => _TagsState();
@@ -187,6 +193,7 @@ class _TagsState extends State<Tags> {
       children: [
         TextFieldTags(
           textfieldTagsController: widget.controller,
+          initialTags: widget.initialTags,
           textSeparators: const [' ', ','],
           inputFieldBuilder: (context, inputFieldValues) => TextField(
             controller: inputFieldValues.textEditingController,
@@ -293,15 +300,27 @@ class MetadataController extends ChangeNotifier {
 class MetadataField extends StatefulWidget {
   final MetadataController controller;
   final String keyName;
+  final String? initialValue;
 
-  MetadataField({super.key, required this.controller, required this.keyName});
+  MetadataField({
+    super.key,
+    required this.controller,
+    required this.keyName,
+    this.initialValue,
+  });
 
   @override
   State<StatefulWidget> createState() => _MetadataFieldState();
 }
 
 class _MetadataFieldState extends State<MetadataField> {
-  TextEditingController _metadataValueController = TextEditingController();
+  TextEditingController? _metadataValueController;
+
+  @override
+  void initState() {
+    _metadataValueController = TextEditingController(text: widget.initialValue);
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -316,7 +335,7 @@ class _MetadataFieldState extends State<MetadataField> {
             labelText: widget.keyName,
           ),
           onChanged: (value) => widget.controller.addMetadata(
-            Metadata(widget.keyName, _metadataValueController.text),
+            Metadata(widget.keyName, _metadataValueController!.text),
           ),
         ),
       ],
