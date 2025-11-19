@@ -1,3 +1,4 @@
+import 'package:alexandria/collections/domain/collections_screen_notifier.dart';
 import 'package:uuid/uuid.dart';
 
 import '../common/result.dart';
@@ -18,11 +19,12 @@ class Collection {
 }
 
 typedef Tags = List<String>;
+typedef Metadata = Map<String, String>;
 
 class CollectionItem {
   final ItemFile file;
   final String name;
-  final Map<String, String> metadata;
+  final Metadata metadata;
   final Tags tags;
 
   CollectionItem({
@@ -31,6 +33,15 @@ class CollectionItem {
     required this.metadata,
     required this.tags,
   });
+
+  CollectionItem newItemWith(CollectionItemUpdate collectionItemUpdate) {
+    return CollectionItem(
+      file: file,
+      metadata: collectionItemUpdate.metadata,
+      tags: collectionItemUpdate.tags,
+      name: collectionItemUpdate.name,
+    );
+  }
 }
 
 abstract class CollectionsRepository {
