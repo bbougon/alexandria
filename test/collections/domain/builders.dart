@@ -10,7 +10,7 @@ abstract class Builder<T> {
 }
 
 class CollectionBuilder implements Builder<Collection> {
-  late String _name;
+  late String _name = faker.lorem.word();
   List<CollectionItem> _items = [];
 
   CollectionBuilder withName(String name) {

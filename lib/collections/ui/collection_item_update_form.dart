@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 
 import '../../common/colors.dart';
 import '../../video/video_player.dart';
+import '../domain/collections_screen_notifier.dart';
 import 'text_field_tags.dart';
 
 class CollectionItemUpdateForm extends StatefulWidget {
@@ -11,7 +12,7 @@ class CollectionItemUpdateForm extends StatefulWidget {
   late final TextEditingController _collectionNameController;
   late final MetadataController _metadataController;
   late final StringTagController<String> _tagsController;
-  final ValueChanged<CollectionItem> onChanged;
+  final ValueChanged<CollectionItemUpdate> onChanged;
 
   CollectionItemUpdateForm({
     super.key,
@@ -30,18 +31,14 @@ class CollectionItemUpdateForm extends StatefulWidget {
 const List<String> metadataKeys = <String>['Author', 'Style', 'Title'];
 
 class _CollectionItemUpdateFormState extends State<CollectionItemUpdateForm> {
-  late CollectionItem _collectionItem;
-
   void _onChanged() {
-    setState(() {
-      _collectionItem = CollectionItem(
-        file: widget.item.file,
+    widget.onChanged(
+      CollectionItemUpdate(
         name: widget._collectionNameController.text,
         metadata: widget._metadataController.metadata,
         tags: widget._tagsController.getTags ?? [],
-      );
-    });
-    widget.onChanged(_collectionItem);
+      ),
+    );
   }
 
   @override

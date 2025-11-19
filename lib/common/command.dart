@@ -20,7 +20,7 @@ abstract class Command<T> extends ChangeNotifier {
 
   bool get completed => _result is Ok;
 
-  Result? get result => _result;
+  Result<T>? get result => _result;
 
   void clearResult() {
     _result = null;

@@ -170,8 +170,14 @@ class _CollectionsScreenState extends State<CollectionsScreen> {
           'collection-item-update-form-${_selectedCollection?.id}-$selectedItemIndex',
         ),
         item: selectedItem,
-        onChanged: (CollectionItem collectionItem) =>
-            widget.screenNotifier.addItem.execute(collectionItem),
+        onChanged: (CollectionItemUpdate collectionItemUpdate) =>
+            widget.screenNotifier.updateCollectionItem.execute(
+              UpdateCollectionItemCommand(
+                collectionToBeUpdated: _selectedCollection!,
+                collectionItemToBeUpdated: selectedItem,
+                collectionItemUpdate: collectionItemUpdate,
+              ),
+            ),
       );
     }
     return Column();
