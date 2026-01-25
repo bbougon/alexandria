@@ -1,0 +1,9 @@
+{
+  "extends": "../tsconfig.json",
+  "include": ["**/*.spec.ts", "../src/**/*.ts"],
+  "compilerOptions": {
+    "rootDir": "../",
+    "types": ["vitest/globals"],
+    "allowImportingTsExtensions": true
+  }
+}
