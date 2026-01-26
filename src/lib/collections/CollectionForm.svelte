@@ -3,7 +3,8 @@
   import { invoke } from '@tauri-apps/api/core';
   import { listen } from '@tauri-apps/api/event';
   import { videos } from './videos.svelte';
-  import { toVideo } from './video';
+  import { toVideo, type Video } from './video';
+  import VideoForm from './VideoForm.svelte';
 
   type ThumbnailProgress = {
     index: number;
@@ -14,13 +15,24 @@
     size_bytes?: number;
   };
 
-  let selectedPath: string[] | null = null;
+  let selectedPath: string[] = $state([]);
+  let drawerOpen = $state(false);
+  let activeVideo: Video | null = $state(null);
+
+  const openDetails = (v: Video) => {
+    activeVideo = v;
+    drawerOpen = true;
+  };
+
+  $effect(() => {
+    console.log(`VIDEO en édition : ${JSON.stringify(activeVideo)}`);
+  });
 
   const pickVideo = async () => {
     const result = await open({
       multiple: true,
       directory: false,
-      filters: [{ name: 'Vidéos', extensions: ['mp4', 'mov', 'mkv', 'webm'] }],
+      filters: [{ name: 'Videos', extensions: ['mp4', 'mov', 'mkv', 'webm'] }],
     });
 
     if (result !== null) {
@@ -34,7 +46,7 @@
   };
 
   const processVideo = async () => {
-    if (!selectedPath) return;
+    if (selectedPath.length === 0) return;
     const unlisten = await listen<ThumbnailProgress>('thumbnail:progress', (e) => {
       const p = e.payload;
 
@@ -56,7 +68,7 @@
 <div class="px-4 sm:px-6 lg:px-8">
   <button
     type="button"
-    on:click={pickVideo}
+    onclick={pickVideo}
     class="inline-flex items-center gap-x-2 rounded-md bg-gray-600 px-3.5 py-2.5 text-sm font-semibold text-white shadow-xs hover:bg-gray-500 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gray-600 dark:bg-gray-500 dark:shadow-none dark:hover:bg-gray-400 dark:focus-visible:outline-gray-500"
   >
     <svg
@@ -75,39 +87,46 @@
   </button>
 
   <div class="mt-4">
-    {#if selectedPath}
-      <ul
-        role="list"
-        class="grid grid-cols-2 gap-x-4 gap-y-8 sm:grid-cols-3 sm:gap-x-6 lg:grid-cols-4 xl:gap-x-8"
-      >
-        {#each videos as video}
-          <li class="relative">
-            <div
-              class="group overflow-hidden rounded-lg bg-gray-100 focus-within:outline-2 focus-within:outline-offset-2 focus-within:outline-indigo-600 dark:bg-gray-800 dark:focus-within:outline-indigo-500"
+    <ul
+      role="list"
+      class="grid grid-cols-2 gap-x-4 gap-y-8 sm:grid-cols-3 sm:gap-x-6 lg:grid-cols-4 xl:gap-x-8"
+    >
+      {#each videos as video}
+        <li class="relative">
+          <div
+            class="group overflow-hidden rounded-lg bg-gray-100 focus-within:outline-2 focus-within:outline-offset-2 focus-within:outline-indigo-600 dark:bg-gray-800 dark:focus-within:outline-indigo-500"
+          >
+            <img
+              src={video.thumbnail}
+              alt=""
+              class="pointer-events-none aspect-10/7 rounded-lg object-cover outline -outline-offset-1 outline-black/5 group-hover:opacity-75 dark:outline-white/10"
+            />
+            <button
+              type="button"
+              class="absolute inset-0 focus:outline-hidden"
+              onclick={() => openDetails(video)}
             >
-              <img
-                src={video.thumbnail}
-                alt=""
-                class="pointer-events-none aspect-10/7 rounded-lg object-cover outline -outline-offset-1 outline-black/5 group-hover:opacity-75 dark:outline-white/10"
-              />
-              <button type="button" class="absolute inset-0 focus:outline-hidden">
-                <span class="sr-only">View details for IMG_4985.HEIC</span>
-              </button>
-            </div>
-            <p
-              class="pointer-events-none mt-2 block truncate text-sm font-medium text-gray-900 dark:text-white"
-            >
-              {video.name}
-            </p>
-            <p
-              class="pointer-events-none block text-sm font-medium text-gray-500 dark:text-gray-400"
-            >
-              {(video.size / 1000 / 1000).toLocaleString()}
-              MB
-            </p>
-          </li>
-        {/each}
-      </ul>
-    {/if}
+              <span class="sr-only">View details for IMG_4985.HEIC</span>
+            </button>
+          </div>
+          <p
+            class="pointer-events-none mt-2 block truncate text-sm font-medium text-gray-900 dark:text-white"
+          >
+            {video.name}
+          </p>
+          <p
+            class="pointer-events-none block text-sm font-medium text-gray-500 dark:text-gray-400"
+          >
+            {video.toHumanReadable()}
+            MB
+          </p>
+        </li>
+      {/each}
+    </ul>
+    <VideoForm
+      open={drawerOpen}
+      video={activeVideo}
+      close={() => (drawerOpen = false)}
+    />
   </div>
 </div>
