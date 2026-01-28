@@ -47,6 +47,10 @@ jobs:
         with:
           workspaces: src-tauri
 
+      - name: Check format
+        working-directory: src-tauri
+        run: cargo fmt -- --check
+
       - name: Cargo test
         working-directory: src-tauri
         run: cargo test

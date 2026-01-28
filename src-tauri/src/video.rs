@@ -1,8 +1,12 @@
-use std::{path::{Path, PathBuf}, process::Command};
+use std::{
+    path::{Path, PathBuf},
+    process::Command,
+};
 
+use crate::collections::collections::CollectionService;
 use tauri::{AppHandle, Emitter, Manager};
 
-#[derive(serde::Serialize)]
+#[derive(serde::Serialize, Clone)]
 pub struct ThumbnailItem {
     pub video_path: String,
     pub thumbnail_path: Option<String>,
@@ -44,11 +48,6 @@ fn ensure_parent_dir(p: &Path) -> Result<(), String> {
 fn generate_one_thumbnail_ffmpeg(video_path: &Path, out_path: &Path) -> Result<(), String> {
     ensure_parent_dir(out_path)?;
 
-    // Ultra rapide:
-    // -ss avant -i = seek rapide (moins précis mais OK pour thumbnail)
-    // scale=320:-2 = largeur 320, hauteur auto, multiple de 2
-    // -frames:v 1 = 1 image
-    // -q:v 5 = qualité JPEG (plus petit = meilleure qualité). 4–6 est bien.
     let output = Command::new("ffmpeg")
         .args([
             "-hide_banner",
@@ -79,27 +78,29 @@ fn generate_one_thumbnail_ffmpeg(video_path: &Path, out_path: &Path) -> Result<(
 }
 
 #[tauri::command]
-pub async fn process_video(app: AppHandle, paths: Vec<String>) -> Result<Vec<ThumbnailItem>, String> {
+pub async fn process_video(
+    app: AppHandle,
+    paths: Vec<String>,
+) -> Result<Vec<ThumbnailItem>, String> {
+    let result = execute(app, paths);
+    CollectionService::create_collection(result.clone().ok());
+    result
+}
+
+fn execute(app: AppHandle, paths: Vec<String>) -> Result<Vec<ThumbnailItem>, String> {
     if paths.is_empty() {
         return Err("Aucun fichier reçu".to_string());
     }
 
-    let cache_dir = app
-        .path()
-        .app_cache_dir()
-        .map_err(|e| e.to_string())?;
+    let cache_dir = app.path().app_cache_dir().map_err(|e| e.to_string())?;
 
     let total = paths.len();
     let mut results = Vec::with_capacity(total);
 
-    // Séquentiel (ultra simple + stable).
-    // Si tu veux 2–4 en parallèle, je te donne une version avec limite de concurrence.
     for (index, p) in paths.iter().enumerate() {
         let video_path = PathBuf::from(p);
         let thumb_path = make_thumbnail_path(&cache_dir, &video_path);
-        let size_bytes = std::fs::metadata(&video_path)
-            .map(|m| m.len())
-            .ok();
+        let size_bytes = std::fs::metadata(&video_path).map(|m| m.len()).ok();
 
         let mut item = ThumbnailItem {
             video_path: p.clone(),
@@ -108,7 +109,6 @@ pub async fn process_video(app: AppHandle, paths: Vec<String>) -> Result<Vec<Thu
             size_bytes,
         };
 
-        // Cache: si déjà présent, on réutilise
         if thumb_path.exists() {
             item.thumbnail_path = Some(thumb_path.to_string_lossy().to_string());
         } else {
@@ -118,7 +118,6 @@ pub async fn process_video(app: AppHandle, paths: Vec<String>) -> Result<Vec<Thu
             }
         }
 
-        // Event de progression vers le front
         let progress = ThumbnailProgress {
             index: index + 1,
             total,
