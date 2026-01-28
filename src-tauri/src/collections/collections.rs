@@ -1,6 +1,6 @@
 use crate::clock::clock;
+use crate::collections::video::ThumbnailItem;
 use crate::repositories::repositories;
-use crate::video::ThumbnailItem;
 use std::path::PathBuf;
 use uuid::Uuid;
 
@@ -141,8 +141,8 @@ mod collection_service_tests {
     use crate::collections::collections::{
         Collection, CollectionRepositoryMemory, CollectionService, Video,
     };
+    use crate::collections::video::ThumbnailItem;
     use crate::repositories::{repositories, set_repositories, Repositories};
-    use crate::video::ThumbnailItem;
     use chrono::{TimeZone, Utc};
     use std::path::PathBuf;
     use std::sync::Arc;
@@ -158,7 +158,6 @@ mod collection_service_tests {
         videos.push(ThumbnailItem {
             video_path: "foo/video.mp4".to_string(),
             thumbnail_path: None,
-            error: None,
             size_bytes: None,
         });
         let collection = CollectionService::create_collection(Some(videos));
