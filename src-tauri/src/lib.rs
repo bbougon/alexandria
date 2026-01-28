@@ -1,10 +1,10 @@
+use crate::collections::video;
 use crate::infra::repositories::file_repositories::init_prod;
 
 mod clock;
 mod collections;
 mod infra;
 mod repositories;
-mod video;
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
