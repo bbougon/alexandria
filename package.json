@@ -19,6 +19,9 @@
     "**/*.{js,svelte,json,css,md}": [
       "prettier --write",
       "eslint --fix"
+    ],
+    "src-tauri/**/*.rs": [
+      "bash -lc 'cd src-tauri && cargo fmt'"
     ]
   },
   "devDependencies": {
