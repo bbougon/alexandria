@@ -1,3 +1,4 @@
+use crate::clock::clock;
 use crate::repositories::repositories;
 use crate::video::ThumbnailItem;
 use std::path::PathBuf;
@@ -55,13 +56,21 @@ impl Collection {
     fn new(uuid: Uuid, title: &str, videos: Vec<VideoDTO>) -> Self {
         let videos = videos
             .into_iter()
-            .map(|v| Video {
-                path: PathBuf::from(v.path),
-                name: "".to_string(),
-                artist: "".to_string(),
-                song: "".to_string(),
-                style: vec![],
-                tags: vec![],
+            .map(|v| {
+                let path = PathBuf::from(v.path);
+                let name = path
+                    .file_name()
+                    .and_then(|os_str| os_str.to_str())
+                    .unwrap_or("unknown")
+                    .to_string();
+                Video {
+                    path,
+                    name,
+                    artist: "".to_string(),
+                    song: "".to_string(),
+                    style: vec![],
+                    tags: vec![],
+                }
             })
             .collect();
         Collection {
@@ -117,7 +126,11 @@ impl CollectionService {
                     .collect()
             })
             .unwrap_or_default();
-        let collection = Collection::new(Uuid::new_v4(), "Ma collection", vec);
+        let collection = Collection::new(
+            Uuid::new_v4(),
+            format!("Collection - {}", clock().now().format("%Y-%m-%d")).as_str(),
+            vec,
+        );
         repositories().collections().add(collection.clone());
         collection
     }
@@ -130,17 +143,20 @@ mod collection_service_tests {
     };
     use crate::repositories::{repositories, set_repositories, Repositories};
     use crate::video::ThumbnailItem;
+    use chrono::{TimeZone, Utc};
     use std::path::PathBuf;
     use std::sync::Arc;
 
     #[test]
     fn test_collection_service() {
+        let now = Utc.with_ymd_and_hms(2026, 1, 28, 12, 0, 0).unwrap();
+        crate::clock::with_static_clock(now);
         let mem = CollectionRepositoryMemory::new();
         set_repositories(Repositories::new(Arc::new(mem)));
 
         let mut videos = Vec::new();
         videos.push(ThumbnailItem {
-            video_path: "foo".to_string(),
+            video_path: "foo/video.mp4".to_string(),
             thumbnail_path: None,
             error: None,
             size_bytes: None,
@@ -152,10 +168,10 @@ mod collection_service_tests {
             repositories().collections().get_by_id(&collection.id),
             Some(Collection {
                 id: collection.id,
-                title: "Ma collection".to_string(),
+                title: "Collection - 2026-01-28".to_string(),
                 videos: vec![Video {
-                    path: PathBuf::from("foo"),
-                    name: "".to_string(),
+                    path: PathBuf::from("foo/video.mp4"),
+                    name: "video.mp4".to_string(),
                     artist: "".to_string(),
                     song: "".to_string(),
                     style: vec![],
