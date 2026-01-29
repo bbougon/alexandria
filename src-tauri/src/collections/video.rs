@@ -1,4 +1,4 @@
-use crate::collections::collections::CollectionService;
+use crate::collections::collections::{Collection, CollectionService, Video};
 use crate::infra::files::file_manager::FileManagerForHardDrive;
 use tauri::AppHandle;
 
@@ -10,7 +10,26 @@ pub struct ThumbnailItem {
 }
 
 pub trait FileManager {
-    fn retrieve_files_in(&self, paths: Vec<String>) -> Result<Vec<ThumbnailItem>, String>;
+    fn add_files_from_paths_to_collection(
+        &self,
+        paths: Vec<String>,
+        collection: &mut Collection,
+    ) -> Result<(), String> {
+        if paths.is_empty() {
+            return Err("Aucun fichier reçu".to_string());
+        }
+
+        let total = paths.len();
+        let mut results = Vec::with_capacity(total);
+        for (_index, p) in paths.iter().enumerate() {
+            let video = self.create_video(p)?;
+            collection.add_video(video.clone());
+            results.push(video);
+        }
+        Ok(())
+    }
+
+    fn create_video(&self, path: &str) -> Result<Video, String>;
 }
 
 pub struct VideoFileManager {
@@ -28,9 +47,15 @@ pub async fn process_video(
     app: AppHandle,
     paths: Vec<String>,
 ) -> Result<Vec<ThumbnailItem>, String> {
-    let result = VideoFileManager::new(Box::new(FileManagerForHardDrive::new(app)))
-        .file_manager
-        .retrieve_files_in(paths);
-    CollectionService::create_collection(result.clone().ok());
-    result
+    let video_file_manager = VideoFileManager::new(Box::new(FileManagerForHardDrive::new(app)));
+    let collection = CollectionService::create_collection(paths, video_file_manager);
+    Ok(collection
+        .videos
+        .iter()
+        .map(|v| ThumbnailItem {
+            video_path: v.path.to_string_lossy().to_string(),
+            thumbnail_path: v.thumbnail_path.parse().ok(),
+            size_bytes: Option::from(v.size_bytes),
+        })
+        .collect())
 }

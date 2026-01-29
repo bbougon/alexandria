@@ -1,3 +1,4 @@
+use crate::collections::collections::Video;
 use crate::collections::video::{FileManager, ThumbnailItem};
 use std::path::{Path, PathBuf};
 use std::process::Command;
@@ -58,49 +59,48 @@ fn generate_one_thumbnail_ffmpeg(video_path: &Path, out_path: &Path) -> Result<(
 
 pub struct FileManagerForHardDrive {
     app: AppHandle,
+    cache_dir: PathBuf,
 }
 
 impl FileManagerForHardDrive {
     pub fn new(app: AppHandle) -> Self {
-        Self { app }
+        let result = app
+            .path()
+            .app_cache_dir()
+            .map_err(|e| e.to_string())
+            .unwrap();
+        Self {
+            app: app.clone(),
+            cache_dir: result,
+        }
+    }
+
+    fn create_thumbnail(
+        video_path: &PathBuf,
+        thumb_path: &PathBuf,
+    ) -> Result<Option<String>, String> {
+        if thumb_path.exists() {
+            Ok(Some(thumb_path.to_string_lossy().to_string()))
+        } else {
+            match generate_one_thumbnail_ffmpeg(&video_path, &thumb_path) {
+                Ok(()) => Ok(Some(thumb_path.to_string_lossy().to_string())),
+                Err(e) => {
+                    log::error!("Failed to generate thumbnail {video_path:?}: {e}");
+                    Err("Failed".to_string())
+                }
+            }
+        }
     }
 }
 
 impl FileManager for FileManagerForHardDrive {
-    fn retrieve_files_in(&self, paths: Vec<String>) -> Result<Vec<ThumbnailItem>, String> {
-        if paths.is_empty() {
-            return Err("Aucun fichier reçu".to_string());
-        }
-
-        let cache_dir = self.app.path().app_cache_dir().map_err(|e| e.to_string())?;
-
-        let total = paths.len();
-        let mut results = Vec::with_capacity(total);
-
-        for (_index, p) in paths.iter().enumerate() {
-            let video_path = PathBuf::from(p);
-            let thumb_path = make_thumbnail_path(&cache_dir, &video_path);
-            let size_bytes = std::fs::metadata(&video_path).map(|m| m.len()).ok();
-
-            let mut item = ThumbnailItem {
-                video_path: p.clone(),
-                thumbnail_path: None,
-                size_bytes,
-            };
-
-            if thumb_path.exists() {
-                item.thumbnail_path = Some(thumb_path.to_string_lossy().to_string());
-            } else {
-                match generate_one_thumbnail_ffmpeg(&video_path, &thumb_path) {
-                    Ok(()) => item.thumbnail_path = Some(thumb_path.to_string_lossy().to_string()),
-                    Err(e) => log::error!("Failed to generate thumbnail {video_path:?}: {e}"),
-                }
-            }
-
-            let _ = self.app.emit("thumbnail:progress", item.clone());
-
-            results.push(item);
-        }
-        Ok(results)
+    fn create_video(&self, path: &str) -> Result<Video, String> {
+        let video_path = PathBuf::from(path);
+        let thumb_path = make_thumbnail_path(&self.cache_dir, &video_path);
+        let size_bytes = std::fs::metadata(&video_path).map(|m| m.len()).ok();
+        let thumbnail_path = Self::create_thumbnail(&video_path, &thumb_path)?;
+        let video = Video::new(video_path, thumbnail_path.unwrap(), size_bytes.unwrap());
+        let _ = self.app.emit("thumbnail:progress", video.clone());
+        Ok(video)
     }
 }

@@ -7,9 +7,7 @@
   import VideoForm from './VideoForm.svelte';
 
   type ThumbnailProgress = {
-    index: number;
-    total: number;
-    video_path: string;
+    path: string;
     thumbnail_path?: string | null;
     error?: string | null;
     size_bytes?: number;
@@ -49,11 +47,12 @@
     if (selectedPath.length === 0) return;
     const unlisten = await listen<ThumbnailProgress>('thumbnail:progress', (e) => {
       const p = e.payload;
+      console.log(`VIDEO : ${JSON.stringify(p)}`);
 
       if (p.thumbnail_path) {
         videos.push(
           toVideo({
-            videoPath: p.video_path,
+            videoPath: p.path,
             thumbnailPath: p.thumbnail_path,
             size: p.size_bytes || 0,
           })
