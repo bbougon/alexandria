@@ -68,7 +68,7 @@ export const toVideo = (video: {
     song: 'Song name',
     style: ['Rock', 'Hard Rock'],
     tags: [],
-    thumbnail: fileConverter.convertFile(video.thumbnailPath),
+    thumbnail: video.thumbnailPath,
     size: video.size,
     toHumanReadable: () =>
       `${(video.size / 1_000_000).toLocaleString('fr-FR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} MB`,

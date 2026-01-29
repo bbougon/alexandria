@@ -4,13 +4,11 @@ import { expect } from 'vitest';
 
 describe('Video', () => {
   it('should be mapped', () => {
-    fileConverter.convertFile = () => 'fooBar';
-
     const video = toVideo({ videoPath: 'foo', thumbnailPath: 'bar', size: 1000 });
 
     expect(video).toStrictEqual<Video>({
       path: 'foo',
-      thumbnail: 'fooBar',
+      thumbnail: 'bar',
       size: 1000,
       name: 'foo',
       artist: 'Artist name',
@@ -23,8 +21,6 @@ describe('Video', () => {
   });
 
   it('should be mapped with a name', () => {
-    fileConverter.convertFile = () => 'fooBar';
-
     const video = toVideo({
       videoPath: '/path/to/my/video.mp4',
       thumbnailPath: 'bar',
@@ -33,7 +29,7 @@ describe('Video', () => {
 
     expect(video).toStrictEqual<Video>({
       path: '/path/to/my/video.mp4',
-      thumbnail: 'fooBar',
+      thumbnail: 'bar',
       size: 1000,
       name: 'video.mp4',
       artist: 'Artist name',
@@ -46,8 +42,6 @@ describe('Video', () => {
   });
 
   it('should give the human readable size', () => {
-    fileConverter.convertFile = () => 'fooBar';
-
     const video = toVideo({
       videoPath: '/path/to/my/video.mp4',
       thumbnailPath: 'bar',
