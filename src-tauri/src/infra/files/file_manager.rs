@@ -3,7 +3,6 @@ use crate::collections::video::FileManager;
 use base64::Engine;
 use std::path::{Path, PathBuf};
 use std::process::Command;
-use tauri::{AppHandle, Emitter};
 
 fn generate_one_thumbnail_ffmpeg(video_path: &Path) -> Result<String, String> {
     let output = Command::new("ffmpeg")
@@ -40,13 +39,11 @@ fn generate_one_thumbnail_ffmpeg(video_path: &Path) -> Result<String, String> {
     Ok(format!("data:image/jpeg;base64,{}", b64))
 }
 
-pub struct FileManagerForHardDrive {
-    app: AppHandle,
-}
+pub struct FileManagerForHardDrive {}
 
 impl FileManagerForHardDrive {
-    pub fn new(app: AppHandle) -> Self {
-        Self { app: app.clone() }
+    pub fn new() -> Self {
+        Self {}
     }
 
     fn create_thumbnail(video_path: &PathBuf) -> Result<Option<String>, String> {
@@ -66,7 +63,6 @@ impl FileManager for FileManagerForHardDrive {
         let size_bytes = std::fs::metadata(&video_path).map(|m| m.len()).ok();
         let thumbnail = Self::create_thumbnail(&video_path)?;
         let video = Video::new(video_path, thumbnail.unwrap(), size_bytes.unwrap());
-        let _ = self.app.emit("thumbnail:progress", video.clone());
         Ok(video)
     }
 }

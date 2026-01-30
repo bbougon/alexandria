@@ -3,14 +3,20 @@
   import { invoke } from '@tauri-apps/api/core';
   import { listen } from '@tauri-apps/api/event';
   import { videos } from './videos.svelte';
-  import { toVideo, type Video } from './video';
+  import { type Style, toVideo, type Video } from './video';
   import VideoForm from './VideoForm.svelte';
 
-  type ThumbnailProgress = {
+  type VideoAddedToCollection = {
+    collection_id: string;
     path: string;
-    thumbnail?: string | null;
-    error?: string | null;
+    name: string;
+    artist: string;
+    song: string;
+    style: Style[];
+    tags: string[];
+    thumbnail?: string;
     size_bytes?: number;
+    error?: string | null;
   };
 
   let selectedPath: string[] = $state([]);
@@ -45,9 +51,8 @@
 
   const processVideo = async () => {
     if (selectedPath.length === 0) return;
-    const unlisten = await listen<ThumbnailProgress>('thumbnail:progress', (e) => {
+    const unlisten = await listen<VideoAddedToCollection>('video:added', (e) => {
       const p = e.payload;
-      console.log(`VIDEO : ${JSON.stringify(p)}`);
 
       if (p.thumbnail) {
         videos.push(

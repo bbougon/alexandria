@@ -78,8 +78,7 @@ pub async fn process_video(
     app: AppHandle,
     paths: Vec<String>,
 ) -> Result<Vec<ThumbnailItem>, String> {
-    let video_file_manager =
-        VideoFileManager::new(Box::new(FileManagerForHardDrive::new(app.clone())));
+    let video_file_manager = VideoFileManager::new(Box::new(FileManagerForHardDrive::new()));
     let collection = CollectionService::create_collection(
         paths,
         video_file_manager,
