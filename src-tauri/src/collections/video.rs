@@ -5,7 +5,7 @@ use tauri::AppHandle;
 #[derive(serde::Serialize, Clone)]
 pub struct ThumbnailItem {
     pub video_path: String,
-    pub thumbnail_path: Option<String>,
+    pub thumbnail: Option<String>,
     pub size_bytes: Option<u64>,
 }
 
@@ -54,7 +54,7 @@ pub async fn process_video(
         .iter()
         .map(|v| ThumbnailItem {
             video_path: v.path.to_string_lossy().to_string(),
-            thumbnail_path: v.thumbnail_path.parse().ok(),
+            thumbnail: v.thumbnail.parse().ok(),
             size_bytes: Option::from(v.size_bytes),
         })
         .collect())

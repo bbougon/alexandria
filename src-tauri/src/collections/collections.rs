@@ -38,12 +38,12 @@ pub struct Video {
     song: String,
     style: Vec<Style>,
     tags: Vec<String>,
-    pub thumbnail_path: String,
+    pub thumbnail: String,
     pub size_bytes: u64,
 }
 
 impl Video {
-    pub fn new(path: PathBuf, thumbnail_path: String, size_bytes: u64) -> Self {
+    pub fn new(path: PathBuf, thumbnail: String, size_bytes: u64) -> Self {
         let name = path
             .file_name()
             .and_then(|os_str| os_str.to_str())
@@ -56,7 +56,7 @@ impl Video {
             song: "".to_string(),
             style: vec![],
             tags: vec![],
-            thumbnail_path,
+            thumbnail,
             size_bytes,
         }
     }
@@ -181,7 +181,7 @@ mod collection_service_tests {
                     song: "".to_string(),
                     style: vec![],
                     tags: vec![],
-                    thumbnail_path: "".to_string(),
+                    thumbnail: "".to_string(),
                     size_bytes: 0
                 }]
             })
