@@ -3,6 +3,7 @@ use crate::infra::repositories::file_repositories::init_prod;
 
 mod clock;
 mod collections;
+mod event_bus;
 mod infra;
 mod repositories;
 

@@ -1,5 +1,6 @@
 use crate::clock::clock;
 use crate::collections::video::VideoFileManager;
+use crate::event_bus::{Event, EventBusManager};
 use crate::repositories::repositories;
 use std::path::PathBuf;
 use uuid::Uuid;
@@ -33,11 +34,11 @@ pub enum Style {
 #[derive(Clone, Debug, PartialEq, serde::Serialize, serde::Deserialize)]
 pub struct Video {
     pub path: PathBuf,
-    name: String,
-    artist: String,
-    song: String,
-    style: Vec<Style>,
-    tags: Vec<String>,
+    pub name: String,
+    pub artist: String,
+    pub song: String,
+    pub style: Vec<Style>,
+    pub tags: Vec<String>,
     pub thumbnail: String,
     pub size_bytes: u64,
 }
@@ -83,6 +84,13 @@ impl Collection {
     }
 }
 
+#[derive(serde::Serialize, Clone)]
+pub struct CollectionCreated {
+    pub collection_id: Uuid,
+    pub title: String,
+    pub videos: Vec<Video>,
+}
+
 pub trait CollectionRepository: Send + Sync {
     fn list(&self) -> Vec<Collection>;
     fn add(&self, c: Collection);
@@ -119,14 +127,26 @@ impl CollectionService {
     pub fn create_collection(
         videos_paths: Vec<String>,
         video_file_manager: VideoFileManager,
+        bus_manager: EventBusManager,
     ) -> Collection {
         let mut collection = Collection::new(
             Uuid::new_v4(),
             format!("Collection - {}", clock().now().format("%Y-%m-%d")).as_str(),
         );
+        bus_manager.event_bus.publish(Event {
+            event_type: "collection:created".parse().unwrap(),
+            data: {
+                serde_json::to_value(CollectionCreated {
+                    collection_id: collection.id,
+                    title: collection.title.clone(),
+                    videos: vec![],
+                })
+                .unwrap()
+            },
+        });
         video_file_manager
             .file_manager
-            .add_files_from_paths_to_collection(videos_paths, &mut collection)
+            .add_files_from_paths_to_collection(videos_paths, &mut collection, bus_manager)
             .unwrap();
         repositories().collections().add(collection.clone());
         collection
@@ -136,10 +156,13 @@ impl CollectionService {
 #[cfg(test)]
 mod collection_service_tests {
     use crate::collections::collections::{
-        Collection, CollectionRepositoryMemory, CollectionService, Video,
+        Collection, CollectionCreated, CollectionRepositoryMemory, CollectionService, Video,
     };
-    use crate::collections::video::{FileManager, ThumbnailItem, VideoFileManager};
-    use crate::repositories::{repositories, set_repositories, Repositories};
+    use crate::collections::video::{
+        FileManager, ThumbnailItem, VideoAddedToCollection, VideoFileManager,
+    };
+    use crate::event_bus::{Event, EventBus, EventBusManager};
+    use crate::repositories::{repositories, with_test_repositories, Repositories};
     use chrono::{TimeZone, Utc};
     use std::path::PathBuf;
     use std::sync::Arc;
@@ -154,18 +177,44 @@ mod collection_service_tests {
         }
     }
 
+    pub struct MemoryEventBus {
+        pub events: parking_lot::Mutex<Vec<Event>>,
+    }
+
+    impl MemoryEventBus {
+        pub fn new() -> Self {
+            Self {
+                events: parking_lot::Mutex::new(Vec::new()),
+            }
+        }
+    }
+
+    impl EventBus for MemoryEventBus {
+        fn publish(&self, event: Event) {
+            self.events.lock().push(event);
+        }
+    }
+
+    impl EventBus for Arc<MemoryEventBus> {
+        fn publish(&self, event: Event) {
+            self.events.lock().push(event);
+        }
+    }
+
     #[test]
     fn test_collection_service() {
         let now = Utc.with_ymd_and_hms(2026, 1, 28, 12, 0, 0).unwrap();
         let _clock_guard = crate::clock::with_static_clock(now);
         let mem = CollectionRepositoryMemory::new();
-        set_repositories(Repositories::new(Arc::new(mem)));
+        let _repos_guard = with_test_repositories(Repositories::new(Arc::new(mem)));
 
         let video_file_manager =
             VideoFileManager::new(Box::new(FileManagerMemory { items: vec![] }));
+        let event_bus = Arc::new(MemoryEventBus::new());
         let collection = CollectionService::create_collection(
             vec!["foo/video.mp4".parse().unwrap()],
             video_file_manager,
+            EventBusManager::new(Box::new(event_bus.clone())),
         );
 
         assert_eq!(repositories().collections().list().len(), 1);
@@ -185,6 +234,72 @@ mod collection_service_tests {
                     size_bytes: 0
                 }]
             })
+        );
+    }
+
+    #[test]
+    fn test_collection_service_publish_collection_created() {
+        let now = Utc.with_ymd_and_hms(2026, 1, 28, 12, 0, 0).unwrap();
+        let _clock_guard = crate::clock::with_static_clock(now);
+        let mem = CollectionRepositoryMemory::new();
+        let _repos_guard = with_test_repositories(Repositories::new(Arc::new(mem)));
+        let video_file_manager =
+            VideoFileManager::new(Box::new(FileManagerMemory { items: vec![] }));
+
+        let event_bus = Arc::new(MemoryEventBus::new());
+        let collection = CollectionService::create_collection(
+            vec!["foo/video.mp4".parse().unwrap()],
+            video_file_manager,
+            EventBusManager::new(Box::new(event_bus.clone())),
+        );
+
+        let events = event_bus.events.lock();
+        assert_eq!(events.len(), 2);
+        assert_eq!(events[0].event_type, "collection:created");
+        assert_eq!(
+            events[0].data,
+            serde_json::to_value(CollectionCreated {
+                collection_id: collection.id,
+                title: "Collection - 2026-01-28".to_string(),
+                videos: vec![],
+            })
+            .unwrap()
+        );
+    }
+
+    #[test]
+    fn test_collection_service_publish_video_added_to_collection() {
+        let now = Utc.with_ymd_and_hms(2026, 1, 28, 12, 0, 0).unwrap();
+        let _clock_guard = crate::clock::with_static_clock(now);
+        let mem = CollectionRepositoryMemory::new();
+        let _repos_guard = with_test_repositories(Repositories::new(Arc::new(mem)));
+        let video_file_manager =
+            VideoFileManager::new(Box::new(FileManagerMemory { items: vec![] }));
+
+        let event_bus = Arc::new(MemoryEventBus::new());
+        let collection = CollectionService::create_collection(
+            vec!["foo/video.mp4".parse().unwrap()],
+            video_file_manager,
+            EventBusManager::new(Box::new(event_bus.clone())),
+        );
+
+        let events = event_bus.events.lock();
+        assert_eq!(events.len(), 2);
+        assert_eq!(events[1].event_type, "video:added");
+        assert_eq!(
+            events[1].data,
+            serde_json::to_value(VideoAddedToCollection {
+                collection_id: collection.id,
+                path: "foo/video.mp4".parse().unwrap(),
+                name: "video.mp4".to_string(),
+                artist: "".to_string(),
+                song: "".to_string(),
+                style: vec![],
+                tags: vec![],
+                thumbnail: "".to_string(),
+                size_bytes: 0,
+            })
+            .unwrap()
         );
     }
 }
