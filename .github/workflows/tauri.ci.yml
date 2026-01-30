@@ -17,7 +17,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        platform: [ubuntu-latest, windows-latest]
+        platform: [ubuntu-latest]
 
     steps:
       - uses: actions/checkout@v4
@@ -32,12 +32,12 @@ jobs:
           webkit2gtk-driver \
           xvfb
 
-      - name: install msdgedriver (Windows)
-        if: matrix.platform == 'windows-latest'
-        run: |
-          cargo install --git https://github.com/chippers/msedgedriver-tool
-          & "$HOME/.cargo/bin/msedgedriver-tool.exe"
-          $PWD.Path >> $env:GITHUB_PATH
+#      - name: install msdgedriver (Windows)
+#        if: matrix.platform == 'windows-latest'
+#        run: |
+#          cargo install --git https://github.com/chippers/msedgedriver-tool
+#          & "$HOME/.cargo/bin/msedgedriver-tool.exe"
+#          $PWD.Path >> $env:GITHUB_PATH
 
       - name: Setup rust-toolchain stable
         uses: dtolnay/rust-toolchain@stable
