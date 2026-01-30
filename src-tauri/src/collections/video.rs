@@ -19,12 +19,9 @@ pub trait FileManager {
             return Err("Aucun fichier reçu".to_string());
         }
 
-        let total = paths.len();
-        let mut results = Vec::with_capacity(total);
         for (_index, p) in paths.iter().enumerate() {
             let video = self.create_video(p)?;
             collection.add_video(video.clone());
-            results.push(video);
         }
         Ok(())
     }
