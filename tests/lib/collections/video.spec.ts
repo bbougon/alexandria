@@ -4,7 +4,7 @@ import { expect } from 'vitest';
 
 describe('Video', () => {
   it('should be mapped', () => {
-    const video = toVideo({ videoPath: 'foo', thumbnailPath: 'bar', size: 1000 });
+    const video = toVideo({ videoPath: 'foo', thumbnail: 'bar', size: 1000 });
 
     expect(video).toStrictEqual<Video>({
       path: 'foo',
@@ -23,7 +23,7 @@ describe('Video', () => {
   it('should be mapped with a name', () => {
     const video = toVideo({
       videoPath: '/path/to/my/video.mp4',
-      thumbnailPath: 'bar',
+      thumbnail: 'bar',
       size: 1000,
     });
 
@@ -44,7 +44,7 @@ describe('Video', () => {
   it('should give the human readable size', () => {
     const video = toVideo({
       videoPath: '/path/to/my/video.mp4',
-      thumbnailPath: 'bar',
+      thumbnail: 'bar',
       size: 1000000,
     });
 
@@ -61,7 +61,7 @@ describe('Video', () => {
 
     const video = toVideo({
       videoPath: videoPath,
-      thumbnailPath: 'bar',
+      thumbnail: 'bar',
       size: 1000000,
     });
     const file = video.play();

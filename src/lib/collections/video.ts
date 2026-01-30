@@ -58,7 +58,7 @@ export type Video = {
 
 export const toVideo = (video: {
   videoPath: string;
-  thumbnailPath: string;
+  thumbnail: string;
   size: number;
 }): Video => {
   return {
@@ -68,7 +68,7 @@ export const toVideo = (video: {
     song: 'Song name',
     style: ['Rock', 'Hard Rock'],
     tags: [],
-    thumbnail: video.thumbnailPath,
+    thumbnail: video.thumbnail,
     size: video.size,
     toHumanReadable: () =>
       `${(video.size / 1_000_000).toLocaleString('fr-FR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} MB`,

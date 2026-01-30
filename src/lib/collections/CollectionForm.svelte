@@ -8,7 +8,7 @@
 
   type ThumbnailProgress = {
     path: string;
-    thumbnail_path?: string | null;
+    thumbnail?: string | null;
     error?: string | null;
     size_bytes?: number;
   };
@@ -49,11 +49,11 @@
       const p = e.payload;
       console.log(`VIDEO : ${JSON.stringify(p)}`);
 
-      if (p.thumbnail_path) {
+      if (p.thumbnail) {
         videos.push(
           toVideo({
             videoPath: p.path,
-            thumbnailPath: p.thumbnail_path,
+            thumbnail: p.thumbnail,
             size: p.size_bytes || 0,
           })
         );
