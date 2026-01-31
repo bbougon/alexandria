@@ -1,4 +1,5 @@
 import { fileConverter } from './file-converter';
+import type { VideoFromCollection } from './collection.store';
 
 export const STYLES = [
   'Rock',
@@ -56,22 +57,34 @@ export type Video = {
   play(): string;
 };
 
-export const toVideo = (video: {
-  videoPath: string;
-  thumbnail: string;
-  size: number;
-}): Video => {
+export const toVideo = (
+  video: VideoAddedToCollection | VideoFromCollection
+): Video => {
+  const size = video.size_bytes || 0;
   return {
-    path: video.videoPath,
-    name: video.videoPath.split('/').pop() || '',
-    artist: 'Artist name',
-    song: 'Song name',
-    style: ['Rock', 'Hard Rock'],
-    tags: [],
-    thumbnail: video.thumbnail,
-    size: video.size,
+    path: video.path,
+    name: video.name,
+    artist: video.artist,
+    song: video.song,
+    style: video.style,
+    tags: video.tags,
+    thumbnail: video.thumbnail || '',
+    size,
     toHumanReadable: () =>
-      `${(video.size / 1_000_000).toLocaleString('fr-FR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} MB`,
-    play: () => fileConverter.convertFile(video.videoPath),
+      `${(size / 1_000_000).toLocaleString('fr-FR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} MB`,
+    play: () => fileConverter.convertFile(video.path),
   };
+};
+
+export type VideoAddedToCollection = {
+  collection_id: string;
+  path: string;
+  name: string;
+  artist: string;
+  song: string;
+  style: Style[];
+  tags: string[];
+  thumbnail?: string;
+  size_bytes?: number;
+  error?: string | null;
 };

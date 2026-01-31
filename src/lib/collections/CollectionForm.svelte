@@ -2,35 +2,22 @@
   import { open } from '@tauri-apps/plugin-dialog';
   import { invoke } from '@tauri-apps/api/core';
   import { listen } from '@tauri-apps/api/event';
-  import { videos } from './videos.svelte';
-  import { type Style, toVideo, type Video } from './video';
+  import { toVideo, type Video, type VideoAddedToCollection } from './video';
   import VideoForm from './VideoForm.svelte';
+  import {
+    type Collection,
+    type CollectionCreated,
+    toCollection,
+  } from './collection';
 
-  type VideoAddedToCollection = {
-    collection_id: string;
-    path: string;
-    name: string;
-    artist: string;
-    song: string;
-    style: Style[];
-    tags: string[];
-    thumbnail?: string;
-    size_bytes?: number;
-    error?: string | null;
-  };
-
-  let selectedPath: string[] = $state([]);
   let drawerOpen = $state(false);
   let activeVideo: Video | null = $state(null);
+  let collection: Collection | null = $state<Collection | null>(null);
 
   const openDetails = (v: Video) => {
     activeVideo = v;
     drawerOpen = true;
   };
-
-  $effect(() => {
-    console.log(`VIDEO en édition : ${JSON.stringify(activeVideo)}`);
-  });
 
   const pickVideo = async () => {
     const result = await open({
@@ -38,34 +25,41 @@
       directory: false,
       filters: [{ name: 'Videos', extensions: ['mp4', 'mov', 'mkv', 'webm'] }],
     });
-
+    const paths = [];
     if (result !== null) {
       if (Array.isArray(result)) {
-        selectedPath = result;
+        paths.push(...result);
       } else {
-        selectedPath = [result];
+        paths.push(result);
       }
     }
-    await createCollection();
+    await createCollection(paths);
   };
 
-  const createCollection = async () => {
-    if (selectedPath.length === 0) return;
-    const unlisten = await listen<VideoAddedToCollection>('video:added', (e) => {
-      const p = e.payload;
+  const createCollection = async (paths: string[]) => {
+    if (paths.length === 0) return;
+    const unlistenToVideoAdded = await listen<VideoAddedToCollection>(
+      'video:added',
+      (e) => {
+        const videoAdded = e.payload;
 
-      if (p.thumbnail) {
-        videos.push(
-          toVideo({
-            videoPath: p.path,
-            thumbnail: p.thumbnail,
-            size: p.size_bytes || 0,
-          })
-        );
+        if (videoAdded.thumbnail) {
+          collection?.videos.push(toVideo(videoAdded));
+        }
       }
-    });
-    await invoke<string[]>('create_collection', { paths: selectedPath });
-    unlisten();
+    );
+    const unlistenToCollectionCreated = await listen<CollectionCreated>(
+      'collection:created',
+      (e) => {
+        const collectionCreated = e.payload;
+        collection = toCollection(collectionCreated);
+      }
+    );
+
+    await invoke<string[]>('create_collection', { paths });
+
+    unlistenToVideoAdded();
+    unlistenToCollectionCreated();
   };
 </script>
 
@@ -87,15 +81,30 @@
         d="M3 3.9934C3 3.44476 3.44495 3 3.9934 3H20.0066C20.5552 3 21 3.44495 21 3.9934V20.0066C21 20.5552 20.5551 21 20.0066 21H3.9934C3.44476 21 3 20.5551 3 20.0066V3.9934ZM5 5V19H19V5H5ZM10.6219 8.41459L15.5008 11.6672C15.6846 11.7897 15.7343 12.0381 15.6117 12.2219C15.5824 12.2658 15.5447 12.3035 15.5008 12.3328L10.6219 15.5854C10.4381 15.708 10.1897 15.6583 10.0672 15.4745C10.0234 15.4088 10 15.3316 10 15.2526V8.74741C10 8.52649 10.1791 8.34741 10.4 8.34741C10.479 8.34741 10.5562 8.37078 10.6219 8.41459Z"
       ></path>
     </svg>
-    Add videos
+    Create collection
   </button>
 
   <div class="mt-4">
+    {#if collection}
+      <div class="border-b border-gray-200 pb-5 dark:border-white/10">
+        <div class="-mt-2 -ml-2 flex flex-wrap items-baseline">
+          <h3
+            class="mt-2 ml-2 text-base font-semibold text-gray-900 dark:text-white"
+          >
+            {collection.title}
+          </h3>
+          <p class="mt-1 ml-2 truncate text-sm text-gray-500 dark:text-gray-400">
+            Number of videos {collection.videos.length}
+          </p>
+        </div>
+      </div>
+    {/if}
+
     <ul
       role="list"
       class="grid grid-cols-2 gap-x-4 gap-y-8 sm:grid-cols-3 sm:gap-x-6 lg:grid-cols-4 xl:gap-x-8"
     >
-      {#each videos as video}
+      {#each collection?.videos as video}
         <li class="relative">
           <div
             class="group overflow-hidden rounded-lg bg-gray-100 focus-within:outline-2 focus-within:outline-offset-2 focus-within:outline-indigo-600 dark:bg-gray-800 dark:focus-within:outline-indigo-500"
