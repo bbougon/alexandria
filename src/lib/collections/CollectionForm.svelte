@@ -9,6 +9,7 @@
     type CollectionCreated,
     toCollection,
   } from './collection';
+  import Drawer from '../components/Drawer.svelte';
 
   let drawerOpen = $state(false);
   let activeVideo: Video | null = $state(null);
@@ -98,48 +99,51 @@
           </p>
         </div>
       </div>
-    {/if}
 
-    <ul
-      role="list"
-      class="grid grid-cols-2 gap-x-4 gap-y-8 sm:grid-cols-3 sm:gap-x-6 lg:grid-cols-4 xl:gap-x-8"
-    >
-      {#each collection?.videos as video}
-        <li class="relative">
-          <div
-            class="group overflow-hidden rounded-lg bg-gray-100 focus-within:outline-2 focus-within:outline-offset-2 focus-within:outline-indigo-600 dark:bg-gray-800 dark:focus-within:outline-indigo-500"
-          >
-            <img
-              src={video.thumbnail}
-              alt=""
-              class="pointer-events-none aspect-10/7 rounded-lg object-cover outline -outline-offset-1 outline-black/5 group-hover:opacity-75 dark:outline-white/10"
-            />
-            <button
-              type="button"
-              class="absolute inset-0 focus:outline-hidden"
-              onclick={() => openDetails(video)}
+      <ul
+        role="list"
+        class="grid grid-cols-2 gap-x-4 gap-y-8 sm:grid-cols-3 sm:gap-x-6 lg:grid-cols-4 xl:gap-x-8"
+      >
+        {#each collection.videos as video}
+          <li class="relative">
+            <div
+              class="group overflow-hidden rounded-lg bg-gray-100 focus-within:outline-2 focus-within:outline-offset-2 focus-within:outline-indigo-600 dark:bg-gray-800 dark:focus-within:outline-indigo-500"
             >
-              <span class="sr-only">View details for IMG_4985.HEIC</span>
-            </button>
-          </div>
-          <p
-            class="pointer-events-none mt-2 block truncate text-sm font-medium text-gray-900 dark:text-white"
-          >
-            {video.name}
-          </p>
-          <p
-            class="pointer-events-none block text-sm font-medium text-gray-500 dark:text-gray-400"
-          >
-            {video.toHumanReadable()}
-            MB
-          </p>
-        </li>
-      {/each}
-    </ul>
-    <VideoForm
-      open={drawerOpen}
-      video={activeVideo}
-      close={() => (drawerOpen = false)}
-    />
+              <img
+                src={video.thumbnail}
+                alt=""
+                class="pointer-events-none aspect-10/7 rounded-lg object-cover outline -outline-offset-1 outline-black/5 group-hover:opacity-75 dark:outline-white/10"
+              />
+              <button
+                type="button"
+                class="absolute inset-0 focus:outline-hidden"
+                onclick={() => openDetails(video)}
+              >
+                <span class="sr-only">View details for IMG_4985.HEIC</span>
+              </button>
+            </div>
+            <p
+              class="pointer-events-none mt-2 block truncate text-sm font-medium text-gray-900 dark:text-white"
+            >
+              {video.name}
+            </p>
+            <p
+              class="pointer-events-none block text-sm font-medium text-gray-500 dark:text-gray-400"
+            >
+              {video.toHumanReadable()}
+              MB
+            </p>
+          </li>
+        {/each}
+      </ul>
+      <Drawer
+        open={drawerOpen}
+        close={() => {
+          drawerOpen = false;
+        }}
+      >
+        <VideoForm bind:video={activeVideo} collectionId={collection.id} />
+      </Drawer>
+    {/if}
   </div>
 </div>
