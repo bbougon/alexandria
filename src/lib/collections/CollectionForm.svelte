@@ -46,10 +46,10 @@
         selectedPath = [result];
       }
     }
-    await processVideo();
+    await createCollection();
   };
 
-  const processVideo = async () => {
+  const createCollection = async () => {
     if (selectedPath.length === 0) return;
     const unlisten = await listen<VideoAddedToCollection>('video:added', (e) => {
       const p = e.payload;
@@ -64,7 +64,7 @@
         );
       }
     });
-    await invoke<string[]>('process_video', { paths: selectedPath });
+    await invoke<string[]>('create_collection', { paths: selectedPath });
     unlisten();
   };
 </script>

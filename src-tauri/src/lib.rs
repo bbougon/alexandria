@@ -1,4 +1,4 @@
-use crate::collections::video;
+use crate::collections::tauri_commands as collection_commands;
 use crate::infra::repositories::file_repositories::init_prod;
 
 mod clock;
@@ -22,7 +22,9 @@ pub fn run() {
             }
             Ok(())
         })
-        .invoke_handler(tauri::generate_handler![video::process_video])
+        .invoke_handler(tauri::generate_handler![
+            collection_commands::create_collection
+        ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
 }
