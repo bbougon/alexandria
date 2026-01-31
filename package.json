@@ -6,10 +6,13 @@
   "packageManager": "pnpm@10.26.0",
   "scripts": {
     "dev": "vite",
+    "dev:start": "pnpm tauri dev",
     "build": "vite build",
     "preview": "vite preview",
     "check": "svelte-check --tsconfig ./tsconfig.app.json && tsc -p tsconfig.node.json",
-    "test": "vitest"
+    "test": "pnpm run front:test && pnpm run back:test",
+    "front:test": "vitest",
+    "back:test": "cargo test --manifest-path src-tauri/Cargo.toml"
   },
   "lint-staged": {
     "**/!(*.svelte).ts": [
