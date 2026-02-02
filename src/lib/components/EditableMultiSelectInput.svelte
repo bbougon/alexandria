@@ -10,22 +10,22 @@
     toggle: boolean;
     hideOnToggle: Snippet;
     displayChild?: Snippet;
+    addOption: (option: T) => Promise<void>;
   }
 
   let {
-    value = $bindable(),
+    value,
     label,
     toggle,
     hideOnToggle,
     displayChild,
     options,
+    addOption,
   }: Props = $props();
   let visible = $state(false);
 
-  const addOption = (option: (typeof options)[number]) => {
-    console.log(option);
-    if (!value.includes(option)) value.push(option);
-    else value.splice(value.indexOf(option), 1);
+  const checkOption = (option: (typeof options)[number]) => {
+    addOption(option);
   };
 </script>
 
@@ -40,7 +40,11 @@
     >
       {#each options as option}
         {@const checked = value.includes(option)}
-        <MultiSelectCheckbox {checked} {option} onclick={() => addOption(option)} />
+        <MultiSelectCheckbox
+          {checked}
+          {option}
+          onclick={() => checkOption(option)}
+        />
       {/each}
     </div>
   {/snippet}

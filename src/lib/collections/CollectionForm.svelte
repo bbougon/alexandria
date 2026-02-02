@@ -2,23 +2,24 @@
   import { open } from '@tauri-apps/plugin-dialog';
   import { invoke } from '@tauri-apps/api/core';
   import { listen } from '@tauri-apps/api/event';
-  import { toVideo, type Video, type VideoAddedToCollection } from './video';
+  import { type Video, type VideoAddedToCollection } from './video';
   import VideoForm from './VideoForm.svelte';
-  import {
-    type Collection,
-    type CollectionCreated,
-    toCollection,
-  } from './collection';
   import Drawer from '../components/Drawer.svelte';
+  import { type CollectionCreated, collectionStore } from './collection.store';
 
   let drawerOpen = $state(false);
-  let activeVideo: Video | null = $state(null);
-  let collection: Collection | null = $state<Collection | null>(null);
+  let activeVideoPath = $state<string | null>(null);
 
   const openDetails = (v: Video) => {
-    activeVideo = v;
+    activeVideoPath = v.path;
     drawerOpen = true;
   };
+
+  const activeVideo = $derived(() => {
+    const c = $collectionStore;
+    if (!c || !activeVideoPath) return null;
+    return c.videos.find((v) => v.path === activeVideoPath) ?? null;
+  });
 
   const pickVideo = async () => {
     const result = await open({
@@ -45,7 +46,7 @@
         const videoAdded = e.payload;
 
         if (videoAdded.thumbnail) {
-          collection?.videos.push(toVideo(videoAdded));
+          collectionStore.addVideo(videoAdded);
         }
       }
     );
@@ -53,7 +54,7 @@
       'collection:created',
       (e) => {
         const collectionCreated = e.payload;
-        collection = toCollection(collectionCreated);
+        collectionStore.initialize(collectionCreated);
       }
     );
 
@@ -86,16 +87,16 @@
   </button>
 
   <div class="mt-4">
-    {#if collection}
+    {#if $collectionStore}
       <div class="border-b border-gray-200 pb-5 dark:border-white/10">
         <div class="-mt-2 -ml-2 flex flex-wrap items-baseline">
           <h3
             class="mt-2 ml-2 text-base font-semibold text-gray-900 dark:text-white"
           >
-            {collection.title}
+            {$collectionStore.title}
           </h3>
           <p class="mt-1 ml-2 truncate text-sm text-gray-500 dark:text-gray-400">
-            Number of videos {collection.videos.length}
+            Number of videos {$collectionStore.videos.length}
           </p>
         </div>
       </div>
@@ -104,7 +105,7 @@
         role="list"
         class="grid grid-cols-2 gap-x-4 gap-y-8 sm:grid-cols-3 sm:gap-x-6 lg:grid-cols-4 xl:gap-x-8"
       >
-        {#each collection.videos as video}
+        {#each $collectionStore.videos as video}
           <li class="relative">
             <div
               class="group overflow-hidden rounded-lg bg-gray-100 focus-within:outline-2 focus-within:outline-offset-2 focus-within:outline-indigo-600 dark:bg-gray-800 dark:focus-within:outline-indigo-500"
@@ -142,7 +143,7 @@
           drawerOpen = false;
         }}
       >
-        <VideoForm bind:video={activeVideo} collectionId={collection.id} />
+        <VideoForm video={activeVideo()} collectionId={$collectionStore.id} />
       </Drawer>
     {/if}
   </div>

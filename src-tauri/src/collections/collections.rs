@@ -12,11 +12,11 @@ pub enum Style {
     #[serde(rename = "Hard Rock")]
     HardRock,
     #[serde(rename = "Metal")]
-    Jazz,
-    #[serde(rename = "Blues")]
     Metal,
-    #[serde(rename = "Jazz")]
+    #[serde(rename = "Blues")]
     Blues,
+    #[serde(rename = "Jazz")]
+    Jazz,
     #[serde(rename = "Funk")]
     Funk,
     #[serde(rename = "Pop")]

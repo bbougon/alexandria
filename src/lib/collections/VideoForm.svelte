@@ -1,16 +1,20 @@
 <script lang="ts">
   import EditableInput from '../components/EditableInput.svelte';
-  import { STYLES, type Video } from './video';
+  import { type Style, STYLES, type Video } from './video';
   import EditableMultiSelectInput from '../components/EditableMultiSelectInput.svelte';
   import EditableTagInput from '../components/EditableTagInput.svelte';
   import Badge from '../components/Badge.svelte';
+  import { updateVideo } from './video-operations';
+  import { collectionStore } from './collection.store';
+  import { get } from 'svelte/store';
+  import { invoke } from '@tauri-apps/api/core';
 
   interface VideoFormProps {
     video?: Video | null;
     collectionId: string;
   }
 
-  let { video = $bindable() }: VideoFormProps = $props();
+  let { video }: VideoFormProps = $props();
 
   let videoEl: HTMLVideoElement | null = null;
 
@@ -26,8 +30,52 @@
     }
   });
 
-  const removeTag = (tag: string) => {
-    video?.tags.splice(video.tags.indexOf(tag), 1);
+  const removeTag = async (tag: string) => {
+    if (!video) return;
+    await collectionStore.removeTag(video, tag, async (video) => {
+      const { path, thumbnail, size, name, artist, song, style, tags } = video;
+      const collection = get(collectionStore);
+      await invoke<void>('update_video', {
+        video: {
+          collection_id: collection.id,
+          video: {
+            path,
+            thumbnail,
+            size_bytes: size,
+            name,
+            artist,
+            song,
+            style,
+            tags,
+          },
+        },
+      });
+    });
+  };
+
+  const updateVideoName = async (event: Event) => {
+    if (!video) return;
+    const value = (event.target as HTMLInputElement).value;
+    await updateVideo(video, 'name', value);
+  };
+  const updateArtistName = async (event: Event) => {
+    if (!video) return;
+    const value = (event.target as HTMLInputElement).value;
+    await updateVideo(video, 'artist', value);
+  };
+  const updateSongName = async (event: Event) => {
+    if (!video) return;
+    const value = (event.target as HTMLInputElement).value;
+    await updateVideo(video, 'song', value);
+  };
+
+  const addVideoTag = async (value: string) => {
+    if (!video) return;
+    await updateVideo(video, 'tags', [value]);
+  };
+  const addvideoStyle = async (style: unknown | Style) => {
+    if (!video) return;
+    await updateVideo(video, 'style', [style as Style]);
   };
 </script>
 
@@ -72,9 +120,10 @@
           {/snippet}
           <EditableInput
             label="Name"
-            bind:value={video.name}
+            value={video.name}
             toggle={editName}
             hideOnToggle={videoName}
+            onblur={(value) => updateVideoName(value)}
           ></EditableInput>
         {/if}
         <p class="text-sm font-medium text-gray-500 dark:text-gray-400">
@@ -105,10 +154,11 @@
             {/snippet}
             <EditableInput
               label="Artist name"
-              bind:value={video.artist}
+              value={video.artist}
               toggle={editArtistName}
               hideOnToggle={artistName}
               displayChild={showEditButton}
+              onblur={(value) => updateArtistName(value)}
             ></EditableInput>
           {/if}
         </div>
@@ -127,10 +177,11 @@
             {/snippet}
             <EditableInput
               label="Song name"
-              bind:value={video.song}
+              value={video.song}
               toggle={editSongName}
               hideOnToggle={songName}
               displayChild={showEditButton}
+              onblur={(value) => updateSongName(value)}
             ></EditableInput>
           {/if}
         </div>
@@ -151,11 +202,12 @@
             {/snippet}
             <EditableMultiSelectInput
               label="Song style"
-              bind:value={video.style}
+              value={video.style}
               toggle={editSongStyle}
               hideOnToggle={songStyle}
               displayChild={showEditButton}
               options={[...STYLES]}
+              addOption={(style) => addvideoStyle(style)}
             ></EditableMultiSelectInput>
           {/if}
         </div>
@@ -171,23 +223,15 @@
       <div class="flex">
         <div class="mt-2 mb-4 flex gap-2 items-center flex-wrap">
           {#each video.tags as tag}
-            <Badge value={tag} remove={() => removeTag(tag)} />
+            <Badge value={tag} onclick={() => removeTag(tag)} />
           {/each}
         </div>
       </div>
       <EditableTagInput
         label="Song tags"
-        bind:value={video.tags}
         toggle={editSongTags}
+        onAddTag={(value) => addVideoTag(value)}
       ></EditableTagInput>
     {/if}
-  </div>
-  <div class="flex">
-    <button
-      type="button"
-      class="flex-1 rounded-md bg-gray-600 px-3 py-2 text-sm font-semibold text-white shadow-xs hover:bg-gray-500 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gray-600 dark:bg-gray-500 dark:shadow-none dark:hover:bg-gray-400 dark:focus-visible:outline-indigo-gray"
-    >
-      Save
-    </button>
   </div>
 </div>

@@ -1,5 +1,5 @@
 use crate::collections::collections::CollectionService;
-use crate::collections::video::{ThumbnailItem, VideoFileManager};
+use crate::collections::video::{ThumbnailItem, VideoCollectionToUpdate, VideoFileManager};
 use crate::event_bus::{EventBusManager, TauriEventBus};
 use crate::infra::files::file_manager::FileManagerForHardDrive;
 use tauri::AppHandle;
@@ -24,4 +24,10 @@ pub async fn create_collection(
             size_bytes: Option::from(v.size_bytes),
         })
         .collect())
+}
+
+#[tauri::command]
+pub async fn update_video(app: AppHandle, video: VideoCollectionToUpdate) -> Result<(), String> {
+    log::info!("update_video: {:?}", video);
+    Ok(())
 }

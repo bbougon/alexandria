@@ -1,9 +1,8 @@
 <script lang="ts">
-  import type { HTMLInputAttributes } from 'svelte/elements';
+  import type { HTMLButtonAttributes } from 'svelte/elements';
 
-  interface Props extends HTMLInputAttributes {
+  interface Props extends HTMLButtonAttributes {
     value: string;
-    remove: () => void;
   }
 
   type ColourName = 'purple' | 'yellow' | 'green' | 'blue' | 'indigo' | 'pink';
@@ -108,7 +107,7 @@
     return allColours[Math.floor(Math.random() * allColours.length)];
   };
 
-  let { value, remove }: Props = $props();
+  let { value, ...props }: Props = $props();
   const activeColour = pickRandomColour(colours);
 </script>
 
@@ -119,7 +118,7 @@
   <button
     type="button"
     class={`${activeColour.button.join(' ')} group relative -mr-1 size-3.5 rounded-xs`}
-    onclick={() => remove()}
+    {...props}
   >
     <span class="sr-only">Remove</span>
     <svg viewBox="0 0 14 14" class={`${activeColour.svg.join(' ')} size-3.5`}>

@@ -4,26 +4,20 @@
 
   interface Props extends HTMLInputAttributes {
     label: string;
-    value: string[];
     toggle: boolean;
     hideOnToggle?: Snippet;
     displayChild?: Snippet;
+    onAddTag: (tag: string) => void;
   }
 
   const availableKeysToPushTag = ['Enter', 'Tab', ',', ';', ' ', 'Semicolon'];
 
-  let {
-    value = $bindable(),
-    label,
-    toggle,
-    hideOnToggle,
-    displayChild,
-  }: Props = $props();
+  let { label, toggle, hideOnToggle, displayChild, onAddTag }: Props = $props();
   const addTag = (e: KeyboardEvent) => {
     if (availableKeysToPushTag.includes(e.key)) {
       e.preventDefault();
       const inputTarget = e.currentTarget as HTMLInputElement;
-      if (!value.includes(inputTarget.value)) value.push(inputTarget.value);
+      onAddTag(inputTarget.value);
       inputTarget.value = '';
     }
   };

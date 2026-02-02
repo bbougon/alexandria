@@ -16,10 +16,8 @@
     toggle,
     hideOnToggle,
     displayChild,
+    ...props
   }: Props = $props();
-  const updateValue = (event: Event) => {
-    value = (event.target as HTMLInputElement).value;
-  };
 </script>
 
 {#if !toggle}
@@ -33,11 +31,11 @@
       >Name</label
     >
     <input
-      {value}
+      bind:value
       id={label}
       type="text"
       name={label}
-      onchange={(e) => updateValue(e)}
+      {...props}
       class="block w-full rounded-md bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6 dark:bg-gray-900 dark:text-white dark:outline-gray-600 dark:placeholder:text-gray-500 dark:focus:outline-indigo-500"
     />
   </div>

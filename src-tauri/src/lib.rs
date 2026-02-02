@@ -23,7 +23,8 @@ pub fn run() {
             Ok(())
         })
         .invoke_handler(tauri::generate_handler![
-            collection_commands::create_collection
+            collection_commands::create_collection,
+            collection_commands::update_video
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

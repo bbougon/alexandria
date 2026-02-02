@@ -22,6 +22,24 @@ pub struct VideoAddedToCollection {
     pub size_bytes: u64,
 }
 
+#[derive(serde::Serialize, serde::Deserialize, Clone, Debug)]
+pub struct VideoCollectionToUpdate {
+    collection_id: uuid::Uuid,
+    video: VideoToUpdate,
+}
+
+#[derive(serde::Serialize, serde::Deserialize, Clone, Debug)]
+pub struct VideoToUpdate {
+    pub path: PathBuf,
+    pub name: String,
+    pub artist: String,
+    pub song: String,
+    pub style: Vec<Style>,
+    pub tags: Vec<String>,
+    pub thumbnail: String,
+    pub size_bytes: u64,
+}
+
 pub trait FileManager {
     fn add_files_from_paths_to_collection(
         &self,
