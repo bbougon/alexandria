@@ -16,11 +16,38 @@ impl CollectionRepositoryFile {
     pub fn new(base_dir: PathBuf) -> Self {
         Self { base_dir }
     }
+
+    fn find_collection_file_path(&self, id: &Uuid) -> Option<PathBuf> {
+        let collections_dir = self.base_dir.clone();
+        if !collections_dir.exists() {
+            return None;
+        }
+
+        let entries = fs::read_dir(&collections_dir).ok()?;
+
+        for entry in entries {
+            let entry = entry.ok()?;
+            let path = entry.path();
+            if path.extension().and_then(|ext| ext.to_str()) != Some("json") {
+                continue;
+            }
+
+            if let Ok(content) = fs::read_to_string(&path) {
+                if let Ok(collection) = serde_json::from_str::<Collection>(&content) {
+                    if collection.id == *id {
+                        return Some(path);
+                    }
+                }
+            }
+        }
+
+        None
+    }
 }
 
 impl CollectionRepository for CollectionRepositoryFile {
     fn list(&self) -> Vec<Collection> {
-        let collections_dir = self.base_dir.join("collections");
+        let collections_dir = self.base_dir.clone();
         if !collections_dir.exists() {
             return Vec::new();
         }
@@ -61,14 +88,26 @@ impl CollectionRepository for CollectionRepositoryFile {
     }
 
     fn add(&self, _c: Collection) {
-        let now = Local::now();
-        let file_name = format!("collection-{}.json", now.format("%Y-%m-%d_%H-%M-%S"));
-        let path = self.base_dir.join(file_name);
+        let existing_path = if let Some(_existing) = self.get_by_id(&_c.id) {
+            self.find_collection_file_path(&_c.id)
+        } else {
+            None
+        };
+
+        let path = if let Some(existing_path) = existing_path {
+            existing_path
+        } else {
+            let now = Local::now();
+            let file_name = format!("collection-{}.json", now.format("%Y-%m-%d_%H-%M-%S"));
+            self.base_dir.join(file_name)
+        };
+
         if let Some(parent) = path.parent() {
             fs::create_dir_all(parent)
                 .map_err(|e| format!("Impossible de créer le dossier {parent:?}: {e}"))
                 .unwrap();
         }
+
         let file = match File::create(&path) {
             Ok(f) => f,
             Err(e) => {

@@ -24,8 +24,8 @@ pub struct VideoAddedToCollection {
 
 #[derive(serde::Serialize, serde::Deserialize, Clone, Debug)]
 pub struct VideoCollectionToUpdate {
-    collection_id: uuid::Uuid,
-    video: VideoToUpdate,
+    pub collection_id: uuid::Uuid,
+    pub video: VideoToUpdate,
 }
 
 #[derive(serde::Serialize, serde::Deserialize, Clone, Debug)]

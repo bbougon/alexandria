@@ -28,6 +28,9 @@ pub async fn create_collection(
 
 #[tauri::command]
 pub async fn update_video(app: AppHandle, video: VideoCollectionToUpdate) -> Result<(), String> {
-    log::info!("update_video: {:?}", video);
+    CollectionService::update_video(
+        video,
+        EventBusManager::new(Box::new(TauriEventBus::new(app))),
+    );
     Ok(())
 }

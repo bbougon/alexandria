@@ -1,5 +1,5 @@
 use crate::clock::clock;
-use crate::collections::video::VideoFileManager;
+use crate::collections::video::{VideoCollectionToUpdate, VideoFileManager};
 use crate::event_bus::{Event, EventBusManager};
 use crate::repositories::repositories;
 use std::path::PathBuf;
@@ -113,6 +113,10 @@ impl CollectionRepository for CollectionRepositoryMemory {
         self.items.lock().clone()
     }
     fn add(&self, c: Collection) {
+        if let Some(item) = self.items.lock().iter_mut().find(|x| x.id == c.id) {
+            *item = c;
+            return;
+        }
         self.items.lock().push(c);
     }
 
@@ -122,6 +126,33 @@ impl CollectionRepository for CollectionRepositoryMemory {
 }
 
 pub struct CollectionService {}
+
+impl CollectionService {
+    pub(crate) fn update_video(
+        video_to_update: VideoCollectionToUpdate,
+        bus_manager: EventBusManager,
+    ) {
+        let mut collection = repositories()
+            .collections()
+            .get_by_id(&video_to_update.collection_id)
+            .unwrap();
+
+        if let Some(video) = collection
+            .videos
+            .iter_mut()
+            .find(|p| p.path == video_to_update.video.path)
+        {
+            video.style = video_to_update.video.style.clone();
+            video.name = video_to_update.video.name.clone();
+            video.artist = video_to_update.video.artist.clone();
+            video.song = video_to_update.video.song.clone();
+            video.tags = video_to_update.video.tags.clone();
+            video.thumbnail = video_to_update.video.thumbnail.clone();
+            video.size_bytes = video_to_update.video.size_bytes;
+        }
+        repositories().collections().add(collection);
+    }
+}
 
 impl CollectionService {
     pub fn create_collection(
@@ -155,16 +186,12 @@ impl CollectionService {
 
 #[cfg(test)]
 mod collection_service_tests {
-    use crate::collections::collections::{
-        Collection, CollectionCreated, CollectionRepositoryMemory, CollectionService, Video,
-    };
-    use crate::collections::video::{
-        FileManager, ThumbnailItem, VideoAddedToCollection, VideoFileManager,
-    };
-    use crate::event_bus::{Event, EventBus, EventBusManager};
-    use crate::repositories::{repositories, with_test_repositories, Repositories};
-    use chrono::{TimeZone, Utc};
-    use std::path::PathBuf;
+    use crate::clock::ClockGuard;
+    use crate::collections::collections::{CollectionRepositoryMemory, Video};
+    use crate::collections::video::{FileManager, ThumbnailItem, VideoFileManager};
+    use crate::event_bus::{Event, EventBus};
+    use crate::repositories::{with_test_repositories, Repositories, RepositoriesGuard};
+    use chrono::{DateTime, MappedLocalTime, Utc};
     use std::sync::Arc;
 
     struct FileManagerMemory {
@@ -201,16 +228,43 @@ mod collection_service_tests {
         }
     }
 
-    #[test]
-    fn test_collection_service() {
-        let now = Utc.with_ymd_and_hms(2026, 1, 28, 12, 0, 0).unwrap();
+    pub fn setup(
+        current_date_time: MappedLocalTime<DateTime<Utc>>,
+    ) -> (
+        VideoFileManager,
+        Arc<MemoryEventBus>,
+        ClockGuard,
+        RepositoriesGuard,
+    ) {
+        let now = current_date_time.unwrap();
         let _clock_guard = crate::clock::with_static_clock(now);
         let mem = CollectionRepositoryMemory::new();
         let _repos_guard = with_test_repositories(Repositories::new(Arc::new(mem)));
-
         let video_file_manager =
             VideoFileManager::new(Box::new(FileManagerMemory { items: vec![] }));
         let event_bus = Arc::new(MemoryEventBus::new());
+
+        (video_file_manager, event_bus, _clock_guard, _repos_guard)
+    }
+}
+
+#[cfg(test)]
+mod collection_service_create_collection_tests {
+    use crate::collections::collections::collection_service_tests::setup;
+    use crate::collections::collections::{
+        Collection, CollectionCreated, CollectionService, Video,
+    };
+    use crate::collections::video::VideoAddedToCollection;
+    use crate::event_bus::EventBusManager;
+    use crate::repositories::repositories;
+    use chrono::{TimeZone, Utc};
+    use std::path::PathBuf;
+
+    #[test]
+    fn create_collection() {
+        let (video_file_manager, event_bus, _clock_guard, _repositories_guard) =
+            setup(Utc.with_ymd_and_hms(2026, 1, 28, 12, 0, 0));
+
         let collection = CollectionService::create_collection(
             vec!["foo/video.mp4".parse().unwrap()],
             video_file_manager,
@@ -238,15 +292,10 @@ mod collection_service_tests {
     }
 
     #[test]
-    fn test_collection_service_publish_collection_created() {
-        let now = Utc.with_ymd_and_hms(2026, 1, 28, 12, 0, 0).unwrap();
-        let _clock_guard = crate::clock::with_static_clock(now);
-        let mem = CollectionRepositoryMemory::new();
-        let _repos_guard = with_test_repositories(Repositories::new(Arc::new(mem)));
-        let video_file_manager =
-            VideoFileManager::new(Box::new(FileManagerMemory { items: vec![] }));
+    fn collection_service_publish_collection_created() {
+        let (video_file_manager, event_bus, _clock_guard, _repositories_guard) =
+            setup(Utc.with_ymd_and_hms(2026, 1, 28, 12, 0, 0));
 
-        let event_bus = Arc::new(MemoryEventBus::new());
         let collection = CollectionService::create_collection(
             vec!["foo/video.mp4".parse().unwrap()],
             video_file_manager,
@@ -268,15 +317,10 @@ mod collection_service_tests {
     }
 
     #[test]
-    fn test_collection_service_publish_video_added_to_collection() {
-        let now = Utc.with_ymd_and_hms(2026, 1, 28, 12, 0, 0).unwrap();
-        let _clock_guard = crate::clock::with_static_clock(now);
-        let mem = CollectionRepositoryMemory::new();
-        let _repos_guard = with_test_repositories(Repositories::new(Arc::new(mem)));
-        let video_file_manager =
-            VideoFileManager::new(Box::new(FileManagerMemory { items: vec![] }));
+    fn collection_service_publish_video_added_to_collection() {
+        let (video_file_manager, event_bus, _clock_guard, _repositories_guard) =
+            setup(Utc.with_ymd_and_hms(2026, 1, 28, 12, 0, 0));
 
-        let event_bus = Arc::new(MemoryEventBus::new());
         let collection = CollectionService::create_collection(
             vec!["foo/video.mp4".parse().unwrap()],
             video_file_manager,
@@ -301,5 +345,63 @@ mod collection_service_tests {
             })
             .unwrap()
         );
+    }
+}
+
+#[cfg(test)]
+mod collection_service_update_video_tests {
+    use crate::collections::collections::collection_service_tests::setup;
+    use crate::collections::collections::Style::Rock;
+    use crate::collections::collections::{CollectionService, Video};
+    use crate::collections::video::{VideoCollectionToUpdate, VideoToUpdate};
+    use crate::event_bus::EventBusManager;
+    use crate::repositories::repositories;
+    use chrono::{TimeZone, Utc};
+
+    #[test]
+    fn update_video() {
+        let (video_file_manager, event_bus, _clock_guard, _repositories_guard) =
+            setup(Utc.with_ymd_and_hms(2026, 1, 28, 12, 0, 0));
+        let collection = CollectionService::create_collection(
+            vec!["foo/video.mp4".parse().unwrap()],
+            video_file_manager,
+            EventBusManager::new(Box::new(event_bus.clone())),
+        );
+        let video = collection.videos[0].clone();
+
+        CollectionService::update_video(
+            VideoCollectionToUpdate {
+                collection_id: collection.id,
+                video: VideoToUpdate {
+                    path: video.path.clone(),
+                    name: "Rest my chemistry - Intro".to_string(),
+                    artist: "Interpol".to_string(),
+                    song: "Rest my chemistry".to_string(),
+                    style: vec![Rock],
+                    tags: vec!["alternative".to_string(), "rhythmic".to_string()],
+                    thumbnail: video.thumbnail.clone(),
+                    size_bytes: video.size_bytes,
+                },
+            },
+            EventBusManager::new(Box::new(event_bus.clone())),
+        );
+
+        let retrieved_collection = repositories()
+            .collections()
+            .get_by_id(&collection.id)
+            .unwrap();
+        assert_eq!(
+            retrieved_collection.videos[0],
+            Video {
+                path: video.path,
+                name: "Rest my chemistry - Intro".to_string(),
+                artist: "Interpol".to_string(),
+                song: "Rest my chemistry".to_string(),
+                style: vec![Rock],
+                tags: vec!["alternative".to_string(), "rhythmic".to_string()],
+                thumbnail: video.thumbnail,
+                size_bytes: video.size_bytes,
+            }
+        )
     }
 }
