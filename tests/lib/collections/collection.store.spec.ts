@@ -216,6 +216,36 @@ describe('Collection store', () => {
         play: expect.any(Function),
       });
     });
+
+    it('the collection is backed up if removing a tag from a video fails', async () => {
+      const videoFromCollection = aVideoFromCollection()
+        .withTags(['rock', 'punk', 'intro'])
+        .build();
+      collectionStore.initialize({
+        collection_id: '123',
+        title: 'My collection',
+        videos: [videoFromCollection],
+      });
+      const video = toVideo(videoFromCollection);
+
+      await collectionStore.removeTag(video, 'punk', async () =>
+        Promise.reject("I'm an error")
+      );
+
+      const collection = get(collectionStore);
+      expect(collection.videos[0]).toStrictEqual<Video>({
+        path: video.path,
+        thumbnail: video.thumbnail,
+        size: video.size,
+        name: video.name,
+        artist: video.artist,
+        song: video.song,
+        style: video.style,
+        tags: ['rock', 'punk', 'intro'],
+        toHumanReadable: expect.any(Function),
+        play: expect.any(Function),
+      });
+    });
   });
 
   it('emits an event video_update', async () => {
@@ -238,6 +268,34 @@ describe('Collection store', () => {
       thumbnail: video.thumbnail,
       size: video.size,
       name: 'New name',
+      artist: video.artist,
+      song: video.song,
+      style: video.style,
+      tags: video.tags,
+      toHumanReadable: expect.any(Function),
+      play: expect.any(Function),
+    });
+  });
+
+  it('the collection is backed up if an error occurres during emission', async () => {
+    const videoFromCollection = aVideoFromCollection().withName('Old name').build();
+    collectionStore.initialize({
+      collection_id: '123',
+      title: 'My collection',
+      videos: [videoFromCollection],
+    });
+    const video = toVideo(videoFromCollection);
+
+    await collectionStore.updateVideo(video, 'name', 'New name', async () => {
+      return Promise.reject("I'm an error");
+    });
+
+    const backedUpCollection = get(collectionStore);
+    expect(backedUpCollection.videos[0]).toStrictEqual<Video>({
+      path: video.path,
+      thumbnail: video.thumbnail,
+      size: video.size,
+      name: video.name,
       artist: video.artist,
       song: video.song,
       style: video.style,
