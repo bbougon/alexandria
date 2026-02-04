@@ -26,7 +26,7 @@ export type CollectionCreated = {
 
 const { subscribe, set, update } = writable<Collection>();
 
-export const toCollection = (collectionCreated: CollectionCreated): Collection => ({
+const toCollection = (collectionCreated: CollectionCreated): Collection => ({
   id: collectionCreated.collection_id,
   title: collectionCreated.title,
   videos: collectionCreated.videos.map(toVideo),
@@ -34,7 +34,7 @@ export const toCollection = (collectionCreated: CollectionCreated): Collection =
 const initialize = (collection: CollectionCreated) => {
   set(toCollection(collection));
 };
-export const addVideo = (video: VideoAddedToCollection) => {
+const addVideo = (video: VideoAddedToCollection) => {
   update((collection) => ({
     ...collection,
     videos: [...collection.videos, toVideo(video)],
@@ -45,7 +45,7 @@ type ArrayVideoField = 'tags' | 'style';
 const isArrayVideoField = (field: keyof Video): field is ArrayVideoField =>
   field === 'tags' || field === 'style';
 
-export const updateVideo = async <K extends keyof Video>(
+const updateVideo = async <K extends keyof Video>(
   video: Video,
   field: K,
   value: Video[K],
