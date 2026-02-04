@@ -24,7 +24,8 @@ pub fn run() {
         })
         .invoke_handler(tauri::generate_handler![
             collection_commands::create_collection,
-            collection_commands::update_video
+            collection_commands::update_video,
+            collection_commands::get_collections
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

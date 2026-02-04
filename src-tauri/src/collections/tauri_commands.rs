@@ -1,7 +1,8 @@
-use crate::collections::collections::CollectionService;
+use crate::collections::collections::{Collection, CollectionService};
 use crate::collections::video::{ThumbnailItem, VideoCollectionToUpdate, VideoFileManager};
 use crate::event_bus::{EventBusManager, TauriEventBus};
 use crate::infra::files::file_manager::FileManagerForHardDrive;
+use crate::repositories::repositories;
 use tauri::AppHandle;
 
 #[tauri::command]
@@ -33,4 +34,10 @@ pub async fn update_video(app: AppHandle, video: VideoCollectionToUpdate) -> Res
         EventBusManager::new(Box::new(TauriEventBus::new(app))),
     );
     Ok(())
+}
+
+#[tauri::command]
+pub async fn get_collections(_app: AppHandle) -> Result<Vec<Collection>, String> {
+    let collections = repositories().collections().list();
+    Ok(collections)
 }
