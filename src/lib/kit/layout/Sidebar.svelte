@@ -2,12 +2,10 @@
   import DesktopSidebar from './DesktopSidebar.svelte';
   import MobileSidebar from './MobileSidebar.svelte';
   import { collectionsStore } from '../../collections/collections.store';
-
-  const collections = $collectionsStore;
 </script>
 
 {#snippet showCollections()}
-  {#each collections as collection}
+  {#each $collectionsStore as collection}
     <li>
       <a
         href="#"

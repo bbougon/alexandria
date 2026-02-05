@@ -47,7 +47,6 @@
           </button>
         </div>
 
-        <!-- Sidebar component, swap this element with another sidebar if you like -->
         <div
           class="relative flex grow flex-col gap-y-5 overflow-y-auto bg-white px-6 pb-4 dark:bg-gray-900 dark:ring dark:ring-white/10 dark:before:pointer-events-none dark:before:absolute dark:before:inset-0 dark:before:bg-black/10"
         >

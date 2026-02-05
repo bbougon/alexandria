@@ -3,7 +3,7 @@
   import Searchbar from './lib/kit/layout/Searchbar.svelte';
   import Sidebar from './lib/kit/layout/Sidebar.svelte';
   import { collectionsStore } from './lib/collections/collections.store';
-  import { allCollections } from './lib/collections/collections';
+  import { allCollections } from './lib/collections/collections.tauri';
 
   collectionsStore.initialize(allCollections);
 </script>
