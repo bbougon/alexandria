@@ -23,10 +23,22 @@ impl CollectionRepositoryFile {
             return None;
         }
 
-        let entries = fs::read_dir(&collections_dir).ok()?;
+        let entries = match fs::read_dir(&collections_dir) {
+            Ok(entries) => entries,
+            Err(e) => {
+                log::error!("Failed to read directory {collections_dir:?}: {e}");
+                return None;
+            }
+        };
 
         for entry in entries {
-            let entry = entry.ok()?;
+            let entry = match entry {
+                Ok(entry) => entry,
+                Err(e) => {
+                    log::error!("Failed to read directory entry: {e}");
+                    continue;
+                }
+            };
             let path = entry.path();
             if path.extension().and_then(|ext| ext.to_str()) != Some("json") {
                 continue;
@@ -103,31 +115,32 @@ impl CollectionRepository for CollectionRepositoryFile {
         };
 
         if let Some(parent) = path.parent() {
-            fs::create_dir_all(parent)
-                .map_err(|e| format!("Impossible de créer le dossier {parent:?}: {e}"))
-                .unwrap();
+            if let Err(e) = fs::create_dir_all(parent) {
+                log::error!("Impossible de créer le dossier {parent:?}: {e}");
+                return;
+            }
         }
 
         let file = match File::create(&path) {
             Ok(f) => f,
             Err(e) => {
-                eprintln!("Impossible de créer {path:?}: {e}");
+                log::error!("Impossible de créer {path:?}: {e}");
                 return;
             }
         };
         let writer = BufWriter::new(file);
 
         if let Err(e) = serde_json::to_writer_pretty(writer, &_c) {
-            eprintln!("Impossible d'écrire le JSON: {e}");
+            log::error!("Impossible d'écrire le JSON: {e}");
         }
     }
 
     fn get_by_id(&self, id: &Uuid) -> Option<Collection> {
-        self.list().iter().find(|c| c.id == *id).cloned()
+        self.list().into_iter().find(|c| c.id == *id)
     }
 }
 
-pub fn init_prod() {
-    let file_repo = CollectionRepositoryFile::new(PathBuf::from("./data/collections/"));
+pub fn init_prod(base_dir: PathBuf) {
+    let file_repo = CollectionRepositoryFile::new(base_dir);
     set_repositories(Repositories::new(Arc::new(file_repo)));
 }

@@ -1,10 +1,10 @@
 [package]
-name = "app"
+name = "alexandria"
 version = "0.1.0"
-description = "A Tauri App"
-authors = ["you"]
+description = "Alexandria, edit, sort and search for your videos"
+authors = ["bbougon"]
 license = ""
-repository = ""
+repository = "https://github.com/bbougon/alexandria"
 edition = "2021"
 rust-version = "1.77.2"
 

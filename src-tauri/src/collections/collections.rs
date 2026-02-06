@@ -130,7 +130,7 @@ pub struct CollectionService {}
 impl CollectionService {
     pub(crate) fn update_video(
         video_to_update: VideoCollectionToUpdate,
-        bus_manager: EventBusManager,
+        _bus_manager: EventBusManager,
     ) {
         let mut collection = repositories()
             .collections()

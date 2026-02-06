@@ -4,8 +4,39 @@ use base64::Engine;
 use std::path::{Path, PathBuf};
 use std::process::Command;
 
+fn get_ffmpeg_command() -> Command {
+    #[cfg(target_os = "windows")]
+    let paths = ["ffmpeg", "ffmpeg.exe"];
+
+    #[cfg(target_os = "macos")]
+    let paths = [
+        "ffmpeg",
+        "/opt/homebrew/bin/ffmpeg",
+        "/usr/local/bin/ffmpeg",
+    ];
+
+    #[cfg(target_os = "linux")]
+    let paths = [
+        "ffmpeg",
+        "/usr/bin/ffmpeg",
+        "/usr/local/bin/ffmpeg",
+        "/snap/bin/ffmpeg",
+    ];
+
+    #[cfg(not(any(target_os = "windows", target_os = "macos", target_os = "linux")))]
+    let paths = ["ffmpeg"];
+
+    for path in paths {
+        if Command::new(path).arg("-version").output().is_ok() {
+            return Command::new(path);
+        }
+    }
+
+    Command::new("ffmpeg")
+}
+
 fn generate_one_thumbnail_ffmpeg(video_path: &Path) -> Result<String, String> {
-    let output = Command::new("ffmpeg")
+    let output = get_ffmpeg_command()
         .args([
             "-hide_banner",
             "-loglevel",
@@ -51,7 +82,7 @@ impl FileManagerForHardDrive {
             Ok(base_64_image) => Ok(Some(base_64_image)),
             Err(e) => {
                 log::error!("Failed to generate thumbnail {video_path:?}: {e}");
-                Err("Failed".to_string())
+                Ok(None)
             }
         }
     }
@@ -60,9 +91,9 @@ impl FileManagerForHardDrive {
 impl FileManager for FileManagerForHardDrive {
     fn create_video(&self, path: &str) -> Result<Video, String> {
         let video_path = PathBuf::from(path);
-        let size_bytes = std::fs::metadata(&video_path).map(|m| m.len()).ok();
-        let thumbnail = Self::create_thumbnail(&video_path)?;
-        let video = Video::new(video_path, thumbnail.unwrap(), size_bytes.unwrap());
+        let size_bytes = std::fs::metadata(&video_path).map(|m| m.len()).unwrap_or(0);
+        let thumbnail = Self::create_thumbnail(&video_path)?.unwrap_or_default();
+        let video = Video::new(video_path, thumbnail, size_bytes);
         Ok(video)
     }
 }
