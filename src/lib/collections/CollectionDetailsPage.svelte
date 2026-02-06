@@ -46,9 +46,15 @@
             <h2 id="collection-heading" class="sr-only">Videos in collection</h2>
 
             <ul bind:this={listElement} role="list" class="divide-y divide-gray-200">
-              {#each $selectedCollection.collection.videos as video}
-                <li class="flex py-6 sm:py-10">
-                  <div
+              {#each $selectedCollection.collection.videos as video, index}
+                <li
+                  class="flex py-6 sm:py-10 transition-all duration-300 {selectedVideoPath ===
+                  video.path
+                    ? 'relative z-50 bg-white dark:bg-gray-900 rounded-lg px-4 shadow-xl'
+                    : ''}"
+                >
+                  <button
+                    tabindex={index}
                     class="shrink-0 cursor-pointer"
                     onclick={(e) => selectVideo(video, e)}
                   >
@@ -57,13 +63,13 @@
                       alt={video.name}
                       class="size-24 aspect-10/7 rounded-md object-cover sm:size-48"
                     />
-                  </div>
+                  </button>
 
                   <div class="ml-4 flex flex-1 flex-col justify-between sm:ml-6">
                     <div
                       class="relative pr-9 sm:grid sm:grid-cols-2 sm:gap-x-6 sm:pr-0"
                     >
-                      <div>
+                      <div class="col-span-2">
                         <div class="flex justify-between">
                           <h3 class="text-sm">
                             <button
@@ -106,9 +112,18 @@
           </section>
 
           {#if selectedVideoPath}
+            <div
+              class="fixed inset-0 bg-gray-500/75 transition-opacity z-40"
+              onclick={() => (selectedVideoPath = undefined)}
+              onkeydown={(e) =>
+                e.key === 'Escape' && (selectedVideoPath = undefined)}
+              role="button"
+              tabindex="0"
+              aria-label="Close video details"
+            ></div>
             <section
               aria-labelledby="video-section"
-              class="lg:block mt-16 lg:col-span-5 lg:mt-0 transition-all duration-300"
+              class="lg:block mt-16 lg:col-span-5 lg:mt-0 transition-all duration-300 relative z-50 bg-white dark:bg-gray-900 rounded-lg p-6 shadow-xl"
               style="margin-top: {selectedElementOffset}px"
             >
               <div class="flex justify-end items-center mb-4">
