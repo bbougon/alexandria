@@ -108,7 +108,7 @@
     return allColours[Math.floor(Math.random() * allColours.length)];
   };
 
-  let { value, removable, ...props }: Props = $props();
+  let { value, removable = false, ...props }: Props = $props();
   const activeColour = pickRandomColour(colours);
 </script>
 

@@ -245,7 +245,7 @@
       <div class="flex">
         <div class="mt-2 mb-4 flex gap-2 items-center flex-wrap">
           {#each video.tags as tag}
-            <Badge value={tag} onclick={() => removeTag(tag)} />
+            <Badge value={tag} removable={true} onclick={() => removeTag(tag)} />
           {/each}
         </div>
       </div>

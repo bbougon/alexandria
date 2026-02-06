@@ -1,6 +1,27 @@
 <script lang="ts">
   import { selectedCollection } from './collection.store';
   import Badge from '../components/Badge.svelte';
+  import type { Video } from './video';
+  import VideoForm from './VideoForm.svelte';
+
+  let selectedVideoPath: string | undefined = $state();
+  let listElement: HTMLElement | undefined = $state();
+  let selectedElementOffset = $state(0);
+
+  const selectVideo = (video: Video, event: MouseEvent) => {
+    selectedVideoPath = video.path;
+    const target = event.currentTarget as HTMLElement;
+    const listItem = target.closest('li');
+    if (listItem && listElement) {
+      selectedElementOffset = listItem.offsetTop - 40;
+    }
+  };
+
+  const activeVideo = $derived(() => {
+    const c = $selectedCollection.collection;
+    if (!c || !selectedVideoPath) return null;
+    return c.videos.find((v) => v.path === selectedVideoPath) ?? null;
+  });
 </script>
 
 <div class="px-4 sm:px-6 lg:px-8">
@@ -16,18 +37,21 @@
       </div>
       <div class="max-w-2xl px-4 pt-16 pb-24 sm:px-6 lg:max-w-7xl lg:px-8">
         <div
-          class="mt-12 lg:grid lg:grid-cols-12 lg:items-start lg:gap-x-12 xl:gap-x-16"
+          class="mt-12 lg:grid lg:grid-cols-12 lg:items-start lg:gap-x-12 xl:gap-x-16 relative"
         >
-          <section aria-labelledby="collection-heading" class="lg:col-span-7">
+          <section
+            aria-labelledby="collection-heading"
+            class="lg:col-span-7 border-t border-b border-gray-200"
+          >
             <h2 id="collection-heading" class="sr-only">Videos in collection</h2>
 
-            <ul
-              role="list"
-              class="divide-y divide-gray-200 border-t border-b border-gray-200"
-            >
+            <ul bind:this={listElement} role="list" class="divide-y divide-gray-200">
               {#each $selectedCollection.collection.videos as video}
                 <li class="flex py-6 sm:py-10">
-                  <div class="shrink-0">
+                  <div
+                    class="shrink-0 cursor-pointer"
+                    onclick={(e) => selectVideo(video, e)}
+                  >
                     <img
                       src={video.thumbnail}
                       alt={video.name}
@@ -42,10 +66,11 @@
                       <div>
                         <div class="flex justify-between">
                           <h3 class="text-sm">
-                            <a
-                              href="#"
-                              class="font-medium text-gray-700 hover:text-gray-800"
-                              >{video.name}</a
+                            <button
+                              type="button"
+                              onclick={(e) => selectVideo(video, e)}
+                              class="cursor-pointer font-medium text-gray-700 hover:text-gray-800 text-left"
+                              >{video.name}</button
                             >
                           </h3>
                         </div>
@@ -70,7 +95,7 @@
                     <div class="flex">
                       <div class="mt-2 mb-4 flex gap-2 items-center flex-wrap">
                         {#each video.tags as tag}
-                          <Badge value={tag} removable={false} />
+                          <Badge value={tag} />
                         {/each}
                       </div>
                     </div>
@@ -79,47 +104,41 @@
               {/each}
             </ul>
           </section>
-          <!--          <section aria-labelledby="summary-heading" class="mt-16 rounded-lg bg-gray-50 px-4 py-6 sm:p-6 lg:col-span-5 lg:mt-0 lg:p-8">-->
-          <!--                      <h2 id="summary-heading" class="text-lg font-medium text-gray-900">Order summary</h2>-->
-          <!--                      <dl class="mt-6 space-y-4">-->
-          <!--                        <div class="flex items-center justify-between">-->
-          <!--                          <dt class="text-sm text-gray-600">Subtotal</dt>-->
-          <!--                          <dd class="text-sm font-medium text-gray-900">$99.00</dd>-->
-          <!--                        </div>-->
-          <!--                        <div class="flex items-center justify-between border-t border-gray-200 pt-4">-->
-          <!--                          <dt class="flex items-center text-sm text-gray-600">-->
-          <!--                            <span>Shipping estimate</span>-->
-          <!--                            <a href="#" class="ml-2 shrink-0 text-gray-400 hover:text-gray-500">-->
-          <!--                              <span class="sr-only">Learn more about how shipping is calculated</span>-->
-          <!--                              <svg viewBox="0 0 20 20" fill="currentColor" data-slot="icon" aria-hidden="true" class="size-5">-->
-          <!--                                <path d="M18 10a8 8 0 1 1-16 0 8 8 0 0 1 16 0ZM8.94 6.94a.75.75 0 1 1-1.061-1.061 3 3 0 1 1 2.871 5.026v.345a.75.75 0 0 1-1.5 0v-.5c0-.72.57-1.172 1.081-1.287A1.5 1.5 0 1 0 8.94 6.94ZM10 15a1 1 0 1 0 0-2 1 1 0 0 0 0 2Z" clip-rule="evenodd" fill-rule="evenodd" />-->
-          <!--                              </svg>-->
-          <!--                            </a>-->
-          <!--                          </dt>-->
-          <!--                          <dd class="text-sm font-medium text-gray-900">$5.00</dd>-->
-          <!--                        </div>-->
-          <!--                        <div class="flex items-center justify-between border-t border-gray-200 pt-4">-->
-          <!--                          <dt class="flex text-sm text-gray-600">-->
-          <!--                            <span>Tax estimate</span>-->
-          <!--                            <a href="#" class="ml-2 shrink-0 text-gray-400 hover:text-gray-500">-->
-          <!--                              <span class="sr-only">Learn more about how tax is calculated</span>-->
-          <!--                              <svg viewBox="0 0 20 20" fill="currentColor" data-slot="icon" aria-hidden="true" class="size-5">-->
-          <!--                                <path d="M18 10a8 8 0 1 1-16 0 8 8 0 0 1 16 0ZM8.94 6.94a.75.75 0 1 1-1.061-1.061 3 3 0 1 1 2.871 5.026v.345a.75.75 0 0 1-1.5 0v-.5c0-.72.57-1.172 1.081-1.287A1.5 1.5 0 1 0 8.94 6.94ZM10 15a1 1 0 1 0 0-2 1 1 0 0 0 0 2Z" clip-rule="evenodd" fill-rule="evenodd" />-->
-          <!--                              </svg>-->
-          <!--                            </a>-->
-          <!--                          </dt>-->
-          <!--                          <dd class="text-sm font-medium text-gray-900">$8.32</dd>-->
-          <!--                        </div>-->
-          <!--                        <div class="flex items-center justify-between border-t border-gray-200 pt-4">-->
-          <!--                          <dt class="text-base font-medium text-gray-900">Order total</dt>-->
-          <!--                          <dd class="text-base font-medium text-gray-900">$112.32</dd>-->
-          <!--                        </div>-->
-          <!--                      </dl>-->
 
-          <!--                      <div class="mt-6">-->
-          <!--                        <button type="submit" class="w-full rounded-md border border-transparent bg-indigo-600 px-4 py-3 text-base font-medium text-white shadow-xs hover:bg-indigo-700 focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 focus:ring-offset-gray-50 focus:outline-hidden">Checkout</button>-->
-          <!--                      </div>-->
-          <!--                    </section>-->
+          {#if selectedVideoPath}
+            <section
+              aria-labelledby="video-section"
+              class="lg:block mt-16 lg:col-span-5 lg:mt-0 transition-all duration-300"
+              style="margin-top: {selectedElementOffset}px"
+            >
+              <div class="flex justify-end items-center mb-4">
+                <button
+                  type="button"
+                  class="cursor-pointer text-gray-400 hover:text-gray-500"
+                  onclick={() => (selectedVideoPath = undefined)}
+                >
+                  <span class="sr-only">Close</span>
+                  <svg
+                    class="h-6 w-6"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke-width="1.5"
+                    stroke="currentColor"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      d="M6 18L18 6M6 6l12 12"
+                    />
+                  </svg>
+                </button>
+              </div>
+              <VideoForm
+                video={activeVideo()}
+                collectionId={$selectedCollection.collection.id}
+              />
+            </section>
+          {/if}
         </div>
       </div>
     </div>
