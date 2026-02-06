@@ -1,9 +1,9 @@
 <script lang="ts">
-  import CollectionForm from './lib/collections/CollectionForm.svelte';
   import Searchbar from './lib/kit/layout/Searchbar.svelte';
   import Sidebar from './lib/kit/layout/Sidebar.svelte';
   import { collectionsStore } from './lib/collections/collections.store';
   import { allCollections } from './lib/collections/collections.tauri';
+  import CollectionCreationPage from './lib/collections/CollectionCreationPage.svelte';
 
   collectionsStore.initialize(allCollections);
 </script>
@@ -13,7 +13,7 @@
 <div class="lg:pl-72">
   <Searchbar />
   <main class="py-10">
-    <CollectionForm />
+    <CollectionCreationPage />
   </main>
 </div>
 
