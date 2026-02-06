@@ -7,10 +7,9 @@
 {#snippet showCollections()}
   {#each $collectionsStore as collection}
     <li>
-      <a
-        href="#"
-        class="block rounded-md py-2 pr-2 pl-9 text-sm/6 text-gray-700 hover:bg-gray-50 dark:text-gray-400 dark:hover:bg-white/5"
-        >{collection.title}</a
+      <button
+        class="block cursor-pointer rounded-md py-2 pr-2 pl-9 text-sm/6 text-gray-700 hover:bg-gray-50 dark:text-gray-400 dark:hover:bg-white/5"
+        >{collection.title}</button
       >
     </li>
   {/each}

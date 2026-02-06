@@ -121,7 +121,7 @@
               />
               <button
                 type="button"
-                class="absolute inset-0 focus:outline-hidden"
+                class="absolute cursor-pointer inset-0 focus:outline-hidden"
                 onclick={() => openDetails(video)}
               >
                 <span class="sr-only">View details for IMG_4985.HEIC</span>
