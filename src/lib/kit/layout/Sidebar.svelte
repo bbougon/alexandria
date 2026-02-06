@@ -1,7 +1,15 @@
-<script>
+<script lang="ts">
   import DesktopSidebar from './DesktopSidebar.svelte';
   import MobileSidebar from './MobileSidebar.svelte';
   import { collectionsStore } from '../../collections/collections.store';
+  import { selectedCollectionId } from '../../collections/collection.store';
+  import type { Collection } from '../../collections/collection';
+  import { pageStore } from '../pages/pageStore';
+
+  const goToCollection = (collection: Collection) => {
+    selectedCollectionId.initialize(collection.id);
+    pageStore.goTo('CollectionDetailsPage');
+  };
 </script>
 
 {#snippet showCollections()}
@@ -9,7 +17,7 @@
     <li>
       <button
         class="block cursor-pointer rounded-md py-2 pr-2 pl-9 text-sm/6 text-gray-700 hover:bg-gray-50 dark:text-gray-400 dark:hover:bg-white/5"
-        >{collection.title}</button
+        onclick={() => goToCollection(collection)}>{collection.title}</button
       >
     </li>
   {/each}
