@@ -7,6 +7,7 @@
   import { type Page, pageStore } from './lib/kit/pages/pageStore';
   import CollectionDetailsPage from './lib/collections/CollectionDetailsPage.svelte';
   import type { Component } from 'svelte';
+  import SearchResultPage from './lib/search/SearchResultPage.svelte';
 
   collectionsStore.initialize(allCollections);
   pageStore.initialize('CollectionCreationPage');
@@ -14,6 +15,7 @@
   const PAGES: Map<Page, Component> = new Map<Page, Component>([
     ['CollectionCreationPage', CollectionCreationPage],
     ['CollectionDetailsPage', CollectionDetailsPage],
+    ['SearchResultPage', SearchResultPage],
   ]);
 </script>
 
