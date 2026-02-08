@@ -6,6 +6,7 @@
   "packageManager": "pnpm@10.26.0",
   "scripts": {
     "dev": "pnpm tauri dev",
+    "build:frontend": "vite build",
     "build": "pnpm tauri build",
     "preview": "vite preview",
     "check": "svelte-check --tsconfig ./tsconfig.app.json && tsc -p tsconfig.node.json",

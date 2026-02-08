@@ -88,12 +88,65 @@ jobs:
       - name: install frontend dependencies
         run: pnpm install
 
-      - uses: tauri-apps/tauri-action@v0
+      - name: build tauri app
+        run: pnpm tauri build ${{ matrix.args }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: get version
+        run: echo "PACKAGE_VERSION=$(node -p "require('./package.json').version")" >> $GITHUB_ENV
+
+      - name: Upload Release Assets
+        uses: actions/github-script@v6
+        env:
+          release_id: ${{ needs.create-release.outputs.release_id }}
+          platform: ${{ matrix.platform }}
         with:
-          releaseId: ${{ needs.create-release.outputs.release_id }}
-          args: ${{ matrix.args }}
+          script: |
+            const fs = require('fs');
+            const path = require('path');
+            const release_id = process.env.release_id;
+            const platform = process.env.platform;
+
+            let bundleDir = '';
+            if (platform === 'ubuntu-22.04') {
+              bundleDir = 'src-tauri/target/release/bundle/deb';
+            } else if (platform === 'macos-latest') {
+              // We need to handle both architectures
+              const target = '${{ matrix.args }}'.includes('aarch64') ? 'aarch64-apple-darwin' : 'x86_64-apple-darwin';
+              bundleDir = `src-tauri/target/${target}/release/bundle/dmg`;
+            } else if (platform === 'windows-latest') {
+              bundleDir = 'src-tauri/target/release/bundle/msi';
+            }
+
+            const searchDirs = [bundleDir, 'src-tauri/target/release/bundle', 'src-tauri/target/release'];
+            let foundFiles = false;
+
+            for (const dir of searchDirs) {
+              if (dir && fs.existsSync(dir)) {
+                console.log(`Searching for assets in ${dir}`);
+                const files = fs.readdirSync(dir);
+                for (const file of files) {
+                  if (file.endsWith('.deb') || file.endsWith('.dmg') || file.endsWith('.msi') || file.endsWith('.exe') || file.endsWith('.zip') || file.endsWith('.tar.gz') || file.endsWith('.AppImage')) {
+                    const filePath = path.join(dir, file);
+                    if (fs.statSync(filePath).isDirectory()) continue;
+                    
+                    console.log(`Uploading ${file}...`);
+                    await github.rest.repos.uploadReleaseAsset({
+                      owner: context.repo.owner,
+                      repo: context.repo.repo,
+                      release_id: release_id,
+                      name: file,
+                      data: fs.readFileSync(filePath)
+                    });
+                    foundFiles = true;
+                  }
+                }
+              }
+            }
+            if (!foundFiles) {
+              core.setFailed('No release assets found to upload.');
+            }
 
   publish-release:
     permissions:
