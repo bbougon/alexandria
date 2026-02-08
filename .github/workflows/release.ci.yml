@@ -3,8 +3,6 @@ run-name: Release "${{ github.event.head_commit.message }}"
 permissions: {}
 
 on:
-  push:
-    branches: [main]
   workflow_dispatch:
 
 jobs:
