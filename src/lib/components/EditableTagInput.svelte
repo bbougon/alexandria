@@ -10,7 +10,7 @@
     onAddTag: (tag: string) => void;
   }
 
-  const availableKeysToPushTag = ['Enter', 'Tab', ',', ';', ' ', 'Semicolon'];
+  const availableKeysToPushTag = ['Enter', 'Tab', ',', ';', 'Semicolon'];
 
   let { label, toggle, hideOnToggle, displayChild, onAddTag }: Props = $props();
   const addTag = (e: KeyboardEvent) => {
