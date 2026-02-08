@@ -185,11 +185,11 @@ impl CollectionService {
 }
 
 #[cfg(test)]
-mod collection_service_tests {
+mod collection_service_setup {
     use crate::clock::ClockGuard;
     use crate::collections::collections::{CollectionRepositoryMemory, Video};
     use crate::collections::video::{FileManager, ThumbnailItem, VideoFileManager};
-    use crate::event_bus::{Event, EventBus};
+    use crate::infra::event_bus::memory_event_bus::MemoryEventBus;
     use crate::repositories::{with_test_repositories, Repositories, RepositoriesGuard};
     use chrono::{DateTime, MappedLocalTime, Utc};
     use std::sync::Arc;
@@ -201,30 +201,6 @@ mod collection_service_tests {
     impl FileManager for FileManagerMemory {
         fn create_video(&self, path: &str) -> Result<Video, String> {
             Ok(Video::new(path.parse().unwrap(), "".parse().unwrap(), 0))
-        }
-    }
-
-    pub struct MemoryEventBus {
-        pub events: parking_lot::Mutex<Vec<Event>>,
-    }
-
-    impl MemoryEventBus {
-        pub fn new() -> Self {
-            Self {
-                events: parking_lot::Mutex::new(Vec::new()),
-            }
-        }
-    }
-
-    impl EventBus for MemoryEventBus {
-        fn publish(&self, event: Event) {
-            self.events.lock().push(event);
-        }
-    }
-
-    impl EventBus for Arc<MemoryEventBus> {
-        fn publish(&self, event: Event) {
-            self.events.lock().push(event);
         }
     }
 
@@ -250,7 +226,7 @@ mod collection_service_tests {
 
 #[cfg(test)]
 mod collection_service_create_collection_tests {
-    use crate::collections::collections::collection_service_tests::setup;
+    use crate::collections::collections::collection_service_setup::setup;
     use crate::collections::collections::{
         Collection, CollectionCreated, CollectionService, Video,
     };
@@ -350,7 +326,7 @@ mod collection_service_create_collection_tests {
 
 #[cfg(test)]
 mod collection_service_update_video_tests {
-    use crate::collections::collections::collection_service_tests::setup;
+    use crate::collections::collections::collection_service_setup::setup;
     use crate::collections::collections::Style::Rock;
     use crate::collections::collections::{CollectionService, Video};
     use crate::collections::video::{VideoCollectionToUpdate, VideoToUpdate};

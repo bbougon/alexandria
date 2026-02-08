@@ -1,13 +1,18 @@
-use crate::collections::collections::{Collection, CollectionService, Video};
+use crate::collections::collections::{Collection, CollectionService};
 use crate::collections::video::{ThumbnailItem, VideoCollectionToUpdate, VideoFileManager};
-use crate::event_bus::{EventBusManager, TauriEventBus};
+use crate::event_bus::EventBusManager;
+use crate::infra::event_bus::tauri_event_bus::TauriEventBus;
 use crate::infra::files::file_manager::FileManagerForHardDrive;
+use crate::infra::tauri::path::allow_path;
 use crate::repositories::repositories;
-use crate::search::search_service::SearchService;
+use crate::search::search_service::{ApplyPathRights, Indexer, SearchService, TantivyIndexer};
 use once_cell::sync::Lazy;
-use tauri::{AppHandle, Manager, Runtime};
+use tantivy::schema::Field;
+use tantivy::IndexWriter;
+use tauri::AppHandle;
 
-static SEARCH_SERVICE: Lazy<SearchService> = Lazy::new(SearchService::new);
+static SEARCH_SERVICE: Lazy<SearchService<IndexWriter, Field>> =
+    Lazy::new(|| SearchService::new(TantivyIndexer::initialize()));
 
 #[tauri::command]
 pub async fn create_collection(
@@ -57,19 +62,14 @@ pub async fn get_collections(app: AppHandle) -> Result<Vec<Collection>, String> 
 
 #[tauri::command]
 pub async fn search_videos(app: AppHandle, query: String) -> Result<(), String> {
-    SEARCH_SERVICE.initialize(
-        EventBusManager::new(Box::new(TauriEventBus::new(app.clone()))),
-        app,
-    );
+    SEARCH_SERVICE.initialize(EventBusManager::new(Box::new(TauriEventBus::new(
+        app.clone(),
+    ))));
     if !query.is_empty() {
         SEARCH_SERVICE.index_all_videos()?;
     }
-    SEARCH_SERVICE.search(&query)?;
+    let app_clone = app.clone();
+    let callback: ApplyPathRights = Box::new(move |path| allow_path(&app_clone, path));
+    SEARCH_SERVICE.search(&query, Some(&callback))?;
     Ok(())
-}
-
-fn allow_path<R: Runtime>(app: &AppHandle<R>, path: &str) -> Result<(), String> {
-    app.asset_protocol_scope()
-        .allow_file(path)
-        .map_err(|e: tauri::Error| e.to_string())
 }
