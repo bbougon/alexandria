@@ -1,43 +1,55 @@
 <script lang="ts">
   import type { HTMLInputAttributes } from 'svelte/elements';
-  import type { Snippet } from 'svelte';
+  import { Pencil } from '@lucide/svelte';
+  import Input from './Input.svelte';
 
   interface Props extends HTMLInputAttributes {
     label: string;
     value: string;
-    toggle: boolean;
-    hideOnToggle: Snippet;
-    displayChild?: Snippet;
   }
 
-  let {
-    value = $bindable(),
-    label,
-    toggle,
-    hideOnToggle,
-    displayChild,
-    ...props
-  }: Props = $props();
+  let { value = $bindable(), label, onblur, ...props }: Props = $props();
+
+  let isEditing = $state(false);
+  let isHovered = $state(false);
+
+  const update = (
+    event: FocusEvent & {
+      currentTarget: EventTarget & HTMLInputElement;
+    }
+  ) => {
+    if (onblur) onblur(event);
+    isEditing = false;
+  };
 </script>
 
-{#if !toggle}
-  {@render hideOnToggle?.()}
-  {@render displayChild?.()}
-{:else}
-  <div class="relative">
-    <label
-      for={label}
-      class="absolute -top-2 left-2 inline-block rounded-lg bg-white px-1 text-xs font-medium text-gray-900 dark:bg-gray-900 dark:text-white"
-      >Name</label
-    >
-    <input
-      bind:value
-      id={label}
-      type="text"
-      name={label}
-      {...props}
-      class="block w-full rounded-md bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6 dark:bg-gray-900 dark:text-white dark:outline-gray-600 dark:placeholder:text-gray-500 dark:focus:outline-indigo-500"
-    />
+{#snippet displayInput()}
+  <Input
+    bind:value
+    onblur={(event) => update(event)}
+    {...props}
+    placeholder={label}
+  />
+{/snippet}
+
+{#snippet displayValue()}
+  <div
+    class="group relative cursor-pointer transition-all"
+    onclick={() => (isEditing = true)}
+    onmouseenter={() => (isHovered = true)}
+    onmouseleave={() => (isHovered = false)}
+  >
+    <span class={value ? '' : 'text-muted-foreground'}>
+      {value || label}
+    </span>
+    {#if isHovered}
+      <Pencil class="inline-block ml-2 w-3 h-3 text-muted-foreground opacity-50" />
+    {/if}
   </div>
-  {@render displayChild?.()}
+{/snippet}
+
+{#if isEditing}
+  {@render displayInput()}
+{:else}
+  {@render displayValue()}
 {/if}

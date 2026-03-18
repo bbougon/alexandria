@@ -2,27 +2,15 @@
   import { open } from '@tauri-apps/plugin-dialog';
   import { invoke } from '@tauri-apps/api/core';
   import { listen } from '@tauri-apps/api/event';
-  import { type Video } from './video';
-  import VideoForm from './VideoForm.svelte';
-  import Drawer from '../components/Drawer.svelte';
+  import { getCurrentWindow } from '@tauri-apps/api/window';
   import { selectedCollection, selectedCollectionId } from './collection.store';
   import { collectionsStore } from './collections.store';
   import { toVideo, type VideoAddedToCollection } from './video.tauri';
   import { type CollectionCreated, toCollection } from './collection.tauri';
-
-  let drawerOpen = $state(false);
-  let activeVideoPath = $state<string | null>(null);
-
-  const openDetails = (v: Video) => {
-    activeVideoPath = v.path;
-    drawerOpen = true;
-  };
-
-  const activeVideo = $derived(() => {
-    const c = $selectedCollection.collection;
-    if (!c || !activeVideoPath) return null;
-    return c.videos.find((v) => v.path === activeVideoPath) ?? null;
-  });
+  import Card from '../components/Card.svelte';
+  import { FileVideo, Upload } from '@lucide/svelte';
+  import Button from '../components/Button.svelte';
+  import { pageStore } from '../kit/pages/pageStore';
 
   const pickVideo = async () => {
     const result = await open({
@@ -40,6 +28,21 @@
     }
     await createCollection(paths);
   };
+
+  $effect(() => {
+    const unlisten = getCurrentWindow().listen<{ paths: string[] }>(
+      'tauri://drag-drop',
+      (event) => {
+        if (event.payload.paths.length > 0) {
+          createCollection(event.payload.paths);
+        }
+      }
+    );
+
+    return () => {
+      unlisten.then((u) => u());
+    };
+  });
 
   const createCollection = async (paths: string[]) => {
     if (paths.length === 0) return;
@@ -69,89 +72,80 @@
   };
 </script>
 
-<div class="px-4 sm:px-6 lg:px-8">
-  <button
-    type="button"
-    onclick={pickVideo}
-    class="inline-flex items-center gap-x-2 rounded-md bg-gray-600 px-3.5 py-2.5 text-sm font-semibold text-white shadow-xs hover:bg-gray-500 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gray-600 dark:bg-gray-500 dark:shadow-none dark:hover:bg-gray-400 dark:focus-visible:outline-gray-500"
-  >
-    <svg
-      xmlns="http://www.w3.org/2000/svg"
-      viewBox="0 0 24 24"
-      fill="currentColor"
-      data-slot="icon"
-      aria-hidden="true"
-      class="-ml-0.5 size-5"
-    >
-      <path
-        d="M3 3.9934C3 3.44476 3.44495 3 3.9934 3H20.0066C20.5552 3 21 3.44495 21 3.9934V20.0066C21 20.5552 20.5551 21 20.0066 21H3.9934C3.44476 21 3 20.5551 3 20.0066V3.9934ZM5 5V19H19V5H5ZM10.6219 8.41459L15.5008 11.6672C15.6846 11.7897 15.7343 12.0381 15.6117 12.2219C15.5824 12.2658 15.5447 12.3035 15.5008 12.3328L10.6219 15.5854C10.4381 15.708 10.1897 15.6583 10.0672 15.4745C10.0234 15.4088 10 15.3316 10 15.2526V8.74741C10 8.52649 10.1791 8.34741 10.4 8.34741C10.479 8.34741 10.5562 8.37078 10.6219 8.41459Z"
-      ></path>
-    </svg>
-    Create collection
-  </button>
+<div class="max-w-4xl mx-auto">
+  <h1 class="text-3xl font-semibold mb-6">Create New Collection</h1>
 
-  <div class="mt-4">
-    {#if $selectedCollection.collection}
-      <div class="border-b border-gray-200 pb-5 dark:border-white/10">
-        <div class="-mt-2 -ml-2 flex flex-wrap items-baseline">
-          <h3
-            class="mt-2 ml-2 text-base font-semibold text-gray-900 dark:text-white"
-          >
-            {$selectedCollection.collection.title}
-          </h3>
-          <p class="mt-1 ml-2 truncate text-sm text-gray-500 dark:text-gray-400">
-            Number of videos {$selectedCollection.collection.videos.length}
-          </p>
-        </div>
+  <form onsubmit={() => createCollection([])} class="space-y-6">
+    <!--    <Card class="p-6 bg-white">-->
+    <!--      <label class="block mb-2 font-medium">Collection Name</label>-->
+    <!--      <input-->
+    <!--        type="text"-->
+    <!--        placeholder="Enter collection name..."-->
+    <!--        class="max-w-md"-->
+    <!--      />-->
+    <!--    </Card>-->
+
+    <Card class="p-6 bg-white">
+      <label class="block mb-4 font-medium">Video Files</label>
+
+      <div
+        onclick={pickVideo}
+        role="button"
+        tabindex="0"
+        onkeydown={(e) => e.key === 'Enter' && pickVideo()}
+        aria-roledescription="video file picker"
+        class="border-2 border-dashed rounded-lg p-12 text-center cursor-pointer transition-colors border-gray-300 hover:border-blue-400 hover:bg-blue-50/50"
+      >
+        <Upload class="w-12 h-12 mx-auto mb-4 text-gray-400" />
+        <p class="text-lg mb-2">Click to upload video files</p>
+        <p class="text-sm text-muted-foreground">or drag and drop</p>
       </div>
 
-      <ul
-        role="list"
-        class="grid grid-cols-2 gap-x-4 gap-y-8 sm:grid-cols-3 sm:gap-x-6 lg:grid-cols-4 xl:gap-x-8"
-      >
-        {#each $selectedCollection.collection.videos as video}
-          <li class="relative">
-            <div
-              class="group overflow-hidden rounded-lg bg-gray-100 focus-within:outline-2 focus-within:outline-offset-2 focus-within:outline-indigo-600 dark:bg-gray-800 dark:focus-within:outline-indigo-500"
-            >
-              <img
-                src={video.thumbnail}
-                alt=""
-                class="pointer-events-none aspect-10/7 rounded-lg object-cover outline -outline-offset-1 outline-black/5 group-hover:opacity-75 dark:outline-white/10"
-              />
-              <button
-                type="button"
-                class="absolute cursor-pointer inset-0 focus:outline-hidden"
-                onclick={() => openDetails(video)}
-              >
-                <span class="sr-only">View details for IMG_4985.HEIC</span>
-              </button>
+      {#if $selectedCollection.collection}
+        <div class="mt-6 space-y-2">
+          <p class="text-sm font-medium mb-3">
+            Selected Files ({$selectedCollection.collection.videos.length})
+          </p>
+          {#each $selectedCollection.collection.videos as video}
+            <div class="flex items-center gap-3 p-3 bg-gray-50 rounded-lg group">
+              <FileVideo class="w-5 h-5 text-blue-500 flex-shrink-0" />
+              <div class="flex-1 min-w-0">
+                <p class="font-medium truncate">{video.name}</p>
+                <p class="text-xs text-muted-foreground">
+                  {video.toHumanReadable()} MB
+                </p>
+              </div>
+              <!--              <button-->
+              <!--                type="button"-->
+              <!--                // onClick={() => handleRemoveFile(index)}-->
+              <!--                class="p-1 hover:bg-red-50 rounded opacity-0 group-hover:opacity-100 transition-opacity"-->
+              <!--              >-->
+              <!--                <X class="w-4 h-4 text-red-500" />-->
+              <!--              </button>-->
             </div>
-            <p
-              class="pointer-events-none mt-2 block truncate text-sm font-medium text-gray-900 dark:text-white"
-            >
-              {video.name}
-            </p>
-            <p
-              class="pointer-events-none block text-sm font-medium text-gray-500 dark:text-gray-400"
-            >
-              {video.toHumanReadable()}
-              MB
-            </p>
-          </li>
-        {/each}
-      </ul>
-      <Drawer
-        open={drawerOpen}
-        close={() => {
-          drawerOpen = false;
-        }}
+          {/each}
+        </div>
+      {/if}
+    </Card>
+
+    <div class="flex gap-3">
+      <Button
+        type="submit"
+        size="lg"
+        enabled={$selectedCollection.collection !== undefined &&
+          $selectedCollection?.collection.videos.length > 0}
+        onclick={() => pageStore.goTo('CollectionDetailsPage')}
       >
-        <VideoForm
-          video={activeVideo()}
-          collectionId={$selectedCollection.collection.id}
-        />
-      </Drawer>
-    {/if}
-  </div>
+        Go to collection
+      </Button>
+      <Button
+        type="button"
+        variant="outline"
+        size="lg"
+        onclick={() => pageStore.goTo('HomePage')}
+      >
+        Cancel
+      </Button>
+    </div>
+  </form>
 </div>
