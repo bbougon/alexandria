@@ -1,30 +1,31 @@
 <script lang="ts">
   import { searchResultStore } from './searchResult.store';
-  import VideoCard from './VideoCard.svelte';
-  import VideoDialog from '../components/VideoDialog.svelte';
-  import type { Video } from '../collections/video';
-
-  let activeVideo = $state<Video | null>(null);
+  import { Folder } from '@lucide/svelte';
+  import VideoCard from '../components/VideoCard.svelte';
 </script>
 
-<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-  <div class="mb-6">
+<div>
+  <div class="mb-8">
+    <div class="flex items-center gap-3 mb-2">
+      <Folder class="w-8 h-8 text-blue-500" />
+      <h1 class="text-3xl font-semibold">Search results</h1>
+    </div>
     <p class="text-muted-foreground">
       {$searchResultStore.length}
       {$searchResultStore.length === 1 ? 'result' : 'results'} found
     </p>
   </div>
 
-  {#if $searchResultStore.length > 0}
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-      {#each $searchResultStore as video}
-        <VideoCard {video} onVideo={() => (activeVideo = video)} />
-      {/each}
+  {#if $searchResultStore.length === 0}
+    <div class="text-center py-16">
+      <Folder class="w-16 h-16 mx-auto mb-4 text-gray-300" />
+      <p class="text-lg text-muted-foreground">No videos match your search</p>
     </div>
-    <VideoDialog video={activeVideo} />
   {:else}
-    <div class="text-center py-12">
-      <p class="text-muted-foreground">No videos found matching your search.</p>
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+      {#each $searchResultStore as video}
+        <VideoCard {video} />
+      {/each}
     </div>
   {/if}
 </div>

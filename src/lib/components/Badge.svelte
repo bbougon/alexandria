@@ -1,106 +1,88 @@
 <script lang="ts">
-  import type { HTMLButtonAttributes } from 'svelte/elements';
+  import { cn } from './classCombinator';
+  import type { HTMLAttributes } from 'svelte/elements';
+  import { cva } from 'class-variance-authority';
 
-  interface Props extends HTMLButtonAttributes {
-    value: string;
-    removable?: boolean;
+  type Variant = {
+    default: string;
+    destructive: string;
+    outline: string;
+    secondary: string;
+  };
+
+  interface Props extends HTMLAttributes<HTMLSpanElement> {
+    variant?: keyof Variant;
   }
 
+  let {
+    variant = 'default',
+    class: className,
+    children,
+    ...props
+  }: Props = $props();
+
+  const badgeVariants = cva(
+    'inline-flex items-center justify-center rounded-md border px-2 py-0.5 text-xs font-medium w-fit whitespace-nowrap shrink-0 [&>svg]:size-3 gap-1 [&>svg]:pointer-events-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive transition-[color,box-shadow] overflow-hidden',
+    {
+      variants: {
+        variant: {
+          default:
+            'border-transparent bg-primary text-primary-foreground [a&]:hover:bg-primary/90',
+          secondary:
+            'border-transparent bg-secondary text-secondary-foreground [a&]:hover:bg-secondary/90',
+          destructive:
+            'border-transparent bg-destructive text-white [a&]:hover:bg-destructive/90 focus-visible:ring-destructive/20 dark:focus-visible:ring-destructive/40 dark:bg-destructive/60',
+          outline:
+            'text-foreground [a&]:hover:bg-accent [a&]:hover:text-accent-foreground',
+        },
+      },
+      defaultVariants: {
+        variant: 'default',
+      },
+    }
+  );
+
   type ColourName = 'purple' | 'yellow' | 'green' | 'blue' | 'indigo' | 'pink';
-  type ColourClasses = { span: string[]; svg: string[]; button: string[] };
+  type ColourClasses = string[];
   type ColourEntry = Record<ColourName, ColourClasses>;
 
   const colours: ColourEntry = {
-    purple: {
-      span: [
-        'bg-purple-100',
-        'text-purple-700',
-        'dark:bg-purple-400/10',
-        'dark:text-purple-400',
-      ],
-      svg: [
-        'stroke-violet-700/50',
-        'group-hover:stroke-violet-700/75',
-        'dark:stroke-violet-400',
-        'dark:group-hover:stroke-violet-300',
-      ],
-      button: ['bg-purple-600/20', 'dark:bg-purple-400/20'],
-    },
-    yellow: {
-      span: [
-        'bg-yellow-100',
-        'text-yellow-800',
-        'dark:bg-yellow-400/10',
-        'dark:text-yellow-500',
-      ],
-      svg: [
-        'stroke-yellow-800/50',
-        'group-hover:stroke-yellow-800/75',
-        'dark:stroke-yellow-400',
-        'dark:group-hover:stroke-yellow-300',
-      ],
-      button: ['bg-yellow-600/20', 'dark:bg-yellow-400/20'],
-    },
-    green: {
-      span: [
-        'bg-green-100',
-        'text-green-700',
-        'dark:bg-green-400/10',
-        'dark:text-green-400',
-      ],
-      svg: [
-        'stroke-green-800/50',
-        'group-hover:stroke-green-800/75',
-        'dark:stroke-green-400',
-        'dark:group-hover:stroke-green-300',
-      ],
-      button: ['bg-green-600/20', 'dark:bg-green-400/20'],
-    },
-    blue: {
-      span: [
-        'bg-blue-100',
-        'text-blue-700',
-        'dark:bg-blue-400/10',
-        'dark:text-blue-400',
-      ],
-      svg: [
-        'stroke-blue-800/50',
-        'group-hover:stroke-blue-800/75',
-        'dark:stroke-blue-400',
-        'dark:group-hover:stroke-blue-300',
-      ],
-      button: ['bg-blue-600/20', 'dark:bg-blue-400/20'],
-    },
-    indigo: {
-      span: [
-        'bg-indigo-100',
-        'text-indigo-700',
-        'dark:bg-indigo-400/10',
-        'dark:text-indigo-400',
-      ],
-      svg: [
-        'stroke-indigo-700/50',
-        'group-hover:stroke-indigo-700/75',
-        'dark:stroke-indigo-400',
-        'dark:group-hover:stroke-indigo-300',
-      ],
-      button: ['bg-indigo-600/20', 'dark:bg-indigo-400/20'],
-    },
-    pink: {
-      span: [
-        'bg-pink-100',
-        'text-pink-700',
-        'dark:bg-pink-400/10',
-        'dark:text-pink-400',
-      ],
-      svg: [
-        'stroke-pink-800/50',
-        'group-hover:stroke-pink-800/75',
-        'dark:stroke-pink-400',
-        'dark:group-hover:stroke-pink-300',
-      ],
-      button: ['bg-pink-600/20', 'dark:bg-pink-400/20'],
-    },
+    purple: [
+      'bg-purple-100',
+      'text-purple-700',
+      'dark:bg-purple-400/10',
+      'dark:text-purple-400',
+    ],
+    yellow: [
+      'bg-yellow-100',
+      'text-yellow-800',
+      'dark:bg-yellow-400/10',
+      'dark:text-yellow-500',
+    ],
+    green: [
+      'bg-green-100',
+      'text-green-700',
+      'dark:bg-green-400/10',
+      'dark:text-green-400',
+    ],
+    blue: [
+      'bg-blue-100',
+      'text-blue-700',
+      'dark:bg-blue-400/10',
+      'dark:text-blue-400',
+    ],
+    indigo: [
+      'bg-indigo-100',
+      'text-indigo-700',
+      'dark:bg-indigo-400/10',
+      'dark:text-indigo-400',
+    ],
+    pink: [
+      'bg-pink-100',
+      'text-pink-700',
+      'dark:bg-pink-400/10',
+      'dark:text-pink-400',
+    ],
   };
 
   const pickRandomColour = (colours: ColourEntry) => {
@@ -108,25 +90,13 @@
     return allColours[Math.floor(Math.random() * allColours.length)];
   };
 
-  let { value, removable = false, ...props }: Props = $props();
   const activeColour = pickRandomColour(colours);
 </script>
 
 <span
-  class={`${activeColour.span.join(' ')} inline-flex items-center gap-x-0.5 rounded-md  px-2 py-1 text-xs font-medium`}
+  data-slot="badge"
+  class={cn(badgeVariants({ variant, className }), activeColour)}
+  {...props}
 >
-  {value}
-  {#if removable}
-    <button
-      type="button"
-      class={`${activeColour.button.join(' ')} group relative -mr-1 size-3.5 rounded-xs`}
-      {...props}
-    >
-      <span class="sr-only">Remove</span>
-      <svg viewBox="0 0 14 14" class={`${activeColour.svg.join(' ')} size-3.5`}>
-        <path d="M4 4l6 6m0-6l-6 6" />
-      </svg>
-      <span class="absolute -inset-1"></span>
-    </button>
-  {/if}
+  {@render children?.()}
 </span>

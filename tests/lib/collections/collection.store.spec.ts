@@ -3,7 +3,7 @@ import {
   selectedCollectionId,
 } from '../../../src/lib/collections/collection.store.ts';
 import { get } from 'svelte/store';
-import { type Video } from '../../../src/lib/collections/video.ts';
+import { Style, type Video } from '../../../src/lib/collections/video.ts';
 import { aCollection, aVideo } from './collectionBuilder.ts';
 import { beforeEach, expect } from 'vitest';
 import { collectionsStore } from '../../../src/lib/collections/collections.store.ts';
@@ -307,6 +307,78 @@ describe('Collection store', () => {
         song: video.song,
         style: video.style,
         tags: ['rock', 'punk', 'intro'],
+        toHumanReadable: expect.any(Function),
+        play: expect.any(Function),
+      });
+    });
+
+    it('removes a style from a video', async () => {
+      const video = aVideo().withStyles(['Hard Rock', 'Rock', 'Metal']).build();
+      selectedCollectionId.initialize('2');
+      collectionsStore.initialize([
+        aCollection().withId('2').addVideo(aVideo().build()).addVideo(video).build(),
+      ]);
+
+      const { removeStyle } = get(selectedCollection);
+      await removeStyle(video, 'Rock', () => Promise.resolve());
+
+      const collections = get(collectionsStore);
+      const collection = collections[0];
+      expect(collection.videos[1]['style']).toStrictEqual<Style[]>([
+        'Hard Rock',
+        'Metal',
+      ]);
+    });
+
+    it('emits a video_update when removing a style from a video', async () => {
+      let emittedVideo: Video | undefined = undefined;
+      const video = aVideo().withStyles(['Rock', 'Hard Rock', 'Metal']).build();
+      selectedCollectionId.initialize('2');
+      collectionsStore.initialize([
+        aCollection().withId('2').addVideo(aVideo().build()).addVideo(video).build(),
+      ]);
+
+      const { removeStyle } = get(selectedCollection);
+      await removeStyle(video, 'Rock', (video) => {
+        emittedVideo = video;
+        return Promise.resolve();
+      });
+
+      expect(emittedVideo).toStrictEqual<Video>({
+        path: video.path,
+        thumbnail: video.thumbnail,
+        size: video.size,
+        name: video.name,
+        artist: video.artist,
+        song: video.song,
+        style: ['Hard Rock', 'Metal'],
+        tags: video.tags,
+        toHumanReadable: expect.any(Function),
+        play: expect.any(Function),
+      });
+    });
+
+    it('the collection is backed up if removing a style from a video fails', async () => {
+      const video = aVideo().withStyles(['Rock', 'Hard Rock', 'Metal']).build();
+      selectedCollectionId.initialize('2');
+      collectionsStore.initialize([
+        aCollection().withId('2').addVideo(aVideo().build()).addVideo(video).build(),
+      ]);
+
+      const { removeStyle } = get(selectedCollection);
+      await removeStyle(video, 'Rock', async () => Promise.reject("I'm an error"));
+
+      const collections = get(collectionsStore);
+      const collection = collections[0];
+      expect(collection.videos[1]).toStrictEqual<Video>({
+        path: video.path,
+        thumbnail: video.thumbnail,
+        size: video.size,
+        name: video.name,
+        artist: video.artist,
+        song: video.song,
+        style: ['Rock', 'Hard Rock', 'Metal'],
+        tags: video.tags,
         toHumanReadable: expect.any(Function),
         play: expect.any(Function),
       });

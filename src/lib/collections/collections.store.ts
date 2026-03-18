@@ -1,6 +1,6 @@
 import { get, writable } from 'svelte/store';
 import type { Collection } from './collection';
-import { type Video } from './video';
+import { type Style, type Video } from './video';
 
 const { subscribe, set, update } = writable<Collection[]>();
 
@@ -101,6 +101,31 @@ const addCollection = (collection: Collection) => {
   update((collections) => [...collections, collection]);
 };
 
+const removeStyle = async (
+  collection: Collection,
+  video: Video,
+  style: Style,
+  eventEmitter: (video: Video) => Promise<void>
+) => {
+  const backedUpCollections = get(collectionsStore);
+  try {
+    await eventEmitter({ ...video, style: video.style.filter((t) => t !== style) });
+    update((collections) => {
+      const collectionFound = collections.find(
+        (c: Collection) => c.id === collection.id
+      );
+      if (!collectionFound) return collections;
+      collections.splice(collections.indexOf(collectionFound), 1);
+      collectionFound!.videos = collectionFound.videos.map((v) => {
+        if (v.path !== video.path) return v;
+        return { ...v, style: v.style.filter((s) => s !== style) };
+      });
+      return [...collections, collectionFound];
+    });
+  } catch {
+    set(backedUpCollections);
+  }
+};
 export const collectionsStore = {
   subscribe,
   initialize: set,
@@ -108,4 +133,5 @@ export const collectionsStore = {
   updateVideo,
   addVideo,
   removeTag,
+  removeStyle,
 };

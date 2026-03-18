@@ -1,6 +1,6 @@
 import { derived, get, writable } from 'svelte/store';
 import { type Collection } from './collection';
-import { type Video } from './video';
+import { type Style, type Video } from './video';
 import { collectionsStore } from './collections.store';
 
 const selectionId = writable<string>('');
@@ -27,6 +27,11 @@ type SelectedCollection = {
     tag: string,
     eventEmitter: (video: Video) => Promise<void>
   ) => Promise<void>;
+  removeStyle: (
+    video: Video,
+    style: Style,
+    eventEmitter: (video: Video) => Promise<void>
+  ) => Promise<void>;
 };
 
 export const selectedCollection = derived(
@@ -48,6 +53,8 @@ export const selectedCollection = derived(
       addVideo: (video) => collectionsStore.addVideo(collectionFound!, video),
       removeTag: (video, tag, eventEmitter) =>
         collectionsStore.removeTag(collectionFound!, video, tag, eventEmitter),
+      removeStyle: (video, style, eventEmitter) =>
+        collectionsStore.removeStyle(collectionFound!, video, style, eventEmitter),
     };
   }
 );
