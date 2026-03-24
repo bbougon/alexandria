@@ -36,8 +36,8 @@ pub fn run() {
                     .expect("Failed to create app data directory");
             }
 
-            init_prod(app_data_dir);
-            migrations::VideoDurationMigration::run();
+            init_prod(app_data_dir.clone());
+            migrations::VideoDurationMigration::run(app_data_dir);
 
             Ok(())
         })
