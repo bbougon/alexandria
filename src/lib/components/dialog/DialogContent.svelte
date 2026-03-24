@@ -6,9 +6,10 @@
 
   interface Props extends HTMLAttributes<HTMLDivElement> {
     children: Snippet;
+    onclose: () => void;
   }
 
-  let { children, class: className, ...props }: Props = $props();
+  let { children, class: className, onclose, ...props }: Props = $props();
 </script>
 
 <div
@@ -22,6 +23,7 @@
   {@render children?.()}
   <form method="dialog">
     <button
+      onclick={onclose}
       class="ring-offset-background cursor-pointer focus:ring-ring data-[state=open]:bg-accent data-[state=open]:text-muted-foreground absolute top-4 right-4 rounded-xs opacity-70 transition-opacity hover:opacity-100 focus:ring-2 focus:ring-offset-2 focus:outline-hidden disabled:pointer-events-none [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4"
     >
       <XIcon />
