@@ -5,26 +5,34 @@ use std::path::{Path, PathBuf};
 use std::process::Command;
 
 fn get_ffmpeg_command() -> Command {
+    get_command("ffmpeg")
+}
+
+fn get_ffprobe_command() -> Command {
+    get_command("ffprobe")
+}
+
+fn get_command(command: &str) -> Command {
     #[cfg(target_os = "windows")]
-    let paths = ["ffmpeg", "ffmpeg.exe"];
+    let paths = [command, &format!("{}.exe", command)];
 
     #[cfg(target_os = "macos")]
     let paths = [
-        "ffmpeg",
-        "/opt/homebrew/bin/ffmpeg",
-        "/usr/local/bin/ffmpeg",
+        command,
+        &format!("/opt/homebrew/bin/{}", command),
+        &format!("/usr/local/bin/{}", command),
     ];
 
     #[cfg(target_os = "linux")]
     let paths = [
-        "ffmpeg",
-        "/usr/bin/ffmpeg",
-        "/usr/local/bin/ffmpeg",
-        "/snap/bin/ffmpeg",
+        command,
+        &format!("/usr/bin/{}", command),
+        &format!("/usr/local/bin/{}", command),
+        &format!("/snap/bin/{}", command),
     ];
 
     #[cfg(not(any(target_os = "windows", target_os = "macos", target_os = "linux")))]
-    let paths = ["ffmpeg"];
+    let paths = [command];
 
     for path in paths {
         if Command::new(path).arg("-version").output().is_ok() {
@@ -32,10 +40,42 @@ fn get_ffmpeg_command() -> Command {
         }
     }
 
-    Command::new("ffmpeg")
+    Command::new(command)
 }
 
-fn generate_one_thumbnail_ffmpeg(video_path: &Path) -> Result<String, String> {
+pub struct FfmpegMetadata {
+    pub thumbnail: String,
+    pub duration_seconds: u64,
+}
+
+fn get_video_duration_ffprobe(video_path: &Path) -> Result<u64, String> {
+    let output = get_ffprobe_command()
+        .args([
+            "-v",
+            "error",
+            "-show_entries",
+            "format=duration",
+            "-of",
+            "default=noprint_wrappers=1:nokey=1",
+            video_path.to_string_lossy().as_ref(),
+        ])
+        .output()
+        .map_err(|e| format!("Impossible de lancer ffprobe: {e}"))?;
+
+    if !output.status.success() {
+        let stderr = String::from_utf8_lossy(&output.stderr).to_string();
+        return Err(format!("ffprobe a échoué: {stderr}"));
+    }
+
+    let duration_str = String::from_utf8_lossy(&output.stdout).trim().to_string();
+    let duration = duration_str
+        .parse::<f64>()
+        .map_err(|e| format!("Impossible de parser la durée {}: {}", duration_str, e))?;
+
+    Ok(duration as u64)
+}
+
+fn generate_one_thumbnail_ffmpeg(video_path: &Path) -> Result<FfmpegMetadata, String> {
     let output = get_ffmpeg_command()
         .args([
             "-hide_banner",
@@ -66,8 +106,14 @@ fn generate_one_thumbnail_ffmpeg(video_path: &Path) -> Result<String, String> {
     }
 
     let b64 = base64::engine::general_purpose::STANDARD.encode(output.stdout);
+    let thumbnail = format!("data:image/jpeg;base64,{}", b64);
 
-    Ok(format!("data:image/jpeg;base64,{}", b64))
+    let duration_seconds = get_video_duration_ffprobe(video_path)?;
+
+    Ok(FfmpegMetadata {
+        thumbnail,
+        duration_seconds,
+    })
 }
 
 pub struct FileManagerForHardDrive {}
@@ -77,9 +123,9 @@ impl FileManagerForHardDrive {
         Self {}
     }
 
-    fn create_thumbnail(video_path: &PathBuf) -> Result<Option<String>, String> {
+    fn create_thumbnail(video_path: &PathBuf) -> Result<Option<FfmpegMetadata>, String> {
         match generate_one_thumbnail_ffmpeg(&video_path) {
-            Ok(base_64_image) => Ok(Some(base_64_image)),
+            Ok(metadata) => Ok(Some(metadata)),
             Err(e) => {
                 log::error!("Failed to generate thumbnail {video_path:?}: {e}");
                 Ok(None)
@@ -92,8 +138,13 @@ impl FileManager for FileManagerForHardDrive {
     fn create_video(&self, path: &str) -> Result<Video, String> {
         let video_path = PathBuf::from(path);
         let size_bytes = std::fs::metadata(&video_path).map(|m| m.len()).unwrap_or(0);
-        let thumbnail = Self::create_thumbnail(&video_path)?.unwrap_or_default();
-        let video = Video::new(video_path, thumbnail, size_bytes);
+        let metadata = Self::create_thumbnail(&video_path)?;
+        let thumbnail = metadata
+            .as_ref()
+            .map(|m| m.thumbnail.clone())
+            .unwrap_or_default();
+        let duration_seconds = metadata.as_ref().map(|m| m.duration_seconds).unwrap_or(0);
+        let video = Video::new(video_path, thumbnail, size_bytes, duration_seconds);
         Ok(video)
     }
 }

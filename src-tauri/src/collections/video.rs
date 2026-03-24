@@ -7,6 +7,7 @@ pub struct ThumbnailItem {
     pub video_path: String,
     pub thumbnail: Option<String>,
     pub size_bytes: Option<u64>,
+    pub duration_seconds: Option<u64>,
 }
 
 #[derive(serde::Serialize, Clone)]
@@ -20,6 +21,7 @@ pub struct VideoAddedToCollection {
     pub tags: Vec<String>,
     pub thumbnail: String,
     pub size_bytes: u64,
+    pub duration_seconds: u64,
 }
 
 #[derive(serde::Serialize, serde::Deserialize, Clone, Debug)]
@@ -38,6 +40,7 @@ pub struct VideoToUpdate {
     pub tags: Vec<String>,
     pub thumbnail: String,
     pub size_bytes: u64,
+    pub duration_seconds: u64,
 }
 
 pub trait FileManager {
@@ -67,6 +70,7 @@ pub trait FileManager {
                         tags: video.tags.clone(),
                         thumbnail: video.thumbnail.clone(),
                         size_bytes: video.size_bytes,
+                        duration_seconds: video.duration_seconds,
                     })
                     .unwrap()
                 },

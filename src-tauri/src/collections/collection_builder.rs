@@ -57,6 +57,7 @@ pub struct VideoBuilder {
     tags: Vec<String>,
     thumbnail: String,
     size_bytes: u64,
+    duration_seconds: u64,
 }
 
 #[cfg(test)]
@@ -71,6 +72,7 @@ impl VideoBuilder {
             tags: vec![],
             thumbnail: FilePath().fake(),
             size_bytes: Faker.fake::<u64>(),
+            duration_seconds: Faker.fake::<u64>(),
         }
     }
 
@@ -84,6 +86,7 @@ impl VideoBuilder {
             tags: self.tags.clone(),
             thumbnail: self.thumbnail.clone(),
             size_bytes: self.size_bytes,
+            duration_seconds: self.duration_seconds,
         }
     }
 }
