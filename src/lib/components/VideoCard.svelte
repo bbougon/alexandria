@@ -1,6 +1,6 @@
 <script lang="ts">
   import Card from '../components/Card.svelte';
-  import { Play } from '@lucide/svelte';
+  import { Play, Clock } from '@lucide/svelte';
   import EditableInput from '../components/EditableInput.svelte';
   import { invoke } from '@tauri-apps/api/core';
   import { selectedCollection } from '../collections/collection.store';
@@ -32,7 +32,8 @@
   let videoPlayer: VideoPlayer | undefined = $state();
 
   const updateVideoInvoker = async (video: Video) => {
-    const { path, thumbnail, size, name, artist, song, style, tags } = video;
+    const { path, thumbnail, size, name, artist, song, style, tags, duration } =
+      video;
     await invoke<void>('update_video', {
       video: {
         collection_id: $selectedCollection.collection?.id,
@@ -40,6 +41,7 @@
           path,
           thumbnail,
           size_bytes: size,
+          duration_seconds: duration,
           name,
           artist,
           song,
@@ -121,6 +123,12 @@
           class="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
         >
           <Play class="w-12 h-12 text-white fill-white" />
+        </div>
+        <div
+          class="absolute bottom-2 right-2 bg-black/75 text-white text-xs px-2 py-1 rounded flex items-center gap-1"
+        >
+          <Clock class="w-3 h-3" />
+          {video.duration.toHumanReadable()}
         </div>
       </div>
 
