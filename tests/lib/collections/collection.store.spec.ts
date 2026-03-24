@@ -62,7 +62,6 @@ describe('Collection store', () => {
     };
     expect(collection.videos[0]).toStrictEqual<Video>({
       ...expectedVideo,
-      toHumanReadable: expect.any(Function),
       play: expect.any(Function),
     });
   });
@@ -84,6 +83,7 @@ describe('Collection store', () => {
         .withTags([])
         .withStyles([])
         .withSize(0)
+        .withDuration(0)
         .withThumbnail('thumbnail.jpg')
         .build()
     );
@@ -94,13 +94,13 @@ describe('Collection store', () => {
     expect(collection.videos[0]).toStrictEqual<Video>({
       path: 'video.mp4',
       thumbnail: 'thumbnail.jpg',
-      size: 0,
+      size: { bytes: 0, toHumanReadable: expect.any(Function) },
+      duration: { seconds: 0, toHumanReadable: expect.any(Function) },
       name: 'Video',
       artist: 'Artist',
       song: 'Song',
       style: [],
       tags: [],
-      toHumanReadable: expect.any(Function),
       play: expect.any(Function),
     });
   });
@@ -124,12 +124,12 @@ describe('Collection store', () => {
       path: video.path,
       thumbnail: video.thumbnail,
       size: video.size,
+      duration: video.duration,
       name: 'New name',
       artist: video.artist,
       song: video.song,
       style: video.style,
       tags: video.tags,
-      toHumanReadable: expect.any(Function),
       play: expect.any(Function),
     });
   });
@@ -154,12 +154,12 @@ describe('Collection store', () => {
       path: video.path,
       thumbnail: video.thumbnail,
       size: video.size,
+      duration: video.duration,
       name: 'Old name',
       artist: video.artist,
       song: video.song,
       style: video.style,
       tags: video.tags,
-      toHumanReadable: expect.any(Function),
       play: expect.any(Function),
     });
   });
@@ -274,12 +274,12 @@ describe('Collection store', () => {
         path: video.path,
         thumbnail: video.thumbnail,
         size: video.size,
+        duration: video.duration,
         name: video.name,
         artist: video.artist,
         song: video.song,
         style: video.style,
         tags: ['rock', 'intro'],
-        toHumanReadable: expect.any(Function),
         play: expect.any(Function),
       });
     });
@@ -302,12 +302,12 @@ describe('Collection store', () => {
         path: video.path,
         thumbnail: video.thumbnail,
         size: video.size,
+        duration: video.duration,
         name: video.name,
         artist: video.artist,
         song: video.song,
         style: video.style,
         tags: ['rock', 'punk', 'intro'],
-        toHumanReadable: expect.any(Function),
         play: expect.any(Function),
       });
     });
@@ -348,12 +348,12 @@ describe('Collection store', () => {
         path: video.path,
         thumbnail: video.thumbnail,
         size: video.size,
+        duration: video.duration,
         name: video.name,
         artist: video.artist,
         song: video.song,
         style: ['Hard Rock', 'Metal'],
         tags: video.tags,
-        toHumanReadable: expect.any(Function),
         play: expect.any(Function),
       });
     });
@@ -374,12 +374,12 @@ describe('Collection store', () => {
         path: video.path,
         thumbnail: video.thumbnail,
         size: video.size,
+        duration: video.duration,
         name: video.name,
         artist: video.artist,
         song: video.song,
         style: ['Rock', 'Hard Rock', 'Metal'],
         tags: video.tags,
-        toHumanReadable: expect.any(Function),
         play: expect.any(Function),
       });
     });

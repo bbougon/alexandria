@@ -41,15 +41,27 @@ export type Style = (typeof STYLES)[number];
 //   };
 // };
 
+type HumanReadable = {
+  toHumanReadable(): string;
+};
+
+type Size = HumanReadable & {
+  bytes: number;
+};
+
+type Duration = HumanReadable & {
+  seconds: number;
+};
+
 export type Video = {
   path: string;
   thumbnail: string;
-  size: number;
+  size: Size;
+  duration: Duration;
   name: string;
   artist: string;
   song: string;
   style: Style[];
   tags: string[];
-  toHumanReadable(): string;
   play(): string;
 };

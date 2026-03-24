@@ -11,6 +11,7 @@ export type VideoFromCollection = {
   tags: string[];
   thumbnail?: string;
   size_bytes?: number;
+  duration_seconds?: number;
 };
 export type CollectionCreated = {
   collection_id: string;
