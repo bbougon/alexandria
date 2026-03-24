@@ -6,6 +6,7 @@ mod clock;
 mod collections;
 mod event_bus;
 mod infra;
+mod migrations;
 mod repositories;
 mod search;
 
@@ -36,6 +37,7 @@ pub fn run() {
             }
 
             init_prod(app_data_dir);
+            migrations::VideoDurationMigration::run();
 
             Ok(())
         })

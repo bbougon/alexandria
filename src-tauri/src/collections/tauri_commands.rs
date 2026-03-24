@@ -35,6 +35,7 @@ pub async fn create_collection(
             video_path: v.path.to_string_lossy().to_string(),
             thumbnail: v.thumbnail.parse().ok(),
             size_bytes: Option::from(v.size_bytes),
+            duration_seconds: Option::from(v.duration_seconds),
         })
         .collect())
 }

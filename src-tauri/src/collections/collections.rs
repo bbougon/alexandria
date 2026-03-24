@@ -41,10 +41,11 @@ pub struct Video {
     pub tags: Vec<String>,
     pub thumbnail: String,
     pub size_bytes: u64,
+    pub duration_seconds: u64,
 }
 
 impl Video {
-    pub fn new(path: PathBuf, thumbnail: String, size_bytes: u64) -> Self {
+    pub fn new(path: PathBuf, thumbnail: String, size_bytes: u64, duration_seconds: u64) -> Self {
         let name = path
             .file_name()
             .and_then(|os_str| os_str.to_str())
@@ -59,6 +60,7 @@ impl Video {
             tags: vec![],
             thumbnail,
             size_bytes,
+            duration_seconds,
         }
     }
 }
@@ -200,7 +202,7 @@ mod collection_service_setup {
 
     impl FileManager for FileManagerMemory {
         fn create_video(&self, path: &str) -> Result<Video, String> {
-            Ok(Video::new(path.parse().unwrap(), "".parse().unwrap(), 0))
+            Ok(Video::new(path.parse().unwrap(), "".parse().unwrap(), 0, 0))
         }
     }
 
@@ -261,7 +263,8 @@ mod collection_service_create_collection_tests {
                     style: vec![],
                     tags: vec![],
                     thumbnail: "".to_string(),
-                    size_bytes: 0
+                    size_bytes: 0,
+                    duration_seconds: 0
                 }]
             })
         );
@@ -318,6 +321,7 @@ mod collection_service_create_collection_tests {
                 tags: vec![],
                 thumbnail: "".to_string(),
                 size_bytes: 0,
+                duration_seconds: 0,
             })
             .unwrap()
         );
@@ -357,6 +361,7 @@ mod collection_service_update_video_tests {
                     tags: vec!["alternative".to_string(), "rhythmic".to_string()],
                     thumbnail: video.thumbnail.clone(),
                     size_bytes: video.size_bytes,
+                    duration_seconds: video.duration_seconds,
                 },
             },
             EventBusManager::new(Box::new(event_bus.clone())),
@@ -377,6 +382,7 @@ mod collection_service_update_video_tests {
                 tags: vec!["alternative".to_string(), "rhythmic".to_string()],
                 thumbnail: video.thumbnail,
                 size_bytes: video.size_bytes,
+                duration_seconds: video.duration_seconds,
             }
         )
     }
