@@ -112,7 +112,10 @@
               <div class="flex-1 min-w-0">
                 <p class="font-medium truncate">{video.name}</p>
                 <p class="text-xs text-muted-foreground">
-                  {video.toHumanReadable()} MB
+                  {video.size.toHumanReadable()} MB
+                </p>
+                <p class="text-xs text-muted-foreground">
+                  {video.duration.toHumanReadable()}
                 </p>
               </div>
               <!--              <button-->

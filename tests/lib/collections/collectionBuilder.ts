@@ -39,6 +39,7 @@ class VideoBuilder implements Builder<Video> {
   private song: string = fakerFR.music.songName();
   private style: Style[] = [];
   private tags: string[] = [];
+  private duration: number = fakerFR.number.int();
 
   constructor() {
     const range = fakerFR.number.int({ min: 0, max: STYLES.length - 1 });
@@ -85,6 +86,11 @@ class VideoBuilder implements Builder<Video> {
     return this;
   }
 
+  withDuration(duration: number) {
+    this.duration = duration;
+    return this;
+  }
+
   withThumbnail(thumbnail: string) {
     this.thumbnail = thumbnail;
     return this;
@@ -95,12 +101,10 @@ class VideoBuilder implements Builder<Video> {
       play(): string {
         return '';
       },
-      toHumanReadable(): string {
-        return '';
-      },
       path: this.path,
       thumbnail: this.thumbnail,
-      size: this.size,
+      size: { bytes: this.size, toHumanReadable: () => '' },
+      duration: { seconds: this.duration, toHumanReadable: () => '' },
       name: this.name,
       artist: this.artist,
       song: this.song,
