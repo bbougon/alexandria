@@ -73,7 +73,15 @@ impl CollectionRepository for CollectionRepositoryFile {
         };
 
         let mut collections = Vec::new();
-        for entry in entries {
+        for entry in entries.filter(|entry| {
+            entry
+                .as_ref()
+                .unwrap()
+                .file_name()
+                .to_str()
+                .unwrap()
+                .starts_with("collection-")
+        }) {
             let entry = match entry {
                 Ok(entry) => entry,
                 Err(e) => {

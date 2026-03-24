@@ -37,7 +37,15 @@ pub fn run() {
             }
 
             init_prod(app_data_dir.clone());
-            migrations::VideoDurationMigration::run(app_data_dir);
+
+            let migration_repo = migrations::MigrationRepositoryFile::new(app_data_dir.clone());
+            let migration_manager =
+                migrations::MigrationManager::new(Box::new(migration_repo), app_data_dir);
+            if let Err(e) =
+                migration_manager.play(vec![Box::new(migrations::VideoDurationMigration)])
+            {
+                log::error!("Failed to play migrations: {}", e);
+            }
 
             Ok(())
         })
