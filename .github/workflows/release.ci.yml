@@ -124,7 +124,7 @@ jobs:
 
       - name: build tauri app
         run: |
-          pnpm tauri build ${{ matrix.args }} --config "{\"version\":\"${{ needs.create-release.outputs.semver }}\"}"
+          pnpm tauri build ${{ matrix.args }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
