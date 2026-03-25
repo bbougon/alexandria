@@ -7,6 +7,7 @@ use crate::infra::tauri::path::allow_path;
 use crate::repositories::repositories;
 use crate::search::search_service::{ApplyPathRights, Indexer, SearchService, TantivyIndexer};
 use once_cell::sync::Lazy;
+use std::sync::Arc;
 use tantivy::schema::Field;
 use tantivy::IndexWriter;
 use tauri::AppHandle;
@@ -26,7 +27,7 @@ pub async fn create_collection(
     let collection = CollectionService::create_collection(
         paths,
         video_file_manager,
-        EventBusManager::new(Box::new(TauriEventBus::new(app.clone()))),
+        EventBusManager::new(Arc::new(TauriEventBus::new(app.clone()))),
     );
     Ok(collection
         .videos
@@ -45,7 +46,7 @@ pub async fn update_video(app: AppHandle, video: VideoCollectionToUpdate) -> Res
     allow_path(&app, video.video.path.to_str().unwrap())?;
     CollectionService::update_video(
         video,
-        EventBusManager::new(Box::new(TauriEventBus::new(app))),
+        EventBusManager::new(Arc::new(TauriEventBus::new(app))),
     );
     Ok(())
 }
@@ -63,7 +64,7 @@ pub async fn get_collections(app: AppHandle) -> Result<Vec<Collection>, String> 
 
 #[tauri::command]
 pub async fn search_videos(app: AppHandle, query: String) -> Result<(), String> {
-    SEARCH_SERVICE.initialize(EventBusManager::new(Box::new(TauriEventBus::new(
+    SEARCH_SERVICE.initialize(EventBusManager::new(Arc::new(TauriEventBus::new(
         app.clone(),
     ))));
     if !query.is_empty() {
