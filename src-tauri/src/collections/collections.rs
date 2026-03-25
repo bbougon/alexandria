@@ -1,8 +1,7 @@
 use crate::clock::clock;
-use crate::collections::video::{
-    VideoAddedToCollection, VideoCollectionToUpdate, VideoFileManager,
-};
-use crate::event_bus::{Event, EventBusManager};
+use crate::collections::events::{CollectionCreated, VideoAddedToCollection};
+use crate::collections::video::{VideoCollectionToUpdate, VideoFileManager};
+use crate::event_bus::EventBusManager;
 use crate::repositories::repositories;
 use std::path::PathBuf;
 use uuid::Uuid;
@@ -88,13 +87,6 @@ impl Collection {
     }
 }
 
-#[derive(serde::Serialize, Clone)]
-pub struct CollectionCreated {
-    pub collection_id: Uuid,
-    pub title: String,
-    pub videos: Vec<Video>,
-}
-
 pub trait CollectionRepository: Send + Sync {
     fn list(&self) -> Vec<Collection>;
     fn add(&self, c: Collection);
@@ -168,43 +160,20 @@ impl CollectionService {
             Uuid::new_v4(),
             format!("Collection - {}", clock().now().format("%Y-%m-%d")).as_str(),
         );
-        bus_manager.event_bus.publish(Event {
-            event_type: "collection:created".parse().unwrap(),
-            data: {
-                serde_json::to_value(CollectionCreated {
-                    collection_id: collection.id,
-                    title: collection.title.clone(),
-                    videos: vec![],
-                })
-                .unwrap()
-            },
-        });
+        bus_manager.publish("collection:created", CollectionCreated::from(&collection));
+
         let videos = video_file_manager
             .file_manager
-            .retrieve_all_videos_data(videos_paths)
+            .retrieve_all_videos_data(videos_paths, bus_manager.clone())
             .unwrap();
+
         videos.into_iter().for_each(|v| {
             let video = Video::new(v.path, v.thumbnail, v.size_bytes, v.duration_seconds);
             collection.add_video(video.clone());
-            let event = Event {
-                event_type: "video:added".parse().unwrap(),
-                data: {
-                    serde_json::to_value(VideoAddedToCollection {
-                        collection_id: collection.id,
-                        path: video.path.clone(),
-                        name: video.name.clone(),
-                        artist: video.artist.clone(),
-                        song: video.song.clone(),
-                        style: video.style.clone(),
-                        tags: video.tags.clone(),
-                        thumbnail: video.thumbnail.clone(),
-                        size_bytes: video.size_bytes,
-                        duration_seconds: video.duration_seconds,
-                    })
-                    .unwrap()
-                },
-            };
-            bus_manager.event_bus.publish(event)
+            bus_manager.publish(
+                "video:added",
+                VideoAddedToCollection::from((&video, collection.id)),
+            );
         });
         repositories().collections().add(collection.clone());
         collection
@@ -260,10 +229,8 @@ mod collection_service_setup {
 #[cfg(test)]
 mod collection_service_create_collection_tests {
     use crate::collections::collections::collection_service_setup::setup;
-    use crate::collections::collections::{
-        Collection, CollectionCreated, CollectionService, Video,
-    };
-    use crate::collections::video::VideoAddedToCollection;
+    use crate::collections::collections::{Collection, CollectionService, Video};
+    use crate::collections::events::{CollectionCreated, VideoAddedToCollection};
     use crate::event_bus::EventBusManager;
     use crate::repositories::repositories;
     use chrono::{TimeZone, Utc};
@@ -277,7 +244,7 @@ mod collection_service_create_collection_tests {
         let collection = CollectionService::create_collection(
             vec!["foo/video.mp4".parse().unwrap()],
             video_file_manager,
-            EventBusManager::new(Box::new(event_bus.clone())),
+            EventBusManager::new(event_bus.clone()),
         );
 
         assert_eq!(repositories().collections().list().len(), 1);
@@ -309,11 +276,11 @@ mod collection_service_create_collection_tests {
         let collection = CollectionService::create_collection(
             vec!["foo/video.mp4".parse().unwrap()],
             video_file_manager,
-            EventBusManager::new(Box::new(event_bus.clone())),
+            EventBusManager::new(event_bus.clone()),
         );
 
         let events = event_bus.events.lock();
-        assert_eq!(events.len(), 2);
+        assert_eq!(events.len(), 3);
         assert_eq!(events[0].event_type, "collection:created");
         assert_eq!(
             events[0].data,
@@ -334,14 +301,14 @@ mod collection_service_create_collection_tests {
         let collection = CollectionService::create_collection(
             vec!["foo/video.mp4".parse().unwrap()],
             video_file_manager,
-            EventBusManager::new(Box::new(event_bus.clone())),
+            EventBusManager::new(event_bus.clone()),
         );
 
         let events = event_bus.events.lock();
-        assert_eq!(events.len(), 2);
-        assert_eq!(events[1].event_type, "video:added");
+        assert_eq!(events.len(), 3);
+        assert_eq!(events[2].event_type, "video:added");
         assert_eq!(
-            events[1].data,
+            events[2].data,
             serde_json::to_value(VideoAddedToCollection {
                 collection_id: collection.id,
                 path: "foo/video.mp4".parse().unwrap(),
@@ -376,7 +343,7 @@ mod collection_service_update_video_tests {
         let collection = CollectionService::create_collection(
             vec!["foo/video.mp4".parse().unwrap()],
             video_file_manager,
-            EventBusManager::new(Box::new(event_bus.clone())),
+            EventBusManager::new(event_bus.clone()),
         );
         let video = collection.videos[0].clone();
 
@@ -395,7 +362,7 @@ mod collection_service_update_video_tests {
                     duration_seconds: video.duration_seconds,
                 },
             },
-            EventBusManager::new(Box::new(event_bus.clone())),
+            EventBusManager::new(event_bus.clone()),
         );
 
         let retrieved_collection = repositories()
