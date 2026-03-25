@@ -1,4 +1,3 @@
-use crate::collections::collections::Video;
 use crate::collections::video::FileManager;
 use base64::Engine;
 use std::path::{Path, PathBuf};
@@ -134,8 +133,16 @@ impl FileManagerForHardDrive {
     }
 }
 
+#[derive(Clone)]
+pub struct VideoData {
+    pub path: PathBuf,
+    pub thumbnail: String,
+    pub size_bytes: u64,
+    pub duration_seconds: u64,
+}
+
 impl FileManager for FileManagerForHardDrive {
-    fn create_video(&self, path: &str) -> Result<Video, String> {
+    fn retrieve_video_data(&self, path: &str) -> Result<VideoData, String> {
         let video_path = PathBuf::from(path);
         let size_bytes = std::fs::metadata(&video_path).map(|m| m.len()).unwrap_or(0);
         let metadata = Self::create_thumbnail(&video_path)?;
@@ -144,7 +151,12 @@ impl FileManager for FileManagerForHardDrive {
             .map(|m| m.thumbnail.clone())
             .unwrap_or_default();
         let duration_seconds = metadata.as_ref().map(|m| m.duration_seconds).unwrap_or(0);
-        let video = Video::new(video_path, thumbnail, size_bytes, duration_seconds);
-        Ok(video)
+        let video_data: VideoData = VideoData {
+            path: video_path.clone(),
+            thumbnail: thumbnail.clone(),
+            size_bytes,
+            duration_seconds,
+        };
+        Ok(video_data)
     }
 }

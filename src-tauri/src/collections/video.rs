@@ -1,5 +1,5 @@
-use crate::collections::collections::{Collection, Style, Video};
-use crate::event_bus::{Event, EventBusManager};
+use crate::collections::collections::Style;
+use crate::infra::files::file_manager::VideoData;
 use std::path::PathBuf;
 
 #[derive(serde::Serialize, Clone)]
@@ -44,43 +44,21 @@ pub struct VideoToUpdate {
 }
 
 pub trait FileManager {
-    fn add_files_from_paths_to_collection(
-        &self,
-        paths: Vec<String>,
-        collection: &mut Collection,
-        bus_manager: EventBusManager,
-    ) -> Result<(), String> {
+    fn retrieve_all_videos_data(&self, paths: Vec<String>) -> Result<Vec<VideoData>, String> {
         if paths.is_empty() {
             return Err("Aucun fichier reçu".to_string());
         }
 
+        let mut result = vec![];
         for (_index, p) in paths.iter().enumerate() {
-            let video = self.create_video(p)?;
-            collection.add_video(video.clone());
-            let event = Event {
-                event_type: "video:added".parse().unwrap(),
-                data: {
-                    serde_json::to_value(VideoAddedToCollection {
-                        collection_id: collection.id,
-                        path: video.path.clone(),
-                        name: video.name.clone(),
-                        artist: video.artist.clone(),
-                        song: video.song.clone(),
-                        style: video.style.clone(),
-                        tags: video.tags.clone(),
-                        thumbnail: video.thumbnail.clone(),
-                        size_bytes: video.size_bytes,
-                        duration_seconds: video.duration_seconds,
-                    })
-                    .unwrap()
-                },
-            };
-            bus_manager.event_bus.publish(event)
+            // TODO: Emit an event when video data is retrieved
+            let video_data = self.retrieve_video_data(p)?;
+            result.push(video_data.clone());
         }
-        Ok(())
+        Ok(result)
     }
 
-    fn create_video(&self, path: &str) -> Result<Video, String>;
+    fn retrieve_video_data(&self, path: &str) -> Result<VideoData, String>;
 }
 
 pub struct VideoFileManager {
