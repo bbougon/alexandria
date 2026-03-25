@@ -1,5 +1,7 @@
 use crate::clock::clock;
-use crate::collections::video::{VideoCollectionToUpdate, VideoFileManager};
+use crate::collections::video::{
+    VideoAddedToCollection, VideoCollectionToUpdate, VideoFileManager,
+};
 use crate::event_bus::{Event, EventBusManager};
 use crate::repositories::repositories;
 use std::path::PathBuf;
@@ -177,10 +179,33 @@ impl CollectionService {
                 .unwrap()
             },
         });
-        video_file_manager
+        let videos = video_file_manager
             .file_manager
-            .add_files_from_paths_to_collection(videos_paths, &mut collection, bus_manager)
+            .retrieve_all_videos_data(videos_paths)
             .unwrap();
+        videos.into_iter().for_each(|v| {
+            let video = Video::new(v.path, v.thumbnail, v.size_bytes, v.duration_seconds);
+            collection.add_video(video.clone());
+            let event = Event {
+                event_type: "video:added".parse().unwrap(),
+                data: {
+                    serde_json::to_value(VideoAddedToCollection {
+                        collection_id: collection.id,
+                        path: video.path.clone(),
+                        name: video.name.clone(),
+                        artist: video.artist.clone(),
+                        song: video.song.clone(),
+                        style: video.style.clone(),
+                        tags: video.tags.clone(),
+                        thumbnail: video.thumbnail.clone(),
+                        size_bytes: video.size_bytes,
+                        duration_seconds: video.duration_seconds,
+                    })
+                    .unwrap()
+                },
+            };
+            bus_manager.event_bus.publish(event)
+        });
         repositories().collections().add(collection.clone());
         collection
     }
@@ -189,9 +214,10 @@ impl CollectionService {
 #[cfg(test)]
 mod collection_service_setup {
     use crate::clock::ClockGuard;
-    use crate::collections::collections::{CollectionRepositoryMemory, Video};
+    use crate::collections::collections::CollectionRepositoryMemory;
     use crate::collections::video::{FileManager, ThumbnailItem, VideoFileManager};
     use crate::infra::event_bus::memory_event_bus::MemoryEventBus;
+    use crate::infra::files::file_manager::VideoData;
     use crate::repositories::{with_test_repositories, Repositories, RepositoriesGuard};
     use chrono::{DateTime, MappedLocalTime, Utc};
     use std::sync::Arc;
@@ -201,8 +227,13 @@ mod collection_service_setup {
     }
 
     impl FileManager for FileManagerMemory {
-        fn create_video(&self, path: &str) -> Result<Video, String> {
-            Ok(Video::new(path.parse().unwrap(), "".parse().unwrap(), 0, 0))
+        fn retrieve_video_data(&self, path: &str) -> Result<VideoData, String> {
+            Ok(VideoData {
+                path: path.parse().unwrap(),
+                thumbnail: "".parse().unwrap(),
+                size_bytes: 0,
+                duration_seconds: 0,
+            })
         }
     }
 
