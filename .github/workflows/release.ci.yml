@@ -12,29 +12,62 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       release_id: ${{ steps.create-release.outputs.result }}
+      version: ${{ steps.get-version.outputs.version }}
+      tag_name: ${{ steps.get-version.outputs.tag_name }}
 
     steps:
       - uses: actions/checkout@v4
-
-      - name: setup node
-        uses: actions/setup-node@v4
         with:
-          node-version: lts/*
+          fetch-depth: 0
 
       - name: get version
-        run: echo "PACKAGE_VERSION=$(node -p "require('./package.json').version")" >> $GITHUB_ENV
+        id: get-version
+        uses: actions/github-script@v6
+        with:
+          script: |
+            let lastVersion = 0;
+            try {
+              const { data: latestRelease } = await github.rest.repos.getLatestRelease({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+              });
+              const match = latestRelease.tag_name.match(/app-v(\d+)/);
+              if (match) {
+                lastVersion = parseInt(match[1], 10);
+              }
+            } catch (error) {
+              console.log('No previous release found or error fetching it, starting from 0');
+            }
+            const nextVersion = lastVersion + 1;
+            const nextTag = `app-v${nextVersion}`;
+            core.setOutput('version', nextVersion);
+            core.setOutput('tag_name', nextTag);
+
+      - name: generate release notes
+        id: generate-notes
+        uses: actions/github-script@v6
+        with:
+          script: |
+            const { data } = await github.rest.repos.generateReleaseNotes({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              tag_name: '${{ steps.get-version.outputs.tag_name }}',
+            });
+            return data.body
 
       - name: create release
         id: create-release
         uses: actions/github-script@v6
+        env:
+          RELEASE_NOTES: ${{ steps.generate-notes.outputs.result }}
         with:
           script: |
             const { data } = await github.rest.repos.createRelease({
               owner: context.repo.owner,
               repo: context.repo.repo,
-              tag_name: `app-v${process.env.PACKAGE_VERSION}`,
-              name: `Desktop App v${process.env.PACKAGE_VERSION}`,
-              body: 'Take a look at the assets to download and install this app.',
+              tag_name: '${{ steps.get-version.outputs.tag_name }}',
+              name: `Desktop App v${{ steps.get-version.outputs.version }}`,
+              body: process.env.RELEASE_NOTES,
               draft: true,
               prerelease: false
             })
@@ -87,14 +120,12 @@ jobs:
         run: pnpm install
 
       - name: build tauri app
-        run: pnpm tauri build ${{ matrix.args }}
+        run: pnpm tauri build ${{ matrix.args }} --config '{"version":"${{ needs.create-release.outputs.version }}"}'
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: get version
-        run: echo "PACKAGE_VERSION=$(node -p "require('./package.json').version")" >> $GITHUB_ENV
 
-      - name: Upload Release Assets
+      - name: upload release assets
         uses: actions/github-script@v6
         env:
           release_id: ${{ needs.create-release.outputs.release_id }}
