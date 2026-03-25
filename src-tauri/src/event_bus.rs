@@ -5,7 +5,6 @@ pub struct Event {
     pub data: Value,
     pub event_type: String,
 }
-
 pub trait EventBus: Send + Sync {
     fn publish(&self, event: Event);
 }
