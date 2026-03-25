@@ -1,4 +1,5 @@
 use crate::collections::collections::{Collection, CollectionService};
+use crate::collections::tauri_dtos::VideoDataDTO;
 use crate::collections::video::{ThumbnailItem, VideoCollectionToUpdate, VideoFileManager};
 use crate::event_bus::EventBusManager;
 use crate::infra::event_bus::tauri_event_bus::TauriEventBus;
@@ -15,6 +16,20 @@ use tauri::AppHandle;
 static SEARCH_SERVICE: Lazy<SearchService<IndexWriter, Field>> =
     Lazy::new(|| SearchService::new(TantivyIndexer::initialize()));
 
+#[tauri::command]
+pub async fn retrieve_videos_data(
+    app: AppHandle,
+    paths: Vec<String>,
+) -> Result<Vec<VideoDataDTO>, String> {
+    let video_file_manager = VideoFileManager::new(Box::new(FileManagerForHardDrive::new()));
+    let video_data = video_file_manager.file_manager.retrieve_all_videos_data(
+        paths,
+        EventBusManager::new(Arc::new(TauriEventBus::new(app.clone()))),
+    );
+    Ok(video_data?.iter().map(|v| VideoDataDTO::from(v)).collect())
+}
+
+// TODO: Refactor create_collection to return a collection instead of a vector of thumbnails
 #[tauri::command]
 pub async fn create_collection(
     app: AppHandle,
@@ -51,6 +66,7 @@ pub async fn update_video(app: AppHandle, video: VideoCollectionToUpdate) -> Res
     Ok(())
 }
 
+// TODO: Refactor get_collections to return a CollectionDTO instead of a domain Collection
 #[tauri::command]
 pub async fn get_collections(app: AppHandle) -> Result<Vec<Collection>, String> {
     let collections = repositories().collections().list();
