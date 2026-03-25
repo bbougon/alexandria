@@ -14,6 +14,7 @@ jobs:
       release_id: ${{ steps.create-release.outputs.result }}
       version: ${{ steps.get-version.outputs.version }}
       tag_name: ${{ steps.get-version.outputs.tag_name }}
+      semver: ${{ steps.get-version.outputs.semver }}
 
     steps:
       - uses: actions/checkout@v4
@@ -40,8 +41,10 @@ jobs:
             }
             const nextVersion = lastVersion + 1;
             const nextTag = `app-v${nextVersion}`;
+            const semver = `${nextVersion}.0.0`;
             core.setOutput('version', nextVersion);
             core.setOutput('tag_name', nextTag);
+            core.setOutput('semver', semver);
 
       - name: generate release notes
         id: generate-notes
@@ -120,7 +123,8 @@ jobs:
         run: pnpm install
 
       - name: build tauri app
-        run: pnpm tauri build ${{ matrix.args }} --config '{"version":"${{ needs.create-release.outputs.version }}"}'
+        run: |
+          pnpm tauri build ${{ matrix.args }} --config '{"version":"${{ needs.create-release.outputs.semver }}"}'
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
