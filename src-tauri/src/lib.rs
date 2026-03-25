@@ -50,6 +50,7 @@ pub fn run() {
             Ok(())
         })
         .invoke_handler(tauri::generate_handler![
+            collection_commands::retrieve_videos_data,
             collection_commands::create_collection,
             collection_commands::update_video,
             collection_commands::get_collections,
