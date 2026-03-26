@@ -1,4 +1,4 @@
-use crate::collections::collections::{Collection, CollectionService};
+use crate::collections::collections::{Collection, CollectionService, VideoToAdd};
 use crate::collections::tauri_dtos::VideoDataDTO;
 use crate::collections::video::{ThumbnailItem, VideoCollectionToUpdate, VideoFileManager};
 use crate::event_bus::EventBusManager;
@@ -33,15 +33,13 @@ pub async fn retrieve_videos_data(
 #[tauri::command]
 pub async fn create_collection(
     app: AppHandle,
-    paths: Vec<String>,
+    videos: Vec<VideoToAdd>,
 ) -> Result<Vec<ThumbnailItem>, String> {
-    for path in &paths {
-        allow_path(&app, path)?;
+    for video in &videos {
+        allow_path(&app, video.clone().path.to_str().unwrap_or("unknown"))?;
     }
-    let video_file_manager = VideoFileManager::new(Box::new(FileManagerForHardDrive::new()));
     let collection = CollectionService::create_collection(
-        paths,
-        video_file_manager,
+        videos,
         EventBusManager::new(Arc::new(TauriEventBus::new(app.clone()))),
     );
     Ok(collection

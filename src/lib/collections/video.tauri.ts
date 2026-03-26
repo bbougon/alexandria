@@ -42,13 +42,6 @@ export type VideoAddedToCollection = {
   error?: string | null;
 };
 
-export type VideoDataRetrievedDTO = {
-  path: string;
-  thumbnail: string;
-  size_bytes: number;
-  duration_seconds: number;
-};
-
 const secondsToHumanReadable = (durationInSeconds: number) => {
   const duration = intervalToDuration({
     start: 0,
@@ -77,6 +70,13 @@ const bytesToHumanReadable = (size: number) => {
   }).format(value);
 };
 
+export type VideoDataRetrievedDTO = {
+  path: string;
+  thumbnail: string;
+  size_bytes: number;
+  duration_seconds: number;
+};
+
 export const toVideoData = (video: VideoDataRetrievedDTO): VideoData => {
   const size = video.size_bytes;
   const durationInSeconds = video.duration_seconds;
@@ -96,5 +96,20 @@ export const toVideoData = (video: VideoDataRetrievedDTO): VideoData => {
     },
     thumbnail: video.thumbnail,
     name: video.path.split('/').pop()!,
+  };
+};
+
+type VideoDataDTO = {
+  path: string;
+  thumbnail: string;
+  size_bytes: number;
+  duration_seconds: number;
+};
+export const toVideoDataDTO = (video: VideoData): VideoDataDTO => {
+  return {
+    path: video.path,
+    thumbnail: video.thumbnail,
+    size_bytes: video.size.bytes,
+    duration_seconds: video.duration.seconds,
   };
 };

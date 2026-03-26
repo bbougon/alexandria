@@ -1,6 +1,6 @@
 use crate::clock::clock;
 use crate::collections::events::{CollectionCreated, VideoAddedToCollection};
-use crate::collections::video::{VideoCollectionToUpdate, VideoFileManager};
+use crate::collections::video::VideoCollectionToUpdate;
 use crate::event_bus::EventBusManager;
 use crate::repositories::repositories;
 use std::path::PathBuf;
@@ -150,10 +150,17 @@ impl CollectionService {
     }
 }
 
+#[derive(serde::Serialize, serde::Deserialize, Clone, Debug)]
+pub struct VideoToAdd {
+    pub path: PathBuf,
+    thumbnail: String,
+    size_bytes: u64,
+    duration_seconds: u64,
+}
+
 impl CollectionService {
     pub fn create_collection(
-        videos_paths: Vec<String>,
-        video_file_manager: VideoFileManager,
+        videos_paths: Vec<VideoToAdd>,
         bus_manager: EventBusManager,
     ) -> Collection {
         let mut collection = Collection::new(
@@ -162,12 +169,7 @@ impl CollectionService {
         );
         bus_manager.publish("collection:created", CollectionCreated::from(&collection));
 
-        let videos = video_file_manager
-            .file_manager
-            .retrieve_all_videos_data(videos_paths, bus_manager.clone())
-            .unwrap();
-
-        videos.into_iter().for_each(|v| {
+        videos_paths.into_iter().for_each(|v| {
             let video = Video::new(v.path, v.thumbnail, v.size_bytes, v.duration_seconds);
             collection.add_video(video.clone());
             bus_manager.publish(
@@ -184,52 +186,28 @@ impl CollectionService {
 mod collection_service_setup {
     use crate::clock::ClockGuard;
     use crate::collections::collections::CollectionRepositoryMemory;
-    use crate::collections::video::{FileManager, ThumbnailItem, VideoFileManager};
     use crate::infra::event_bus::memory_event_bus::MemoryEventBus;
-    use crate::infra::files::file_manager::VideoData;
     use crate::repositories::{with_test_repositories, Repositories, RepositoriesGuard};
     use chrono::{DateTime, MappedLocalTime, Utc};
     use std::sync::Arc;
 
-    struct FileManagerMemory {
-        items: Vec<ThumbnailItem>,
-    }
-
-    impl FileManager for FileManagerMemory {
-        fn retrieve_video_data(&self, path: &str) -> Result<VideoData, String> {
-            Ok(VideoData {
-                path: path.parse().unwrap(),
-                thumbnail: "".parse().unwrap(),
-                size_bytes: 0,
-                duration_seconds: 0,
-            })
-        }
-    }
-
     pub fn setup(
         current_date_time: MappedLocalTime<DateTime<Utc>>,
-    ) -> (
-        VideoFileManager,
-        Arc<MemoryEventBus>,
-        ClockGuard,
-        RepositoriesGuard,
-    ) {
+    ) -> (Arc<MemoryEventBus>, ClockGuard, RepositoriesGuard) {
         let now = current_date_time.unwrap();
         let _clock_guard = crate::clock::with_static_clock(now);
         let mem = CollectionRepositoryMemory::new();
         let _repos_guard = with_test_repositories(Repositories::new(Arc::new(mem)));
-        let video_file_manager =
-            VideoFileManager::new(Box::new(FileManagerMemory { items: vec![] }));
         let event_bus = Arc::new(MemoryEventBus::new());
 
-        (video_file_manager, event_bus, _clock_guard, _repos_guard)
+        (event_bus, _clock_guard, _repos_guard)
     }
 }
 
 #[cfg(test)]
 mod collection_service_create_collection_tests {
     use crate::collections::collections::collection_service_setup::setup;
-    use crate::collections::collections::{Collection, CollectionService, Video};
+    use crate::collections::collections::{Collection, CollectionService, Video, VideoToAdd};
     use crate::collections::events::{CollectionCreated, VideoAddedToCollection};
     use crate::event_bus::EventBusManager;
     use crate::repositories::repositories;
@@ -238,12 +216,16 @@ mod collection_service_create_collection_tests {
 
     #[test]
     fn create_collection() {
-        let (video_file_manager, event_bus, _clock_guard, _repositories_guard) =
+        let (event_bus, _clock_guard, _repositories_guard) =
             setup(Utc.with_ymd_and_hms(2026, 1, 28, 12, 0, 0));
 
         let collection = CollectionService::create_collection(
-            vec!["foo/video.mp4".parse().unwrap()],
-            video_file_manager,
+            vec![VideoToAdd {
+                path: "foo/video.mp4".parse().unwrap(),
+                thumbnail: "thumbnail".parse().unwrap(),
+                size_bytes: 1_200_300,
+                duration_seconds: 123,
+            }],
             EventBusManager::new(event_bus.clone()),
         );
 
@@ -260,9 +242,9 @@ mod collection_service_create_collection_tests {
                     song: "".to_string(),
                     style: vec![],
                     tags: vec![],
-                    thumbnail: "".to_string(),
-                    size_bytes: 0,
-                    duration_seconds: 0
+                    thumbnail: "thumbnail".to_string(),
+                    size_bytes: 1_200_300,
+                    duration_seconds: 123
                 }]
             })
         );
@@ -270,17 +252,21 @@ mod collection_service_create_collection_tests {
 
     #[test]
     fn collection_service_publish_collection_created() {
-        let (video_file_manager, event_bus, _clock_guard, _repositories_guard) =
+        let (event_bus, _clock_guard, _repositories_guard) =
             setup(Utc.with_ymd_and_hms(2026, 1, 28, 12, 0, 0));
 
         let collection = CollectionService::create_collection(
-            vec!["foo/video.mp4".parse().unwrap()],
-            video_file_manager,
+            vec![VideoToAdd {
+                path: "foo/video.mp4".parse().unwrap(),
+                thumbnail: "thumbnail".parse().unwrap(),
+                size_bytes: 1_200_300,
+                duration_seconds: 123,
+            }],
             EventBusManager::new(event_bus.clone()),
         );
 
         let events = event_bus.events.lock();
-        assert_eq!(events.len(), 3);
+        assert_eq!(events.len(), 2);
         assert_eq!(events[0].event_type, "collection:created");
         assert_eq!(
             events[0].data,
@@ -295,20 +281,24 @@ mod collection_service_create_collection_tests {
 
     #[test]
     fn collection_service_publish_video_added_to_collection() {
-        let (video_file_manager, event_bus, _clock_guard, _repositories_guard) =
+        let (event_bus, _clock_guard, _repositories_guard) =
             setup(Utc.with_ymd_and_hms(2026, 1, 28, 12, 0, 0));
 
         let collection = CollectionService::create_collection(
-            vec!["foo/video.mp4".parse().unwrap()],
-            video_file_manager,
+            vec![VideoToAdd {
+                path: "foo/video.mp4".parse().unwrap(),
+                thumbnail: "".to_string(),
+                size_bytes: 0,
+                duration_seconds: 0,
+            }],
             EventBusManager::new(event_bus.clone()),
         );
 
         let events = event_bus.events.lock();
-        assert_eq!(events.len(), 3);
-        assert_eq!(events[2].event_type, "video:added");
+        assert_eq!(events.len(), 2);
+        assert_eq!(events[1].event_type, "video:added");
         assert_eq!(
-            events[2].data,
+            events[1].data,
             serde_json::to_value(VideoAddedToCollection {
                 collection_id: collection.id,
                 path: "foo/video.mp4".parse().unwrap(),
@@ -330,7 +320,7 @@ mod collection_service_create_collection_tests {
 mod collection_service_update_video_tests {
     use crate::collections::collections::collection_service_setup::setup;
     use crate::collections::collections::Style::Rock;
-    use crate::collections::collections::{CollectionService, Video};
+    use crate::collections::collections::{CollectionService, Video, VideoToAdd};
     use crate::collections::video::{VideoCollectionToUpdate, VideoToUpdate};
     use crate::event_bus::EventBusManager;
     use crate::repositories::repositories;
@@ -338,11 +328,15 @@ mod collection_service_update_video_tests {
 
     #[test]
     fn update_video() {
-        let (video_file_manager, event_bus, _clock_guard, _repositories_guard) =
+        let (event_bus, _clock_guard, _repositories_guard) =
             setup(Utc.with_ymd_and_hms(2026, 1, 28, 12, 0, 0));
         let collection = CollectionService::create_collection(
-            vec!["foo/video.mp4".parse().unwrap()],
-            video_file_manager,
+            vec![VideoToAdd {
+                path: "foo/video.mp4".parse().unwrap(),
+                thumbnail: "".to_string(),
+                size_bytes: 0,
+                duration_seconds: 0,
+            }],
             EventBusManager::new(event_bus.clone()),
         );
         let video = collection.videos[0].clone();
