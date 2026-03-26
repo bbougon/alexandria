@@ -11,7 +11,7 @@
     "build": "pnpm tauri build",
     "preview": "vite preview",
     "check": "svelte-check --tsconfig ./tsconfig.app.json && tsc -p tsconfig.node.json",
-    "test": "pnpm run front:test && pnpm run back:test",
+    "test": "pnpm run test:front && pnpm run test:back",
     "test:front": "vitest",
     "test:back": "cargo test --manifest-path src-tauri/Cargo.toml"
   },
