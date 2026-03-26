@@ -7,6 +7,7 @@
   import { collectionsStore } from './collections.store';
   import {
     toVideo,
+    toVideoDataDTO,
     type VideoAddedToCollection,
     type VideoDataRetrievedDTO,
   } from './video.tauri';
@@ -79,12 +80,13 @@
         const collectionCreated = e.payload;
         collectionsStore.addCollection(toCollection(collectionCreated));
         selectedCollectionId.initialize(collectionCreated.collection_id);
+        collectionCreationStore.reset();
         pageStore.goTo('CollectionDetailsPage');
       }
     );
 
     await invoke<string[]>('create_collection', {
-      paths: $collectionCreationStore.videos.map((video) => video.path),
+      videos: $collectionCreationStore.videos.map((video) => toVideoDataDTO(video)),
     });
 
     unlistenToVideoAdded();
