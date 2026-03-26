@@ -28,6 +28,7 @@ set({ name: '', videos: [] });
 
 const addVideo = (video: VideoDataRetrievedDTO) => {
   update((collection) => {
+    if (collection.videos.some((v) => v.path === video.path)) return collection;
     return { ...collection, videos: [...collection.videos, toVideoData(video)] };
   });
 };
