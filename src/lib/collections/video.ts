@@ -1,3 +1,5 @@
+import type { HumanReadable } from '../components/types';
+
 export const STYLES = [
   'Rock',
   'Hard Rock',
@@ -40,10 +42,6 @@ export type Style = (typeof STYLES)[number];
 //     technique: Technique[];
 //   };
 // };
-
-type HumanReadable = {
-  toHumanReadable(): string;
-};
 
 type Size = HumanReadable & {
   bytes: number;
