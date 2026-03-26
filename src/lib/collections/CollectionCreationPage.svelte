@@ -5,12 +5,17 @@
   import { getCurrentWindow } from '@tauri-apps/api/window';
   import { selectedCollection, selectedCollectionId } from './collection.store';
   import { collectionsStore } from './collections.store';
-  import { toVideo, type VideoAddedToCollection } from './video.tauri';
+  import {
+    toVideo,
+    type VideoAddedToCollection,
+    type VideoDataRetrievedDTO,
+  } from './video.tauri';
   import { type CollectionCreated, toCollection } from './collection.tauri';
   import Card from '../components/Card.svelte';
   import { FileVideo, Upload } from '@lucide/svelte';
   import Button from '../components/Button.svelte';
   import { pageStore } from '../kit/pages/pageStore';
+  import { collectionCreationStore } from './collectionCreation.store';
 
   const pickVideo = async () => {
     const result = await open({
@@ -26,15 +31,15 @@
         paths.push(result);
       }
     }
-    await createCollection(paths);
+    await retrieveVideosData(paths);
   };
 
   $effect(() => {
     const unlisten = getCurrentWindow().listen<{ paths: string[] }>(
       'tauri://drag-drop',
-      (event) => {
+      async (event) => {
         if (event.payload.paths.length > 0) {
-          createCollection(event.payload.paths);
+          await retrieveVideosData(event.payload.paths);
         }
       }
     );
@@ -44,8 +49,20 @@
     };
   });
 
-  const createCollection = async (paths: string[]) => {
-    if (paths.length === 0) return;
+  const retrieveVideosData = async (paths: string[]) => {
+    const unlistenToVideoRetrieved = await listen<VideoDataRetrievedDTO>(
+      'video_data:retrieved',
+      (e) => {
+        const videoDataRetrieved = e.payload;
+        collectionCreationStore.addVideo(videoDataRetrieved);
+      }
+    );
+    await invoke<string[]>('retrieve_videos_data', { paths });
+    unlistenToVideoRetrieved();
+  };
+
+  const createCollection = async () => {
+    if ($collectionCreationStore.videos.length === 0) return;
     const unlistenToVideoAdded = await listen<VideoAddedToCollection>(
       'video:added',
       (e) => {
@@ -62,20 +79,28 @@
         const collectionCreated = e.payload;
         collectionsStore.addCollection(toCollection(collectionCreated));
         selectedCollectionId.initialize(collectionCreated.collection_id);
+        pageStore.goTo('CollectionDetailsPage');
       }
     );
 
-    await invoke<string[]>('create_collection', { paths });
+    await invoke<string[]>('create_collection', {
+      paths: $collectionCreationStore.videos.map((video) => video.path),
+    });
 
     unlistenToVideoAdded();
     unlistenToCollectionCreated();
+  };
+
+  const onCancel = () => {
+    collectionCreationStore.reset();
+    pageStore.goTo('HomePage');
   };
 </script>
 
 <div class="max-w-4xl mx-auto">
   <h1 class="text-3xl font-semibold mb-6">Create New Collection</h1>
 
-  <form onsubmit={() => createCollection([])} class="space-y-6">
+  <div class="space-y-6">
     <!--    <Card class="p-6 bg-white">-->
     <!--      <label class="block mb-2 font-medium">Collection Name</label>-->
     <!--      <input-->
@@ -101,12 +126,12 @@
         <p class="text-sm text-muted-foreground">or drag and drop</p>
       </div>
 
-      {#if $selectedCollection.collection}
+      {#if $collectionCreationStore.videos.length > 0}
         <div class="mt-6 space-y-2">
           <p class="text-sm font-medium mb-3">
-            Selected Files ({$selectedCollection.collection.videos.length})
+            Selected Files ({$collectionCreationStore.videos.length})
           </p>
-          {#each $selectedCollection.collection.videos as video}
+          {#each $collectionCreationStore.videos as video}
             <div class="flex items-center gap-3 p-3 bg-gray-50 rounded-lg group">
               <FileVideo class="w-5 h-5 text-blue-500 flex-shrink-0" />
               <div class="flex-1 min-w-0">
@@ -137,18 +162,13 @@
         size="lg"
         enabled={$selectedCollection.collection !== undefined &&
           $selectedCollection?.collection.videos.length > 0}
-        onclick={() => pageStore.goTo('CollectionDetailsPage')}
+        onclick={createCollection}
       >
-        Go to collection
+        Create collection
       </Button>
-      <Button
-        type="button"
-        variant="outline"
-        size="lg"
-        onclick={() => pageStore.goTo('HomePage')}
-      >
+      <Button type="button" variant="outline" size="lg" onclick={onCancel}>
         Cancel
       </Button>
     </div>
-  </form>
+  </div>
 </div>
