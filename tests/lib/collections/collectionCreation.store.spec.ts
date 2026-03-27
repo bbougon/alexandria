@@ -36,11 +36,26 @@ describe('Collection creation store', () => {
       size_bytes: 1234,
       thumbnail: 'thumbnail',
     };
+
     collectionCreationStore.addVideo(video);
     collectionCreationStore.addVideo(video);
 
     const store = get(collectionCreationStore);
-
     expect(store.videos.length).toBe(1);
+  });
+
+  it('should remove a video', () => {
+    const video = {
+      duration_seconds: 63,
+      path: 'a/path/VIDEO.mp4',
+      size_bytes: 1234,
+      thumbnail: 'thumbnail',
+    };
+    collectionCreationStore.addVideo(video);
+
+    collectionCreationStore.removeVideo(video);
+
+    const store = get(collectionCreationStore);
+    expect(store.videos.length).toBe(0);
   });
 });
