@@ -60,7 +60,8 @@
     "overrides": {
       "vite": "npm:rolldown-vite@7.2.5",
       "immutable": "npm:immutable@5.1.5",
-      "flatted": "npm:flatted@3.4.2"
+      "flatted": "npm:flatted@3.4.2",
+      "undici": "npm:undici@7.24.0"
     }
   },
   "dependencies": {
