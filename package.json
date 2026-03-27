@@ -58,7 +58,8 @@
   },
   "pnpm": {
     "overrides": {
-      "vite": "npm:rolldown-vite@7.2.5"
+      "vite": "npm:rolldown-vite@7.2.5",
+      "immutable": "npm:immutable@5.1.5"
     }
   },
   "dependencies": {
