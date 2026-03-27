@@ -33,8 +33,18 @@ const addVideo = (video: VideoDataRetrievedDTO) => {
   });
 };
 
+const removeVideo = (video: VideoData) => {
+  update((collection) => {
+    return {
+      ...collection,
+      videos: collection.videos.filter((v) => v.path !== video.path),
+    };
+  });
+};
+
 export const collectionCreationStore = {
   subscribe,
   addVideo,
   reset: () => set({ name: '', videos: [] }),
+  removeVideo,
 };

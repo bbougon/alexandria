@@ -13,10 +13,13 @@
   } from './video.tauri';
   import { type CollectionCreated, toCollection } from './collection.tauri';
   import Card from '../components/Card.svelte';
-  import { FileVideo, Upload } from '@lucide/svelte';
+  import { FileVideo, Upload, X } from '@lucide/svelte';
   import Button from '../components/Button.svelte';
   import { pageStore } from '../kit/pages/pageStore';
-  import { collectionCreationStore } from './collectionCreation.store';
+  import {
+    collectionCreationStore,
+    type VideoData,
+  } from './collectionCreation.store';
 
   const pickVideo = async () => {
     const result = await open({
@@ -97,6 +100,9 @@
     collectionCreationStore.reset();
     pageStore.goTo('HomePage');
   };
+  const onRemoveFile = (video: VideoData) => {
+    collectionCreationStore.removeVideo(video);
+  };
 </script>
 
 <div class="max-w-4xl mx-auto">
@@ -145,13 +151,13 @@
                   {video.duration.toHumanReadable()}
                 </p>
               </div>
-              <!--              <button-->
-              <!--                type="button"-->
-              <!--                // onClick={() => handleRemoveFile(index)}-->
-              <!--                class="p-1 hover:bg-red-50 rounded opacity-0 group-hover:opacity-100 transition-opacity"-->
-              <!--              >-->
-              <!--                <X class="w-4 h-4 text-red-500" />-->
-              <!--              </button>-->
+              <button
+                type="button"
+                onclick={() => onRemoveFile(video)}
+                class="p-1 hover:bg-red-50 rounded opacity-0 group-hover:opacity-100 transition-opacity"
+              >
+                <X class="w-4 h-4 text-red-500" />
+              </button>
             </div>
           {/each}
         </div>

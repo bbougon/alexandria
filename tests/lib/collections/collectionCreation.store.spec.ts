@@ -1,6 +1,7 @@
 import { collectionCreationStore } from '../../../src/lib/collections/collectionCreation.store.ts';
 import { get } from 'svelte/store';
 import { beforeEach, expect } from 'vitest';
+import { toVideoData } from '../../../src/lib/collections/video.tauri.ts';
 
 describe('Collection creation store', () => {
   beforeEach(() => {
@@ -36,11 +37,26 @@ describe('Collection creation store', () => {
       size_bytes: 1234,
       thumbnail: 'thumbnail',
     };
+
     collectionCreationStore.addVideo(video);
     collectionCreationStore.addVideo(video);
 
     const store = get(collectionCreationStore);
-
     expect(store.videos.length).toBe(1);
+  });
+
+  it('should remove a video', () => {
+    const video = {
+      duration_seconds: 63,
+      path: 'a/path/VIDEO.mp4',
+      size_bytes: 1234,
+      thumbnail: 'thumbnail',
+    };
+    collectionCreationStore.addVideo(video);
+
+    collectionCreationStore.removeVideo(toVideoData(video));
+
+    const store = get(collectionCreationStore);
+    expect(store.videos.length).toBe(0);
   });
 });
