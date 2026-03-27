@@ -1,103 +1,29 @@
 name: Release
-run-name: Release "${{ github.event.head_commit.message }}"
-permissions: {}
 
 on:
-  workflow_dispatch:
+  push:
+    tags:
+      - "app-v*"
+
+permissions:
+  contents: write
 
 jobs:
-  create-release:
-    permissions:
-      contents: write
-    runs-on: ubuntu-latest
-    outputs:
-      release_id: ${{ steps.create-release.outputs.result }}
-      version: ${{ steps.get-version.outputs.version }}
-      tag_name: ${{ steps.get-version.outputs.tag_name }}
-      semver: ${{ steps.get-version.outputs.semver }}
-
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-
-      - name: get version
-        id: get-version
-        uses: actions/github-script@v6
-        with:
-          script: |
-            let lastVersion = 0;
-            try {
-              const { data: latestRelease } = await github.rest.repos.getLatestRelease({
-                owner: context.repo.owner,
-                repo: context.repo.repo,
-              });
-              const match = latestRelease.tag_name.match(/app-v(\d+)/);
-              if (match) {
-                lastVersion = parseInt(match[1], 10);
-              }
-            } catch (error) {
-              console.log('No previous release found or error fetching it, starting from 0');
-            }
-            const nextVersion = lastVersion + 1;
-            const nextTag = `app-v${nextVersion}`;
-            const semver = `${nextVersion}.0.0`;
-            core.setOutput('version', nextVersion);
-            core.setOutput('tag_name', nextTag);
-            core.setOutput('semver', semver);
-
-      - name: generate release notes
-        id: generate-notes
-        uses: actions/github-script@v6
-        with:
-          script: |
-            const { data } = await github.rest.repos.generateReleaseNotes({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              tag_name: '${{ steps.get-version.outputs.tag_name }}',
-            });
-            return data.body
-
-      - name: create release
-        id: create-release
-        uses: actions/github-script@v6
-        env:
-          RELEASE_NOTES: ${{ steps.generate-notes.outputs.result }}
-        with:
-          script: |
-            const { data } = await github.rest.repos.createRelease({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              tag_name: '${{ steps.get-version.outputs.tag_name }}',
-              name: `Desktop App v${{ steps.get-version.outputs.version }}`,
-              body: process.env.RELEASE_NOTES,
-              draft: true,
-              prerelease: false
-            })
-            return data.id
-
-  build-tauri:
-    needs: create-release
-    permissions:
-      contents: write
+  publish-tauri:
     strategy:
       fail-fast: false
       matrix:
-        include:
-          - platform: 'macos-latest' # for Arm based macs (M1 and above).
-            args: '--target aarch64-apple-darwin'
-          - platform: 'macos-latest' # for Intel based macs.
-            args: '--target x86_64-apple-darwin'
-          - platform: 'ubuntu-22.04' # for Tauri v1 you could replace this with ubuntu-20.04.
-            args: ''
-          - platform: 'windows-latest'
-            args: ''
+        platform:
+          - macos-latest
+          - ubuntu-22.04
+          - windows-latest
 
     runs-on: ${{ matrix.platform }}
+
     steps:
       - uses: actions/checkout@v4
 
-      - name: setup node
+      - name: Setup Node
         uses: actions/setup-node@v4
         with:
           node-version: lts/*
@@ -107,98 +33,28 @@ jobs:
         with:
           version: 10.26.0
 
-      - name: install Rust stable
+      - name: Install Rust
         uses: dtolnay/rust-toolchain@stable
-        with:
-          # Those targets are only used on macos runners so it's in an `if` to slightly speed up windows and linux builds.
-          targets: ${{ matrix.platform == 'macos-latest' && 'aarch64-apple-darwin,x86_64-apple-darwin' || '' }}
 
-      - name: install dependencies (ubuntu only)
-        if: matrix.platform == 'ubuntu-22.04' # This must match the platform value defined above.
+      - name: Install dependencies (Ubuntu only)
+        if: matrix.platform == 'ubuntu-22.04'
         run: |
           sudo apt-get update
-          sudo apt-get install -y libwebkit2gtk-4.1-dev libappindicator3-dev librsvg2-dev patchelf
+          sudo apt-get install -y \
+            libwebkit2gtk-4.1-dev \
+            libappindicator3-dev \
+            librsvg2-dev \
+            patchelf
 
-      - name: install frontend dependencies
+      - name: Install frontend dependencies
         run: pnpm install
 
-      - name: build tauri app
-        run: |
-          pnpm tauri build ${{ matrix.args }}
+      - name: Build and release
+        uses: tauri-apps/tauri-action@v0
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-
-      - name: upload release assets
-        uses: actions/github-script@v6
-        env:
-          release_id: ${{ needs.create-release.outputs.release_id }}
-          platform: ${{ matrix.platform }}
         with:
-          script: |
-            const fs = require('fs');
-            const path = require('path');
-            const release_id = process.env.release_id;
-            const platform = process.env.platform;
-
-            let bundleDir = '';
-            if (platform === 'ubuntu-22.04') {
-              bundleDir = 'src-tauri/target/release/bundle/deb';
-            } else if (platform === 'macos-latest') {
-              // We need to handle both architectures
-              const target = '${{ matrix.args }}'.includes('aarch64') ? 'aarch64-apple-darwin' : 'x86_64-apple-darwin';
-              bundleDir = `src-tauri/target/${target}/release/bundle/dmg`;
-            } else if (platform === 'windows-latest') {
-              bundleDir = 'src-tauri/target/release/bundle/msi';
-            }
-
-            const searchDirs = [bundleDir, 'src-tauri/target/release/bundle', 'src-tauri/target/release'];
-            let foundFiles = false;
-
-            for (const dir of searchDirs) {
-              if (dir && fs.existsSync(dir)) {
-                console.log(`Searching for assets in ${dir}`);
-                const files = fs.readdirSync(dir);
-                for (const file of files) {
-                  if (file.endsWith('.deb') || file.endsWith('.dmg') || file.endsWith('.msi') || file.endsWith('.exe') || file.endsWith('.zip') || file.endsWith('.tar.gz') || file.endsWith('.AppImage')) {
-                    const filePath = path.join(dir, file);
-                    if (fs.statSync(filePath).isDirectory()) continue;
-                    
-                    console.log(`Uploading ${file}...`);
-                    await github.rest.repos.uploadReleaseAsset({
-                      owner: context.repo.owner,
-                      repo: context.repo.repo,
-                      release_id: release_id,
-                      name: file,
-                      data: fs.readFileSync(filePath)
-                    });
-                    foundFiles = true;
-                  }
-                }
-              }
-            }
-            if (!foundFiles) {
-              core.setFailed('No release assets found to upload.');
-            }
-
-  publish-release:
-    permissions:
-      contents: write
-    runs-on: ubuntu-latest
-    needs: [create-release, build-tauri]
-
-    steps:
-      - name: publish release
-        id: publish-release
-        uses: actions/github-script@v6
-        env:
-          release_id: ${{ needs.create-release.outputs.release_id }}
-        with:
-          script: |
-            github.rest.repos.updateRelease({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              release_id: process.env.release_id,
-              draft: false,
-              prerelease: false
-            })
+          tagName: ${{ github.ref_name }}
+          releaseName: "Desktop App ${{ github.ref_name }}"
+          releaseDraft: false
+          prerelease: false
