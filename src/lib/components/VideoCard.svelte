@@ -7,7 +7,7 @@
   import VideoPlayer from '../components/VideoPlayer.svelte';
   import TagsEdit from '../components/TagsEdit.svelte';
   import MusicStyleEdit from '../components/MusicStyleEdit.svelte';
-  import type { Video } from '../collections/video';
+  import type { Style, Video } from '../collections/video';
 
   interface Props {
     video: Video;
@@ -109,6 +109,16 @@
     if (!video) return;
     await removeStyle(style);
   };
+
+  const play = () => {
+    videoPlayer?.play({
+      name: video.name,
+      artist: video.artist,
+      song: video.song,
+      thumbnail: video.thumbnail,
+      play: () => video.play(),
+    });
+  };
 </script>
 
 <div>
@@ -116,7 +126,7 @@
     <div class="flex gap-4">
       <div
         class="flex-shrink-0 w-40 h-24 bg-gradient-to-br from-blue-50 to-indigo-50 rounded-lg flex items-center justify-center overflow-hidden relative group cursor-pointer"
-        onclick={() => videoPlayer?.play(video)}
+        onclick={play}
       >
         <video poster={video.thumbnail ?? ''} class="w-full h-full object-cover" />
         <div

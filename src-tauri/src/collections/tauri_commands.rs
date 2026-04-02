@@ -21,6 +21,9 @@ pub async fn retrieve_videos_data(
     app: AppHandle,
     paths: Vec<String>,
 ) -> Result<Vec<VideoDataDTO>, String> {
+    for path in &paths {
+        allow_path(&app, path)?;
+    }
     let video_file_manager = VideoFileManager::new(Box::new(FileManagerForHardDrive::new()));
     let video_data = video_file_manager.file_manager.retrieve_all_videos_data(
         paths,

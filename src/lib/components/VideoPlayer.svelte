@@ -3,19 +3,27 @@
   import DialogHeader from './dialog/DialogHeader.svelte';
   import DialogTitle from './dialog/DialogTitle.svelte';
   import DialogContent from './dialog/DialogContent.svelte';
-  import type { Video } from '../collections/video';
 
   let elementDialog: Dialog | undefined = $state();
-  let video: Video | undefined = $state();
+  let video: VideoToPlay | undefined = $state();
   let videoEl: HTMLVideoElement | null = null;
 
-  export const play = (videoToPlay: Video) => {
+  type VideoToPlay = {
+    name?: string;
+    artist?: string;
+    song?: string;
+    thumbnail?: string;
+    play: () => string;
+  };
+
+  export const play = (videoToPlay: VideoToPlay) => {
     video = videoToPlay;
     elementDialog?.display();
   };
 
   const close = () => {
     videoEl?.pause();
+    video = undefined;
   };
 </script>
 

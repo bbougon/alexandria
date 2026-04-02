@@ -13,13 +13,17 @@
   } from './video.tauri';
   import { type CollectionCreated, toCollection } from './collection.tauri';
   import Card from '../components/Card.svelte';
-  import { FileVideo, Upload, X } from '@lucide/svelte';
+  import { Clock, Play, Upload, X } from '@lucide/svelte';
   import Button from '../components/Button.svelte';
   import { pageStore } from '../kit/pages/pageStore';
   import {
     collectionCreationStore,
     type VideoData,
   } from './collectionCreation.store';
+  import VideoPlayer from '../components/VideoPlayer.svelte';
+  import { fileConverter } from './file-converter';
+
+  let videoPlayer: VideoPlayer | undefined = $state();
 
   const pickVideo = async () => {
     const result = await open({
@@ -103,6 +107,13 @@
   const onRemoveFile = (video: VideoData) => {
     collectionCreationStore.removeVideo(video);
   };
+  const play = (video: VideoData) => {
+    videoPlayer?.play({
+      name: video.name,
+      thumbnail: video.thumbnail,
+      play: () => fileConverter.convertFile(video.path),
+    });
+  };
 </script>
 
 <div class="max-w-4xl mx-auto">
@@ -141,7 +152,26 @@
           </p>
           {#each $collectionCreationStore.videos as video}
             <div class="flex items-center gap-3 p-3 bg-gray-50 rounded-lg group">
-              <FileVideo class="w-5 h-5 text-blue-500 flex-shrink-0" />
+              <div
+                class="flex-shrink-0 w-40 h-24 bg-gradient-to-br from-blue-50 to-indigo-50 rounded-lg flex items-center justify-center overflow-hidden relative group cursor-pointer"
+                onclick={() => play(video)}
+              >
+                <video
+                  poster={video.thumbnail ?? ''}
+                  class="w-full h-full object-cover"
+                />
+                <div
+                  class="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
+                >
+                  <Play class="w-12 h-12 text-white fill-white" />
+                </div>
+                <div
+                  class="absolute bottom-2 right-2 bg-black/75 text-white text-xs px-2 py-1 rounded flex items-center gap-1"
+                >
+                  <Clock class="w-3 h-3" />
+                  {video.duration.toHumanReadable()}
+                </div>
+              </div>
               <div class="flex-1 min-w-0">
                 <p class="font-medium truncate">{video.name}</p>
                 <p class="text-xs text-muted-foreground">
@@ -179,4 +209,5 @@
       </Button>
     </div>
   </div>
+  <VideoPlayer bind:this={videoPlayer} />
 </div>
