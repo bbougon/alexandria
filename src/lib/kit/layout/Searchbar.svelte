@@ -28,7 +28,7 @@
   };
 </script>
 
-<div class="relative w-full max-w-md">
+<div class="relative w-full max-w-2xl">
   <Search
     class="pointer-events-none absolute left-3.5 top-1/2 size-4 -translate-y-1/2 text-brand"
   />

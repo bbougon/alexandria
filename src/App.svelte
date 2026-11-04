@@ -8,7 +8,6 @@
   import CollectionDetailsPage from './lib/collections/CollectionDetailsPage.svelte';
   import type { Component } from 'svelte';
   import SearchResultPage from './lib/search/SearchResultPage.svelte';
-  import { Library } from '@lucide/svelte';
   import HomePage from './lib/HomePage.svelte';
 
   collectionsStore.initialize(allCollections);
@@ -22,22 +21,16 @@
   ]);
 </script>
 
-<div class="flex h-screen flex-col bg-surface">
-  <header
-    class="flex flex-shrink-0 items-center gap-6 border-b border-border bg-surface-raised px-6 py-4"
-  >
-    <div class="flex items-center gap-3">
-      <div class="rounded-lg bg-brand p-2">
-        <Library class="h-6 w-6 text-on-brand" />
-      </div>
-      <h1 class="font-display text-xl font-semibold">Alexandria</h1>
-    </div>
-    <Searchbar />
-  </header>
+<div class="flex h-screen bg-surface">
+  <Sidebar />
 
-  <div class="flex-1 flex overflow-hidden">
-    <Sidebar />
-    <main class="flex-1 overflow-y-auto p-8">
+  <div class="flex min-w-0 flex-1 flex-col">
+    <header
+      class="sticky top-0 z-10 flex items-center border-b border-border bg-surface/85 px-5 py-3.5 backdrop-blur"
+    >
+      <Searchbar />
+    </header>
+    <main class="flex-1 overflow-y-auto p-6">
       <svelte:component this={PAGES.get($pageStore)} />
     </main>
   </div>
