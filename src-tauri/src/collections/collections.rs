@@ -1,5 +1,5 @@
 use crate::clock::clock;
-use crate::collections::events::{CollectionCreated, VideoAddedToCollection};
+use crate::collections::events::{CollectionCreated, CollectionUpdated, VideoAddedToCollection};
 use crate::collections::video::VideoCollectionToUpdate;
 use crate::event_bus::EventBusManager;
 use crate::repositories::repositories;
@@ -146,6 +146,29 @@ impl CollectionService {
             video.thumbnail = video_to_update.video.thumbnail.clone();
             video.size_bytes = video_to_update.video.size_bytes;
         }
+        repositories().collections().add(collection);
+    }
+
+    pub fn add_videos(
+        collection_id: Uuid,
+        videos_to_add: Vec<VideoToAdd>,
+        bus_manager: EventBusManager,
+    ) {
+        let mut collection = repositories()
+            .collections()
+            .get_by_id(&collection_id)
+            .unwrap();
+
+        videos_to_add.into_iter().for_each(|v| {
+            let video = Video::new(v.path, v.thumbnail, v.size_bytes, v.duration_seconds);
+            collection.add_video(video.clone());
+            bus_manager.publish(
+                "video:added",
+                VideoAddedToCollection::from((&video, collection.id)),
+            );
+        });
+        bus_manager.publish("collection:updated", CollectionUpdated::from(&collection));
+
         repositories().collections().add(collection);
     }
 }
@@ -321,10 +344,12 @@ mod collection_service_update_video_tests {
     use crate::collections::collections::collection_service_setup::setup;
     use crate::collections::collections::Style::Rock;
     use crate::collections::collections::{CollectionService, Video, VideoToAdd};
+    use crate::collections::events::CollectionUpdated;
     use crate::collections::video::{VideoCollectionToUpdate, VideoToUpdate};
     use crate::event_bus::EventBusManager;
     use crate::repositories::repositories;
     use chrono::{TimeZone, Utc};
+    use std::path::PathBuf;
 
     #[test]
     fn update_video() {
@@ -377,5 +402,76 @@ mod collection_service_update_video_tests {
                 duration_seconds: video.duration_seconds,
             }
         )
+    }
+
+    #[test]
+    fn add_videos_to_collection() {
+        let (event_bus, _clock_guard, _repositories_guard) =
+            setup(Utc.with_ymd_and_hms(2026, 1, 28, 12, 0, 0));
+        let collection =
+            CollectionService::create_collection(vec![], EventBusManager::new(event_bus.clone()));
+
+        CollectionService::add_videos(
+            collection.id,
+            vec![VideoToAdd {
+                path: "bar/new_video.mp4".parse().unwrap(),
+                thumbnail: "thumb_new".to_string(),
+                size_bytes: 5000,
+                duration_seconds: 10,
+            }],
+            EventBusManager::new(event_bus.clone()),
+        );
+
+        let updated_collection = repositories()
+            .collections()
+            .get_by_id(&collection.id)
+            .unwrap();
+        assert_eq!(updated_collection.videos.len(), 1);
+        assert_eq!(
+            updated_collection.videos[0].path,
+            PathBuf::from("bar/new_video.mp4")
+        );
+        let events = event_bus.events.lock();
+        assert_eq!(events[1].event_type, "video:added");
+    }
+
+    #[test]
+    fn add_videos_to_collection_publish_collection_updated() {
+        let (event_bus, _clock_guard, _repositories_guard) =
+            setup(Utc.with_ymd_and_hms(2026, 1, 28, 12, 0, 0));
+        let collection =
+            CollectionService::create_collection(vec![], EventBusManager::new(event_bus.clone()));
+
+        CollectionService::add_videos(
+            collection.id,
+            vec![VideoToAdd {
+                path: "bar/new_video.mp4".parse().unwrap(),
+                thumbnail: "thumb_new".to_string(),
+                size_bytes: 5000,
+                duration_seconds: 10,
+            }],
+            EventBusManager::new(event_bus.clone()),
+        );
+
+        let events = event_bus.events.lock();
+        assert_eq!(events[2].event_type, "collection:updated");
+        assert_eq!(
+            events[2].data,
+            serde_json::to_value(CollectionUpdated {
+                collection_id: collection.id,
+                videos: vec![Video {
+                    path: "bar/new_video.mp4".parse().unwrap(),
+                    name: "new_video.mp4".to_string(),
+                    artist: "".to_string(),
+                    song: "".to_string(),
+                    style: vec![],
+                    tags: vec![],
+                    thumbnail: "thumb_new".to_string(),
+                    size_bytes: 5_000,
+                    duration_seconds: 10,
+                }],
+            })
+            .unwrap()
+        );
     }
 }

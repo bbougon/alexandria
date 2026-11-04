@@ -69,3 +69,18 @@ impl From<&Collection> for CollectionCreated {
         }
     }
 }
+
+#[derive(serde::Serialize, Clone)]
+pub struct CollectionUpdated {
+    pub collection_id: Uuid,
+    pub videos: Vec<Video>,
+}
+
+impl From<&Collection> for CollectionUpdated {
+    fn from(collection: &Collection) -> Self {
+        Self {
+            collection_id: collection.id,
+            videos: collection.videos.clone(),
+        }
+    }
+}

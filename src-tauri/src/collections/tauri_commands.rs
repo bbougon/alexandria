@@ -80,6 +80,23 @@ pub async fn get_collections(app: AppHandle) -> Result<Vec<Collection>, String> 
 }
 
 #[tauri::command]
+pub async fn add_videos_to_collection(
+    app: tauri::AppHandle,
+    collection_id: uuid::Uuid,
+    videos: Vec<VideoToAdd>,
+) -> Result<(), String> {
+    for video in &videos {
+        allow_path(&app, video.path.to_str().unwrap_or("unknown"))?;
+    }
+    CollectionService::add_videos(
+        collection_id,
+        videos,
+        EventBusManager::new(Arc::new(TauriEventBus::new(app))),
+    );
+    Ok(())
+}
+
+#[tauri::command]
 pub async fn search_videos(app: AppHandle, query: String) -> Result<(), String> {
     SEARCH_SERVICE.initialize(EventBusManager::new(Arc::new(TauriEventBus::new(
         app.clone(),
