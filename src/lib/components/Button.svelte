@@ -1,5 +1,5 @@
 <script lang="ts">
-  import type { HTMLAttributes } from 'svelte/elements';
+  import type { HTMLButtonAttributes } from 'svelte/elements';
   import { cva } from 'class-variance-authority';
   import { cn } from './classCombinator';
 
@@ -23,13 +23,12 @@
     {
       variants: {
         variant: {
-          default: 'bg-primary text-primary-foreground hover:bg-primary/90',
+          default: 'bg-primary text-primary-foreground hover:bg-brand-strong',
           destructive:
-            'bg-destructive text-white hover:bg-destructive/90 focus-visible:ring-destructive/20 dark:focus-visible:ring-destructive/40 dark:bg-destructive/60',
+            'bg-destructive text-on-danger hover:bg-destructive/90 focus-visible:ring-destructive/20 dark:focus-visible:ring-destructive/40',
           outline:
-            'border bg-background text-foreground hover:bg-accent hover:text-accent-foreground dark:bg-input/30 dark:border-input dark:hover:bg-input/50',
-          secondary:
-            'bg-secondary text-secondary-foreground hover:bg-secondary/80/80',
+            'border border-border-strong bg-background text-foreground hover:bg-accent hover:text-accent-foreground',
+          secondary: 'bg-secondary text-secondary-foreground hover:bg-secondary/80',
           ghost:
             'hover:bg-accent hover:text-accent-foreground dark:hover:bg-accent/50',
           link: 'text-primary underline-offset-4 hover:underline',
@@ -48,20 +47,26 @@
     }
   );
 
-  interface Props extends HTMLAttributes<HTMLButtonElement> {
+  interface Props extends HTMLButtonAttributes {
     variant?: keyof Variant;
     size?: keyof Size;
+    enabled?: boolean;
   }
 
   let {
     variant = 'default',
     size = 'default',
+    enabled,
     class: className,
     children,
     ...props
   }: Props = $props();
 </script>
 
-<button class={cn(buttonVariants({ variant, size, className }))} {...props}>
+<button
+  {...props}
+  class={cn(buttonVariants({ variant, size, className }))}
+  disabled={enabled === false ? true : props.disabled}
+>
   {@render children?.()}
 </button>
