@@ -1,7 +1,7 @@
 <script lang="ts">
   import Card from '../components/Card.svelte';
   import { Play, Clock } from '@lucide/svelte';
-  import EditableInput from '../components/EditableInput.svelte';
+  import EditableField from '../components/EditableField.svelte';
   import { invoke } from '@tauri-apps/api/core';
   import { selectedCollection } from '../collections/collection.store';
   import VideoPlayer from '../components/VideoPlayer.svelte';
@@ -145,7 +145,7 @@
       <div class="flex-1 space-y-3">
         <div>
           <label class="text-xs text-muted-foreground block mb-1">File Name</label>
-          <EditableInput
+          <EditableField
             label="Name"
             bind:value={videoName}
             onblur={onUpdateVideoName}
@@ -155,7 +155,7 @@
         <div class="grid grid-cols-2 gap-4">
           <div>
             <label class="text-xs text-muted-foreground block mb-1">Artist</label>
-            <EditableInput
+            <EditableField
               label="Artist name"
               bind:value={artistName}
               onblur={onUpdateArtistName}
@@ -163,7 +163,7 @@
           </div>
           <div>
             <label class="text-xs text-muted-foreground block mb-1">Song</label>
-            <EditableInput
+            <EditableField
               label="Song name"
               bind:value={songName}
               onblur={onUpdateSongName}
