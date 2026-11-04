@@ -1,0 +1,75 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "onboarding": true,
+  "enabledManagers": ["github-actions", "npm", "nvm", "cargo"],
+  "dependencyDashboard": true,
+  "useBaseBranchConfig": "merge",
+  "commitMessagePrefix": "[RENOVATE]",
+  "prHourlyLimit": 10,
+  "prConcurrentLimit": 2,
+  "platform": "github",
+  "repositories": ["bbougon/alexandria"],
+  "extends": ["mergeConfidence:all-badges"],
+  "schedule": ["* * * * 2"],
+  "timezone": "Europe/Paris",
+  "packageRules": [
+    {
+      "description": "lockFileMaintenance",
+      "matchUpdateTypes": [
+        "pin",
+        "digest",
+        "patch",
+        "minor",
+        "major",
+        "lockFileMaintenance"
+      ],
+      "minimumReleaseAge": "7 days"
+    },
+    {
+      "description": "@types/node ne doit pas dépasser la version majeure de Node définie dans .nvmrc (actuellement 22). À relever manuellement dès que .nvmrc est mis à jour vers une nouvelle version majeure.",
+      "matchPackageNames": ["@types/node"],
+      "allowedVersions": "<24.0.0"
+    },
+    {
+      "description": "pnpm ne doit pas dépasser la v10",
+      "matchPackageNames": ["pnpm"],
+      "allowedVersions": "<11.0.0"
+    },
+    {
+      "description": "Regroupe les montées de version patch npm dans une seule PR",
+      "matchManagers": ["npm"],
+      "matchUpdateTypes": ["patch"],
+      "groupName": "npm - mises à jour patch"
+    },
+    {
+      "description": "Regroupe les montées de version mineure npm dans une seule PR",
+      "matchManagers": ["npm"],
+      "matchUpdateTypes": ["minor"],
+      "groupName": "npm - mises à jour mineures"
+    },
+    {
+      "description": "Regroupe les montées de version patch rust dans une seule PR",
+      "matchManagers": ["cargo"],
+      "matchUpdateTypes": ["patch"],
+      "groupName": "Rust - mises à jour patch"
+    },
+    {
+      "description": "Regroupe les montées de version mineure cargo dans une seule PR",
+      "matchManagers": ["cargo"],
+      "matchUpdateTypes": ["minor"],
+      "groupName": "Rust - mises à jour mineures"
+    },
+    {
+      "description": "Regroupe les montées de version patch des GitHub Actions dans une seule PR",
+      "matchManagers": ["github-actions"],
+      "matchUpdateTypes": ["patch"],
+      "groupName": "github-actions - mises à jour patch"
+    },
+    {
+      "description": "Regroupe les montées de version mineure des GitHub Actions dans une seule PR",
+      "matchManagers": ["github-actions"],
+      "matchUpdateTypes": ["minor"],
+      "groupName": "github-actions - mises à jour mineures"
+    }
+  ]
+}
