@@ -5,6 +5,9 @@
   --font-weight-medium: 500;
   --font-weight-normal: 400;
   --radius: 0.625rem;
+  --ff-display: 'Bricolage Grotesque', system-ui, sans-serif;
+  --ff-sans: 'Figtree', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --ff-mono: 'IBM Plex Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
 
   /* Alexandria — palette chaude et lumineuse (thème clair) */
   --surface: #fffdf9;
@@ -178,6 +181,9 @@
   --radius-md: calc(var(--radius) - 2px);
   --radius-lg: var(--radius);
   --radius-xl: calc(var(--radius) + 4px);
+  --font-display: var(--ff-display);
+  --font-sans: var(--ff-sans);
+  --font-mono: var(--ff-mono);
   --color-sidebar: var(--sidebar);
   --color-sidebar-foreground: var(--sidebar-foreground);
   --color-sidebar-primary: var(--sidebar-primary);
@@ -228,6 +234,14 @@
 
   body {
     @apply bg-background text-foreground;
+    font-family: var(--ff-sans);
+  }
+
+  h1,
+  h2,
+  h3,
+  h4 {
+    font-family: var(--ff-display);
   }
 
   /**
