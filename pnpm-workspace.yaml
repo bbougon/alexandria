@@ -9,5 +9,7 @@ minimumReleaseAgeExclude:
   - undici@7.30.1
   # Renovate security update: svelte@5.55.7
   - svelte@5.55.7
+  # Renovate security update: devalue@5.9.3
+  - devalue@5.9.3
 
 #minimumReleaseAgeExclude:
