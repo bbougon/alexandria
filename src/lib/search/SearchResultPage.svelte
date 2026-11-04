@@ -1,28 +1,28 @@
 <script lang="ts">
   import { searchResultStore } from './searchResult.store';
-  import { Folder } from '@lucide/svelte';
+  import { Search } from '@lucide/svelte';
   import VideoCard from '../components/VideoCard.svelte';
 </script>
 
 <div>
   <div class="mb-8">
-    <div class="flex items-center gap-3 mb-2">
-      <Folder class="w-8 h-8 text-blue-500" />
+    <div class="mb-2 flex items-center gap-3">
+      <Search class="h-8 w-8 text-brand" />
       <h1 class="text-3xl font-semibold">Search results</h1>
     </div>
-    <p class="text-muted-foreground">
+    <p class="text-ink-muted">
       {$searchResultStore.length}
       {$searchResultStore.length === 1 ? 'result' : 'results'} found
     </p>
   </div>
 
   {#if $searchResultStore.length === 0}
-    <div class="text-center py-16">
-      <Folder class="w-16 h-16 mx-auto mb-4 text-gray-300" />
-      <p class="text-lg text-muted-foreground">No videos match your search</p>
+    <div class="py-16 text-center">
+      <Search class="mx-auto mb-4 h-16 w-16 text-ink-subtle" />
+      <p class="text-lg text-ink-muted">No videos match your search</p>
     </div>
   {:else}
-    <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+    <div class="grid grid-cols-1 gap-4 lg:grid-cols-2">
       {#each $searchResultStore as video}
         <VideoCard {video} />
       {/each}
