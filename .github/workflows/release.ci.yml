@@ -58,3 +58,4 @@ jobs:
           releaseName: "Desktop App ${{ github.ref_name }}"
           releaseDraft: false
           prerelease: false
+          args: --locked
