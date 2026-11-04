@@ -121,17 +121,8 @@
   <h1 class="text-3xl font-semibold mb-6">Create New Collection</h1>
 
   <div class="space-y-6">
-    <!--    <Card class="p-6 bg-white">-->
-    <!--      <label class="block mb-2 font-medium">Collection Name</label>-->
-    <!--      <input-->
-    <!--        type="text"-->
-    <!--        placeholder="Enter collection name..."-->
-    <!--        class="max-w-md"-->
-    <!--      />-->
-    <!--    </Card>-->
-
-    <Card class="p-6 bg-white">
-      <label class="block mb-4 font-medium">Video Files</label>
+    <Card class="bg-surface-raised p-6">
+      <p class="mb-4 font-medium">Video Files</p>
 
       <UploadVideos {pickVideo} />
 
