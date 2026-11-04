@@ -54,6 +54,7 @@ pub fn run() {
             collection_commands::create_collection,
             collection_commands::update_video,
             collection_commands::get_collections,
+            collection_commands::add_videos_to_collection,
             collection_commands::search_videos
         ])
         .run(tauri::generate_context!())

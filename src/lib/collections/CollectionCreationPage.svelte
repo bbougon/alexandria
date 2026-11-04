@@ -1,4 +1,6 @@
 <script lang="ts">
+  import VideoInformation from './VideoInformation.svelte';
+  import UploadVideos from './UploadVideos.svelte';
   import { open } from '@tauri-apps/plugin-dialog';
   import { invoke } from '@tauri-apps/api/core';
   import { listen } from '@tauri-apps/api/event';
@@ -13,7 +15,6 @@
   } from './video.tauri';
   import { type CollectionCreated, toCollection } from './collection.tauri';
   import Card from '../components/Card.svelte';
-  import { Clock, Play, Upload, X } from '@lucide/svelte';
   import Button from '../components/Button.svelte';
   import { pageStore } from '../kit/pages/pageStore';
   import {
@@ -132,18 +133,7 @@
     <Card class="p-6 bg-white">
       <label class="block mb-4 font-medium">Video Files</label>
 
-      <div
-        onclick={pickVideo}
-        role="button"
-        tabindex="0"
-        onkeydown={(e) => e.key === 'Enter' && pickVideo()}
-        aria-roledescription="video file picker"
-        class="border-2 border-dashed rounded-lg p-12 text-center cursor-pointer transition-colors border-gray-300 hover:border-blue-400 hover:bg-blue-50/50"
-      >
-        <Upload class="w-12 h-12 mx-auto mb-4 text-gray-400" />
-        <p class="text-lg mb-2">Click to upload video files</p>
-        <p class="text-sm text-muted-foreground">or drag and drop</p>
-      </div>
+      <UploadVideos {pickVideo} />
 
       {#if $collectionCreationStore.videos.length > 0}
         <div class="mt-6 space-y-2">
@@ -151,44 +141,7 @@
             Selected Files ({$collectionCreationStore.videos.length})
           </p>
           {#each $collectionCreationStore.videos as video}
-            <div class="flex items-center gap-3 p-3 bg-gray-50 rounded-lg group">
-              <div
-                class="flex-shrink-0 w-40 h-24 bg-gradient-to-br from-blue-50 to-indigo-50 rounded-lg flex items-center justify-center overflow-hidden relative group cursor-pointer"
-                onclick={() => play(video)}
-              >
-                <video
-                  poster={video.thumbnail ?? ''}
-                  class="w-full h-full object-cover"
-                />
-                <div
-                  class="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
-                >
-                  <Play class="w-12 h-12 text-white fill-white" />
-                </div>
-                <div
-                  class="absolute bottom-2 right-2 bg-black/75 text-white text-xs px-2 py-1 rounded flex items-center gap-1"
-                >
-                  <Clock class="w-3 h-3" />
-                  {video.duration.toHumanReadable()}
-                </div>
-              </div>
-              <div class="flex-1 min-w-0">
-                <p class="font-medium truncate">{video.name}</p>
-                <p class="text-xs text-muted-foreground">
-                  {video.size.toHumanReadable()} MB
-                </p>
-                <p class="text-xs text-muted-foreground">
-                  {video.duration.toHumanReadable()}
-                </p>
-              </div>
-              <button
-                type="button"
-                onclick={() => onRemoveFile(video)}
-                class="p-1 hover:bg-red-50 rounded opacity-0 group-hover:opacity-100 transition-opacity"
-              >
-                <X class="w-4 h-4 text-red-500" />
-              </button>
-            </div>
+            <VideoInformation {onRemoveFile} {play} {video} />
           {/each}
         </div>
       {/if}

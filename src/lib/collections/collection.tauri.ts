@@ -18,6 +18,10 @@ export type CollectionCreated = {
   title: string;
   videos: VideoFromCollection[];
 };
+export type CollectionUpdated = {
+  collection_id: string;
+  videos: VideoFromCollection[];
+};
 export const toCollection = (collectionCreated: CollectionCreated): Collection => ({
   id: collectionCreated.collection_id,
   title: collectionCreated.title,
