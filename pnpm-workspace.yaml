@@ -7,5 +7,7 @@ minimumReleaseAgeExclude:
   - vite@8.1.6
   # Renovate security update: undici@7.30.1
   - undici@7.30.1
+  # Renovate security update: svelte@5.55.7
+  - svelte@5.55.7
 
 #minimumReleaseAgeExclude:
