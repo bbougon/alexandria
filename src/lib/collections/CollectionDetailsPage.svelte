@@ -113,12 +113,12 @@
     <div class="mb-8 flex items-start justify-between gap-4">
       <div>
         <div class="flex items-center gap-3 mb-2">
-          <Folder class="w-8 h-8 text-blue-500" />
+          <Folder class="w-8 h-8 text-brand" />
           <h1 class="text-3xl font-semibold">
             {$selectedCollection.collection.title}
           </h1>
         </div>
-        <p class="text-muted-foreground">
+        <p class="text-ink-muted">
           {$selectedCollection.collection.videos.length} video{$selectedCollection
             .collection.videos.length !== 1
             ? 's'
@@ -128,25 +128,26 @@
 
       <Button
         onclick={openAddVideosPanel}
-        class={`shrink-0 {isAddingVideos ? 'outline' : 'default'}`}
+        variant={isAddingVideos ? 'outline' : 'default'}
+        class="shrink-0"
       >
         {#if isAddingVideos}
-          <ChevronUp className="w-4 h-4" />
+          <ChevronUp class="mr-2 h-4 w-4" />
           Hide
         {:else}
-          <Plus className="w-4 h-4" />
+          <Plus class="mr-2 h-4 w-4" />
           Add Videos
         {/if}
       </Button>
     </div>
 
     {#if isAddingVideos}
-      <Card class="mb-8 p-6 bg-white">
-        <label class="block mb-4 font-medium">Add videos to this collection</label>
+      <Card class="mb-8 bg-surface-raised p-6">
+        <p class="mb-4 font-medium">Add videos to this collection</p>
         <UploadVideos {pickVideo} />
 
         {#if $collectionUpdateStore.videos.length > 0}
-          <Card class="p-6 mb-8 bg-white">
+          <Card class="mb-8 bg-surface-raised p-6">
             <div class="mt-6 space-y-2">
               <p class="text-sm font-medium mb-3">
                 Selected Files ({$collectionUpdateStore.videos.length})
