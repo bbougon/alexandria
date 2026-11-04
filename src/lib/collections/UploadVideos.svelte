@@ -14,9 +14,11 @@
   tabindex="0"
   onkeydown={(e) => e.key === 'Enter' && pickVideo()}
   aria-roledescription="video file picker"
-  class="border-2 border-dashed rounded-lg p-12 text-center cursor-pointer transition-colors border-gray-300 hover:border-blue-400 hover:bg-blue-50/50"
+  class="group cursor-pointer rounded-xl border-2 border-dashed border-border-strong p-12 text-center transition-colors hover:border-brand hover:bg-brand-tint/40"
 >
-  <Upload class="w-12 h-12 mx-auto mb-4 text-gray-400" />
-  <p class="text-lg mb-2">Click to upload video files</p>
-  <p class="text-sm text-muted-foreground">or drag and drop</p>
+  <Upload
+    class="mx-auto mb-4 h-12 w-12 text-ink-subtle transition-colors group-hover:text-brand"
+  />
+  <p class="mb-2 text-lg">Click to upload video files</p>
+  <p class="text-sm text-ink-subtle">or drag and drop</p>
 </div>
