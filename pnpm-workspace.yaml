@@ -13,5 +13,7 @@ minimumReleaseAgeExclude:
   - devalue@5.9.3
   # Renovate security update: @faker-js/faker@10.5.0
   - '@faker-js/faker@10.5.0'
+  # Renovate security update: vitest@4.1.11
+  - vitest@4.1.11
 
 #minimumReleaseAgeExclude:
