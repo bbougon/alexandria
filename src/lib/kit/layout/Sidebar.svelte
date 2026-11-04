@@ -3,8 +3,9 @@
   import { selectedCollectionId } from '../../collections/collection.store';
   import type { Collection } from '../../collections/collection';
   import { pageStore } from '../pages/pageStore';
-  import { Folder, Plus } from '@lucide/svelte';
+  import { Folder, Plus, Library } from '@lucide/svelte';
   import Button from '../../components/Button.svelte';
+  import ThemeToggle from '../../components/ThemeToggle.svelte';
 
   const goToCollection = (collection: Collection) => {
     selectedCollectionId.initialize(collection.id);
@@ -17,38 +18,62 @@
   };
 </script>
 
-<div class="flex h-full w-64 flex-col border-r border-border bg-surface-sunken">
-  <div class="border-b border-border p-4">
-    <h2 class="mb-3 font-display text-lg font-semibold">Collections</h2>
-    <Button class="w-full" onclick={() => goToCreateCollection()}>
-      <Plus class="mr-2 h-4 w-4" />
-      New Collection
-    </Button>
+<aside
+  class="flex h-full w-[270px] flex-col gap-5 overflow-y-auto border-r border-border bg-surface-sunken px-4 py-6"
+>
+  <div class="flex items-center gap-2.5 px-2">
+    <div
+      class="grid size-[26px] place-items-center rounded-lg bg-brand text-on-brand"
+    >
+      <Library class="size-4" />
+    </div>
+    <h1 class="font-display text-xl font-bold tracking-tight">Alexandria</h1>
   </div>
 
-  <div class="flex-1 overflow-y-auto p-2">
-    <div class="space-y-1">
+  <Button class="w-full" onclick={() => goToCreateCollection()}>
+    <Plus class="mr-2 h-4 w-4" />
+    New Collection
+  </Button>
+
+  <div class="flex min-h-0 flex-1 flex-col gap-1">
+    <p
+      class="px-2 text-[11px] font-semibold uppercase tracking-wider text-ink-muted"
+    >
+      Collections
+    </p>
+    <ul class="flex flex-col gap-0.5">
       {#each $collectionsStore as collection}
-        <div
-          class={`group relative cursor-pointer rounded-lg border-l-2 transition-colors ${
-            $selectedCollectionId === collection.id
-              ? 'border-brand bg-brand-tint text-brand'
-              : 'border-transparent hover:bg-surface'
-          }`}
-        >
-          <div class="flex items-center gap-3 p-3">
-            <Folder class="h-5 w-5 flex-shrink-0" />
-            <div class="min-w-0 flex-1" onclick={() => goToCollection(collection)}>
-              <p class="truncate font-medium">{collection.title}</p>
-              <p class="text-xs text-ink-subtle">
-                {collection.videos.length} video{collection.videos.length !== 1
-                  ? 's'
-                  : ''}
-              </p>
-            </div>
-          </div>
-        </div>
+        {@const active = $selectedCollectionId === collection.id}
+        <li>
+          <button
+            type="button"
+            aria-current={active ? 'true' : undefined}
+            onclick={() => goToCollection(collection)}
+            class={`relative flex w-full items-center gap-2.5 rounded-md px-2.5 py-2 text-left text-[14.5px] transition-colors ${
+              active
+                ? 'bg-brand-tint font-semibold before:absolute before:bottom-2 before:left-0 before:top-2 before:w-[3px] before:rounded before:bg-brand before:content-[""]'
+                : 'font-medium hover:bg-brand-tint'
+            }`}
+          >
+            <Folder
+              class={`size-[18px] flex-none ${active ? 'text-brand-strong' : 'text-ink-muted'}`}
+            />
+            <span class="min-w-0 flex-1 truncate">{collection.title}</span>
+            <span
+              class="rounded-full border border-border bg-surface px-[7px] py-px font-mono text-[11px] text-ink-muted"
+            >
+              {collection.videos.length}
+            </span>
+          </button>
+        </li>
       {/each}
-    </div>
+    </ul>
   </div>
-</div>
+
+  <div
+    class="mt-auto flex items-center justify-between border-t border-border px-2 pt-3"
+  >
+    <span class="text-[13px] text-ink-muted">Theme</span>
+    <ThemeToggle />
+  </div>
+</aside>
