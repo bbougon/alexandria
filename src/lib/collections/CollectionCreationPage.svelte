@@ -14,7 +14,6 @@
     type VideoDataRetrievedDTO,
   } from './video.tauri';
   import { type CollectionCreated, toCollection } from './collection.tauri';
-  import Card from '../components/Card.svelte';
   import Button from '../components/Button.svelte';
   import { pageStore } from '../kit/pages/pageStore';
   import {
@@ -117,41 +116,43 @@
   };
 </script>
 
-<div class="max-w-4xl mx-auto">
-  <h1 class="text-3xl font-semibold mb-6">Create New Collection</h1>
+<div class="mx-auto max-w-4xl">
+  <div class="mb-6">
+    <h1 class="text-3xl font-semibold">New Collection</h1>
+    <p class="mt-1 text-ink-muted">
+      Import video files — the collection is named automatically by its creation
+      date.
+    </p>
+  </div>
 
-  <div class="space-y-6">
-    <Card class="bg-surface-raised p-6">
-      <p class="mb-4 font-medium">Video Files</p>
+  <div class="space-y-4 rounded-2xl border border-border bg-surface-raised p-6">
+    <UploadVideos {pickVideo} />
 
-      <UploadVideos {pickVideo} />
+    {#if $collectionCreationStore.videos.length > 0}
+      <div class="flex flex-col gap-2">
+        {#each $collectionCreationStore.videos as video}
+          <VideoInformation {onRemoveFile} {play} {video} />
+        {/each}
+      </div>
+    {/if}
 
-      {#if $collectionCreationStore.videos.length > 0}
-        <div class="mt-6 space-y-2">
-          <p class="text-sm font-medium mb-3">
-            Selected Files ({$collectionCreationStore.videos.length})
-          </p>
-          {#each $collectionCreationStore.videos as video}
-            <VideoInformation {onRemoveFile} {play} {video} />
-          {/each}
-        </div>
-      {/if}
-    </Card>
-
-    <div class="flex gap-3">
+    <div class="flex items-center gap-3 border-t border-border pt-4">
+      <span class="mr-auto text-sm text-ink-muted">
+        {$collectionCreationStore.videos.length} video{$collectionCreationStore
+          .videos.length !== 1
+          ? 's'
+          : ''} selected
+      </span>
+      <Button variant="outline" size="lg" onclick={onCancel}>Cancel</Button>
       <Button
-        type="submit"
         size="lg"
-        enabled={$selectedCollection.collection !== undefined &&
-          $selectedCollection?.collection.videos.length > 0}
+        enabled={$collectionCreationStore.videos.length > 0}
         onclick={createCollection}
       >
         Create collection
       </Button>
-      <Button type="button" variant="outline" size="lg" onclick={onCancel}>
-        Cancel
-      </Button>
     </div>
   </div>
+
   <VideoPlayer bind:this={videoPlayer} />
 </div>
