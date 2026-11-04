@@ -11,5 +11,7 @@ minimumReleaseAgeExclude:
   - svelte@5.55.7
   # Renovate security update: devalue@5.9.3
   - devalue@5.9.3
+  # Renovate security update: @faker-js/faker@10.5.0
+  - '@faker-js/faker@10.5.0'
 
 #minimumReleaseAgeExclude:
