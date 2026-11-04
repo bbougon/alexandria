@@ -11,7 +11,9 @@
 
   const popoverState = getPopoverContext();
 
-  const handleToggle = (e: MouseEvent) => {
+  const handleToggle = (
+    e: MouseEvent & { currentTarget: EventTarget & HTMLButtonElement }
+  ) => {
     if (!popoverState.anchor) {
       popoverState.anchor = e.currentTarget as HTMLElement;
     }
