@@ -30,13 +30,14 @@
 
 <div
   class={cn(
-    'group relative overflow-hidden rounded-lg bg-gradient-to-br to-surface-sunken',
+    'relative grid place-items-center overflow-hidden rounded-lg bg-gradient-to-br to-surface-sunken',
     well,
     className
   )}
 >
   {#if thumbnail}
-    <video poster={thumbnail} class="h-full w-full object-cover"></video>
+    <video poster={thumbnail} class="absolute inset-0 h-full w-full object-cover"
+    ></video>
   {/if}
 
   {#if onplay}
@@ -44,19 +45,15 @@
       type="button"
       aria-label="Lire la vidéo"
       onclick={onplay}
-      class="absolute inset-0 flex items-center justify-center bg-overlay opacity-0 outline-none transition-opacity group-hover:opacity-100 focus-visible:opacity-100"
+      class="relative z-10 grid size-12 place-items-center rounded-full bg-brand text-on-brand shadow-lg outline-none transition-transform hover:scale-105 hover:bg-brand-strong focus-visible:ring-2 focus-visible:ring-on-media"
     >
-      <span
-        class="flex size-11 items-center justify-center rounded-full bg-brand text-on-brand shadow-md"
-      >
-        <Play class="size-5 fill-current" />
-      </span>
+      <Play class="size-[22px] translate-x-0.5 fill-current" />
     </button>
   {/if}
 
   {#if duration}
     <div
-      class="absolute bottom-2 right-2 flex items-center gap-1 rounded-md bg-overlay px-2 py-1 font-mono text-xs text-on-media"
+      class="absolute bottom-2 right-2 z-10 flex items-center gap-1 rounded-sm bg-overlay px-[7px] py-0.5 font-mono text-[11px] text-on-media"
     >
       <Clock class="size-3" />
       {duration}
