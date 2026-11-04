@@ -8,6 +8,17 @@
   --ff-display: 'Bricolage Grotesque', system-ui, sans-serif;
   --ff-sans: 'Figtree', system-ui, -apple-system, 'Segoe UI', sans-serif;
   --ff-mono: 'IBM Plex Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
+  --font-display: var(--ff-display);
+  --font-sans: var(--ff-sans);
+  --font-mono: var(--ff-mono);
+  --r-sm: 6px;
+  --r-md: 10px;
+  --r-lg: 16px;
+  --r-xl: 22px;
+  --r-pill: 999px;
+  --shadow-sm: 0 1px 2px rgba(54, 38, 12, 0.06);
+  --shadow-md: 0 6px 20px rgba(54, 38, 12, 0.1);
+  --shadow-lg: 0 18px 48px rgba(54, 38, 12, 0.16);
 
   /* Alexandria — palette chaude et lumineuse (thème clair) */
   --surface: #fffdf9;
@@ -82,6 +93,9 @@
 
 .dark {
   /* Alexandria — palette chaude (thème sombre) */
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.4);
+  --shadow-md: 0 8px 24px rgba(0, 0, 0, 0.5);
+  --shadow-lg: 0 20px 56px rgba(0, 0, 0, 0.6);
   --surface: #16140e;
   --surface-raised: #211d14;
   --surface-sunken: #100f0a;
