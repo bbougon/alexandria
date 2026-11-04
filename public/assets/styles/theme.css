@@ -237,6 +237,14 @@
     font-family: var(--ff-sans);
   }
 
+  /* Tailwind v4 ne met plus cursor:pointer sur les éléments cliquables : on le rétablit. */
+  button:not(:disabled),
+  [role='button']:not([aria-disabled='true']),
+  summary,
+  label[for] {
+    cursor: pointer;
+  }
+
   h1,
   h2,
   h3,
