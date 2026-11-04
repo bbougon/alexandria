@@ -1,10 +1,10 @@
 <script lang="ts">
   import { Popover, PopoverContent, PopoverTrigger } from './popover/PopOver.svelte';
   import Button from './Button.svelte';
-  import { Plus, X } from '@lucide/svelte';
+  import { Plus } from '@lucide/svelte';
   import type { Style } from '../collections/video';
   import { STYLES } from '../collections/video';
-  import Badge from './Badge.svelte';
+  import StyleTag from './StyleTag.svelte';
 
   interface Props {
     style: Style[];
@@ -36,15 +36,7 @@
 
 <div class="flex flex-wrap gap-2 items-center">
   {#each style as style}
-    <Badge variant="secondary" class="gap-1 pr-1">
-      {style}
-      <button
-        onclick={() => handleRemoveStyle(style)}
-        class="ml-1 hover:bg-muted rounded-full p-0.5"
-      >
-        <X class="w-3 h-3" />
-      </button>
-    </Badge>
+    <StyleTag name={style} removable onremove={() => handleRemoveStyle(style)} />
   {/each}
 
   <Popover open={isOpen} onOpenChange={() => (isOpen = !isOpen)}>
@@ -66,8 +58,8 @@
                   text-left px-3 py-2 rounded text-sm transition-colors
                   ${
                     style.includes(availableStyle)
-                      ? 'bg-blue-100 text-blue-700 font-medium'
-                      : 'hover:bg-gray-100'
+                      ? 'bg-brand-tint text-brand font-medium'
+                      : 'hover:bg-surface-sunken'
                   }
                 `}
           >
