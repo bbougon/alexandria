@@ -111,13 +111,7 @@
   };
 
   const play = () => {
-    videoPlayer?.play({
-      name: video.name,
-      artist: video.artist,
-      song: video.song,
-      thumbnail: video.thumbnail,
-      play: () => video.play(),
-    });
+    videoPlayer?.play(video);
   };
 </script>
 
