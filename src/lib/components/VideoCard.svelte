@@ -122,47 +122,44 @@
 </script>
 
 <div>
-  <Card class="p-4 bg-white hover:shadow-md transition-shadow">
+  <Card class="bg-surface-raised p-4 transition-shadow hover:shadow-md">
     <div class="flex gap-4">
       <Thumbnail
-        class="h-24 w-40 flex-shrink-0"
+        class="h-28 w-48 flex-shrink-0"
         thumbnail={video.thumbnail}
         duration={video.duration.toHumanReadable()}
         styleName={video.style[0]}
         onplay={play}
       />
 
-      <div class="flex-1 space-y-3">
-        <div>
-          <label class="text-xs text-muted-foreground block mb-1">File Name</label>
+      <div class="min-w-0 flex-1 space-y-2">
+        <EditableField
+          label="Video title"
+          bind:value={videoName}
+          onblur={onUpdateVideoName}
+          class="font-display text-lg font-semibold"
+        />
+
+        <div class="flex items-center gap-1 text-sm text-ink-muted">
           <EditableField
-            label="Name"
-            bind:value={videoName}
-            onblur={onUpdateVideoName}
+            label="Artist"
+            bind:value={artistName}
+            onblur={onUpdateArtistName}
+            class="flex-1 text-sm"
+          />
+          <span class="text-ink-subtle">·</span>
+          <EditableField
+            label="Song"
+            bind:value={songName}
+            onblur={onUpdateSongName}
+            class="flex-1 text-sm"
           />
         </div>
 
-        <div class="grid grid-cols-2 gap-4">
-          <div>
-            <label class="text-xs text-muted-foreground block mb-1">Artist</label>
-            <EditableField
-              label="Artist name"
-              bind:value={artistName}
-              onblur={onUpdateArtistName}
-            />
-          </div>
-          <div>
-            <label class="text-xs text-muted-foreground block mb-1">Song</label>
-            <EditableField
-              label="Song name"
-              bind:value={songName}
-              onblur={onUpdateSongName}
-            />
-          </div>
-        </div>
-
-        <div>
-          <label class="text-xs text-muted-foreground block mb-1">Music Style</label>
+        <div class="flex items-start gap-2">
+          <span class="mt-1.5 w-12 shrink-0 text-xs font-medium text-ink-subtle">
+            Styles
+          </span>
           <MusicStyleEdit
             bind:style
             onupdatestyle={onUpdateVideoStyle}
@@ -170,13 +167,19 @@
           />
         </div>
 
-        <div>
-          <label class="text-xs text-muted-foreground block mb-1">Tags</label>
+        <div class="flex items-start gap-2">
+          <span class="mt-1.5 w-12 shrink-0 text-xs font-medium text-ink-subtle">
+            Tags
+          </span>
           <TagsEdit
             bind:tags
             onaddvideotag={onUpdateVideoTag}
             onremovevideotag={(tag) => onRemoveVideoTag(tag)}
           />
+        </div>
+
+        <div class="pt-1 font-mono text-xs text-ink-subtle">
+          {video.size.toHumanReadable()}
         </div>
       </div>
     </div>
