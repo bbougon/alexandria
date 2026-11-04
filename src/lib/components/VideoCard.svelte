@@ -1,5 +1,4 @@
 <script lang="ts">
-  import Card from '../components/Card.svelte';
   import Thumbnail from '../components/Thumbnail.svelte';
   import EditableField from '../components/EditableField.svelte';
   import { invoke } from '@tauri-apps/api/core';
@@ -116,68 +115,58 @@
 </script>
 
 <div>
-  <Card class="bg-surface-raised p-4 transition-shadow hover:shadow-md">
-    <div class="flex gap-4">
-      <Thumbnail
-        class="h-28 w-48 flex-shrink-0"
-        thumbnail={video.thumbnail}
-        duration={video.duration.toHumanReadable()}
-        styleName={video.style[0]}
-        onplay={play}
+  <article
+    class="flex gap-[18px] rounded-2xl border border-border bg-surface-raised p-3.5 transition hover:-translate-y-0.5 hover:border-border-strong hover:shadow-md"
+  >
+    <Thumbnail
+      class="h-28 w-44 flex-shrink-0"
+      thumbnail={video.thumbnail}
+      duration={video.duration.toHumanReadable()}
+      styleName={video.style[0]}
+      onplay={play}
+    />
+
+    <div class="flex min-w-0 flex-1 flex-col gap-2">
+      <EditableField
+        label="Video title"
+        bind:value={videoName}
+        onblur={onUpdateVideoName}
+        class="font-display text-base font-bold leading-snug"
       />
 
-      <div class="min-w-0 flex-1 space-y-2">
+      <div class="flex flex-wrap items-baseline gap-x-1 text-[13px] text-ink-muted">
         <EditableField
-          label="Video title"
-          bind:value={videoName}
-          onblur={onUpdateVideoName}
-          class="font-display text-lg font-semibold"
+          label="Artist"
+          bind:value={artistName}
+          onblur={onUpdateArtistName}
+          class="w-auto min-w-[3ch] flex-none text-[13px] font-semibold text-ink [field-sizing:content]"
         />
+        <span class="text-ink-subtle">·</span>
+        <EditableField
+          label="Song"
+          bind:value={songName}
+          onblur={onUpdateSongName}
+          class="w-auto min-w-[3ch] flex-none text-[13px] [field-sizing:content]"
+        />
+      </div>
 
-        <div class="flex items-center gap-1 text-sm text-ink-muted">
-          <EditableField
-            label="Artist"
-            bind:value={artistName}
-            onblur={onUpdateArtistName}
-            class="flex-1 text-sm"
-          />
-          <span class="text-ink-subtle">·</span>
-          <EditableField
-            label="Song"
-            bind:value={songName}
-            onblur={onUpdateSongName}
-            class="flex-1 text-sm"
-          />
-        </div>
+      <MusicStyleEdit
+        bind:style
+        onupdatestyle={onUpdateVideoStyle}
+        onremovestyle={(style) => onRemoveStyle(style)}
+      />
 
-        <div class="flex items-start gap-2">
-          <span class="mt-1.5 w-12 shrink-0 text-xs font-medium text-ink-subtle">
-            Styles
-          </span>
-          <MusicStyleEdit
-            bind:style
-            onupdatestyle={onUpdateVideoStyle}
-            onremovestyle={(style) => onRemoveStyle(style)}
-          />
-        </div>
+      <TagsEdit
+        bind:tags
+        onaddvideotag={onUpdateVideoTag}
+        onremovevideotag={(tag) => onRemoveVideoTag(tag)}
+      />
 
-        <div class="flex items-start gap-2">
-          <span class="mt-1.5 w-12 shrink-0 text-xs font-medium text-ink-subtle">
-            Tags
-          </span>
-          <TagsEdit
-            bind:tags
-            onaddvideotag={onUpdateVideoTag}
-            onremovevideotag={(tag) => onRemoveVideoTag(tag)}
-          />
-        </div>
-
-        <div class="pt-1 font-mono text-xs text-ink-subtle">
-          {video.size.toHumanReadable()}
-        </div>
+      <div class="mt-auto pt-0.5 font-mono text-[11px] text-ink-muted">
+        {video.size.toHumanReadable()}
       </div>
     </div>
-  </Card>
+  </article>
 
   <VideoPlayer bind:this={videoPlayer} />
 </div>
