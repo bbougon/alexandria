@@ -16,7 +16,7 @@
 
 <span
   class={cn(
-    'inline-flex items-center gap-1 whitespace-nowrap rounded-full bg-surface-sunken px-2.5 py-0.5 text-xs font-medium text-ink',
+    'inline-flex items-center whitespace-nowrap rounded-sm border border-border bg-surface-sunken px-2.5 py-[3px] text-[12.5px] text-ink',
     className
   )}
 >
@@ -26,9 +26,9 @@
       type="button"
       aria-label={`Retirer le tag ${label}`}
       onclick={onremove}
-      class="-mr-1 rounded-full p-0.5 hover:bg-black/10 dark:hover:bg-white/10"
+      class="-mr-1 ml-1 grid size-[15px] place-items-center rounded-full opacity-70 hover:bg-danger-tint hover:text-danger hover:opacity-100"
     >
-      <X class="size-3" />
+      <X class="size-2.5" />
     </button>
   {/if}
 </span>

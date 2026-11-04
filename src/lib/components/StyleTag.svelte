@@ -29,7 +29,8 @@
 
 <span
   class={cn(
-    'inline-flex items-center gap-1 whitespace-nowrap rounded-full px-2.5 py-0.5 text-xs font-medium',
+    'inline-flex items-center gap-1.5 whitespace-nowrap rounded-sm px-2.5 py-[3px] text-[12.5px] font-semibold',
+    "before:size-[7px] before:shrink-0 before:rounded-full before:bg-current before:opacity-80 before:content-['']",
     CHIP[color],
     className
   )}
@@ -40,9 +41,9 @@
       type="button"
       aria-label={`Retirer le style ${name}`}
       onclick={onremove}
-      class="-mr-1 rounded-full p-0.5 hover:bg-black/10 dark:hover:bg-white/10"
+      class="-mr-1 ml-0.5 grid size-[15px] place-items-center rounded-full opacity-70 hover:bg-black/15 hover:opacity-100"
     >
-      <X class="size-3" />
+      <X class="size-2.5" />
     </button>
   {/if}
 </span>
