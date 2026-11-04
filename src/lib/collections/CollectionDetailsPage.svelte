@@ -177,7 +177,9 @@
     {/if}
 
     <div class="mt-8 space-y-4">
-      <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+      <div
+        class="grid gap-4 [grid-template-columns:repeat(auto-fill,minmax(360px,1fr))]"
+      >
         {#each $selectedCollection.collection.videos as video, i (video)}
           <VideoCard bind:video={$selectedCollection.collection.videos[i]} />
         {/each}

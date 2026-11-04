@@ -22,7 +22,9 @@
       <p class="text-lg text-ink-muted">No videos match your search</p>
     </div>
   {:else}
-    <div class="grid grid-cols-1 gap-4 lg:grid-cols-2">
+    <div
+      class="grid gap-4 [grid-template-columns:repeat(auto-fill,minmax(360px,1fr))]"
+    >
       {#each $searchResultStore as video}
         <VideoCard {video} />
       {/each}
