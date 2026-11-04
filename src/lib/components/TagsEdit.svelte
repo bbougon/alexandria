@@ -1,8 +1,7 @@
 <script lang="ts">
-  import Button from './Button.svelte';
   import Input from './Input.svelte';
-  import { Plus } from '@lucide/svelte';
   import Tag from './Tag.svelte';
+  import EditableChipRow from './EditableChipRow.svelte';
 
   interface Props {
     tags: string[];
@@ -13,16 +12,16 @@
   let { tags = $bindable(), onaddvideotag, onremovevideotag }: Props = $props();
 
   let newTag = $state('');
-  let isEditing = $state(false);
 
   $effect(() => {
     tags = tags;
   });
 
   const handleAddTag = () => {
+    if (!newTag.trim()) return;
     tags = [...tags, newTag];
     onaddvideotag();
-    isEditing = false;
+    newTag = '';
   };
 
   const handleRemoveTag = (tag: string) => {
@@ -40,17 +39,18 @@
       handleAddTag();
     } else if (e.key === 'Escape') {
       newTag = '';
-      isEditing = false;
     }
   };
 </script>
 
-<div class="flex flex-wrap gap-2 items-center">
-  {#each tags as tag}
-    <Tag label={tag} removable onremove={() => handleRemoveTag(tag)} />
-  {/each}
+<EditableChipRow editLabel="Modifier les tags">
+  {#snippet children(editing)}
+    {#each tags as tag}
+      <Tag label={tag} removable={editing} onremove={() => handleRemoveTag(tag)} />
+    {/each}
+  {/snippet}
 
-  {#snippet showAddTag()}
+  {#snippet add()}
     <Input
       value={newTag}
       onchange={(e) => (newTag = e.currentTarget.value)}
@@ -58,20 +58,6 @@
       onkeydown={handleKeyDown}
       placeholder="New tag..."
       class="w-24 h-7"
-      autofocus
     />
   {/snippet}
-
-  {#if isEditing}
-    {@render showAddTag()}
-  {/if}
-  <Button
-    variant="outline"
-    size="sm"
-    class="h-7 px-2"
-    onclick={() => (isEditing = true)}
-  >
-    <Plus class="w-3 h-3 mr-1" />
-    Add tag
-  </Button>
-</div>
+</EditableChipRow>
