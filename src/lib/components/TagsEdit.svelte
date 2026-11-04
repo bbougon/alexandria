@@ -1,8 +1,8 @@
 <script lang="ts">
   import Button from './Button.svelte';
   import Input from './Input.svelte';
-  import { Plus, X } from '@lucide/svelte';
-  import Badge from './Badge.svelte';
+  import { Plus } from '@lucide/svelte';
+  import Tag from './Tag.svelte';
 
   interface Props {
     tags: string[];
@@ -47,15 +47,7 @@
 
 <div class="flex flex-wrap gap-2 items-center">
   {#each tags as tag}
-    <Badge variant="secondary" class="gap-1 pr-1">
-      {tag}
-      <button
-        onclick={() => handleRemoveTag(tag)}
-        class="ml-1 hover:bg-muted rounded-full p-0.5"
-      >
-        <X class="w-3 h-3" />
-      </button>
-    </Badge>
+    <Tag label={tag} removable onremove={() => handleRemoveTag(tag)} />
   {/each}
 
   {#snippet showAddTag()}
