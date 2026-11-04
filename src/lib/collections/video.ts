@@ -63,3 +63,11 @@ export type Video = {
   tags: string[];
   play(): string;
 };
+
+/**
+ * Vidéo lisible par le lecteur : une `Video` complète, ou un aperçu partiel
+ * (import en cours) qui n'expose que la lecture et quelques champs.
+ */
+export type PlayableVideo = Partial<Omit<Video, 'play'>> & {
+  play: () => string;
+};

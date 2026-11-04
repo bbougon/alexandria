@@ -3,20 +3,14 @@
   import DialogHeader from './dialog/DialogHeader.svelte';
   import DialogTitle from './dialog/DialogTitle.svelte';
   import DialogContent from './dialog/DialogContent.svelte';
+  import VideoInfoPanel from './VideoInfoPanel.svelte';
+  import type { PlayableVideo } from '../collections/video';
 
   let elementDialog: Dialog | undefined = $state();
-  let video: VideoToPlay | undefined = $state();
+  let video: PlayableVideo | undefined = $state();
   let videoEl: HTMLVideoElement | null = null;
 
-  type VideoToPlay = {
-    name?: string;
-    artist?: string;
-    song?: string;
-    thumbnail?: string;
-    play: () => string;
-  };
-
-  export const play = (videoToPlay: VideoToPlay) => {
+  export const play = (videoToPlay: PlayableVideo) => {
     video = videoToPlay;
     elementDialog?.display();
   };
@@ -28,26 +22,25 @@
 </script>
 
 <Dialog bind:this={elementDialog}>
-  <DialogContent class="max-w-[90%] sm:max-w-4xl" onclose={close}>
+  <DialogContent class="max-w-[95%] sm:max-w-5xl" onclose={close}>
     <DialogHeader>
       <DialogTitle>{video?.name}</DialogTitle>
     </DialogHeader>
-    <div class="w-full">
-      <video
-        bind:this={videoEl}
-        controls
-        autoPlay
-        class="w-full rounded-lg"
-        src={video?.play() ?? ''}
-        poster={video?.thumbnail ?? ''}
-      >
-      </video>
-      <div class="mt-4 text-sm text-muted-foreground">
-        <p>
-          <span class="font-medium">{video?.artist}</span> - {video?.song}
-        </p>
-        <!--{video.musicStyle && <p class="mt-1">Style: {video.musicStyle}</p>}-->
+    <div class="grid gap-6 md:grid-cols-[minmax(0,1fr)_320px]">
+      <div class="min-w-0">
+        <video
+          bind:this={videoEl}
+          controls
+          autoPlay
+          class="w-full rounded-lg bg-black"
+          src={video?.play() ?? ''}
+          poster={video?.thumbnail ?? ''}
+        >
+        </video>
       </div>
+      {#if video}
+        <VideoInfoPanel {video} />
+      {/if}
     </div>
   </DialogContent>
 </Dialog>
