@@ -22,15 +22,15 @@
   ]);
 </script>
 
-<div class="h-screen flex flex-col bg-gray-50">
+<div class="flex h-screen flex-col bg-surface">
   <header
-    class="bg-white border-b border-gray-200 px-6 py-4 flex items-center gap-6 flex-shrink-0"
+    class="flex flex-shrink-0 items-center gap-6 border-b border-border bg-surface-raised px-6 py-4"
   >
     <div class="flex items-center gap-3">
-      <div class="p-2 bg-blue-500 rounded-lg">
-        <Library class="w-6 h-6 text-white" />
+      <div class="rounded-lg bg-brand p-2">
+        <Library class="h-6 w-6 text-on-brand" />
       </div>
-      <h1 class="text-xl font-semibold">Video Library</h1>
+      <h1 class="font-display text-xl font-semibold">Alexandria</h1>
     </div>
     <Searchbar />
   </header>
