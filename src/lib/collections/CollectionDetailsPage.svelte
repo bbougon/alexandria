@@ -187,9 +187,9 @@
 <VideoPlayer bind:this={videoPlayer} />
 
 <style>
-  /* Modale d'ajout : plus large, hauteur stable (elle ne grandit plus avec le
-     contenu) — en-tête et pied figés, seul le corps défile — et liste des vidéos
-     sélectionnées sur 2 colonnes (sans toucher à la liste de l'écran de création). */
+  /* Modale d'ajout : plus large et hauteur stable (elle ne grandit plus avec le
+     contenu) — en-tête et pied figés, seul le corps défile. La liste des vidéos
+     sur 2 colonnes est gérée globalement par `.implist`. */
   .modal--wide {
     width: min(880px, 100%);
     height: min(680px, 85vh);
@@ -200,14 +200,5 @@
   .modal--wide :global(.modal-b) {
     flex: 1;
     overflow-y: auto;
-  }
-  .modal--wide :global(.implist) {
-    display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-  @media (max-width: 620px) {
-    .modal--wide :global(.implist) {
-      grid-template-columns: 1fr;
-    }
   }
 </style>
