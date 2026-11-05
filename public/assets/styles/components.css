@@ -431,34 +431,6 @@
   gap: 6px;
   align-items: center;
 }
-.st {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  font-size: 12.5px;
-  font-weight: 600;
-  padding: 3px 10px;
-  border-radius: var(--r-sm);
-  white-space: nowrap;
-}
-.st::before {
-  content: '';
-  width: 7px;
-  height: 7px;
-  border-radius: 999px;
-  background: currentColor;
-  opacity: 0.85;
-}
-.tg {
-  display: inline-flex;
-  align-items: center;
-  font-size: 12.5px;
-  color: var(--ink);
-  background: var(--surface-sunken);
-  border: 1px solid var(--border);
-  padding: 2px 9px;
-  border-radius: var(--r-sm);
-}
 .rownote {
   font-size: 12.5px;
   color: var(--ink-subtle);
@@ -549,33 +521,6 @@
 }
 
 /* ---- Chip editors ---- */
-.chipx {
-  border: 0;
-  background: transparent;
-  cursor: pointer;
-  color: inherit;
-  opacity: 0.65;
-  display: inline-grid;
-  place-items: center;
-  width: 15px;
-  height: 15px;
-  border-radius: var(--r-pill);
-  margin-left: 2px;
-  margin-right: -3px;
-  padding: 0;
-}
-.chipx:hover {
-  opacity: 1;
-  background: rgba(0, 0, 0, 0.14);
-}
-.tg .chipx:hover {
-  background: var(--danger-tint);
-  color: var(--danger);
-}
-.chipx svg {
-  width: 10px;
-  height: 10px;
-}
 .addsel {
   font: inherit;
   font-size: 12.5px;
