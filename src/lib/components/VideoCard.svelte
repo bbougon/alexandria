@@ -119,7 +119,6 @@
     class="flex h-full gap-[18px] rounded-2xl border border-border bg-surface-raised p-3.5 transition hover:-translate-y-0.5 hover:border-border-strong hover:shadow-md"
   >
     <Thumbnail
-      class="h-28 w-44 flex-shrink-0"
       thumbnail={video.thumbnail}
       duration={video.duration.toHumanReadable()}
       styleName={video.style[0]}

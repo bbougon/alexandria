@@ -15,7 +15,7 @@
 
 <div class="group flex items-center gap-3 rounded-lg bg-surface-sunken p-3">
   <Thumbnail
-    class="h-20 w-32 flex-shrink-0"
+    variant="import"
     thumbnail={video.thumbnail}
     duration={video.duration.toHumanReadable()}
     onplay={() => play(video)}
