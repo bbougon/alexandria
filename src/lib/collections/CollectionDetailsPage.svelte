@@ -1,6 +1,6 @@
 <script lang="ts">
   import { selectedCollection } from './collection.store';
-  import { Folder, Plus } from '@lucide/svelte';
+  import { Plus } from '@lucide/svelte';
   import VideoCard from '../components/VideoCard.svelte';
   import Button from '../components/Button.svelte';
   import UploadVideos from './UploadVideos.svelte';
@@ -110,33 +110,26 @@
   };
 </script>
 
-<div>
+<div class="content">
   {#if $selectedCollection.collection}
-    <div class="mb-8 flex items-start justify-between gap-4">
+    <div class="collhead">
       <div>
-        <div class="mb-2 flex items-center gap-3">
-          <Folder class="h-8 w-8 text-brand" />
-          <h1 class="text-3xl font-semibold">
-            {$selectedCollection.collection.title}
-          </h1>
-        </div>
-        <p class="text-ink-muted">
-          {$selectedCollection.collection.videos.length} video{$selectedCollection
+        <h2>{$selectedCollection.collection.title}</h2>
+        <p class="sub">
+          {$selectedCollection.collection.videos.length} vidéo{$selectedCollection
             .collection.videos.length !== 1
             ? 's'
             : ''}
         </p>
       </div>
-
-      <Button onclick={openAddVideos} class="shrink-0">
-        <Plus class="mr-2 h-4 w-4" />
-        Add Videos
-      </Button>
+      <div class="spacer"></div>
+      <button type="button" class="ghostbtn" onclick={openAddVideos}>
+        <Plus />
+        Ajouter des vidéos
+      </button>
     </div>
 
-    <div
-      class="grid gap-4 [grid-template-columns:repeat(auto-fill,minmax(360px,1fr))]"
-    >
+    <div class="grid">
       {#each $selectedCollection.collection.videos as video, i (video)}
         <VideoCard bind:video={$selectedCollection.collection.videos[i]} />
       {/each}
