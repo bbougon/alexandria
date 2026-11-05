@@ -11,11 +11,17 @@
   );
 </script>
 
-<div class="content">
-  <div class="collhead">
+<div
+  class="flex flex-col gap-[18px] pb-[calc(32px_+_env(safe-area-inset-bottom,0px))] pl-[max(20px,env(safe-area-inset-left,0px))] pr-[max(20px,env(safe-area-inset-right,0px))] pt-[22px]"
+>
+  <div class="flex flex-wrap items-end gap-[14px]">
     <div>
-      <h2>Votre bibliothèque</h2>
-      <p class="sub">Gérez vos collections de vidéos et leurs métadonnées.</p>
+      <h2 class="font-display text-[26px] font-bold tracking-[-0.02em]">
+        Votre bibliothèque
+      </h2>
+      <p class="mt-1 text-sm text-ink-muted">
+        Gérez vos collections de vidéos et leurs métadonnées.
+      </p>
     </div>
   </div>
 

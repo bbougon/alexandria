@@ -109,26 +109,36 @@
   };
 </script>
 
-<div class="content">
+<div
+  class="flex flex-col gap-[18px] pb-[calc(32px_+_env(safe-area-inset-bottom,0px))] pl-[max(20px,env(safe-area-inset-left,0px))] pr-[max(20px,env(safe-area-inset-right,0px))] pt-[22px]"
+>
   {#if $selectedCollection.collection}
-    <div class="collhead">
+    <div class="flex flex-wrap items-end gap-[14px]">
       <div>
-        <h2>{$selectedCollection.collection.title}</h2>
-        <p class="sub">
+        <h2 class="font-display text-[26px] font-bold tracking-[-0.02em]">
+          {$selectedCollection.collection.title}
+        </h2>
+        <p class="mt-1 text-sm text-ink-muted">
           {$selectedCollection.collection.videos.length} vidéo{$selectedCollection
             .collection.videos.length !== 1
             ? 's'
             : ''}
         </p>
       </div>
-      <div class="spacer"></div>
-      <button type="button" class="ghostbtn" onclick={openAddVideos}>
-        <Plus />
+      <div class="flex-1"></div>
+      <button
+        type="button"
+        class="inline-flex cursor-pointer items-center gap-2 rounded-md border border-border-strong bg-surface-raised px-[14px] py-[9px] text-sm font-semibold text-ink hover:border-brand hover:bg-brand-tint"
+        onclick={openAddVideos}
+      >
+        <Plus class="h-4 w-4" />
         Ajouter des vidéos
       </button>
     </div>
 
-    <div class="card-grid">
+    <div
+      class="grid grid-cols-[repeat(auto-fill,minmax(380px,1fr))] gap-4 max-[760px]:grid-cols-1"
+    >
       {#each $selectedCollection.collection.videos as video, i (video)}
         <VideoCard bind:video={$selectedCollection.collection.videos[i]} />
       {/each}
@@ -137,24 +147,31 @@
 </div>
 
 <Dialog bind:this={addModal}>
-  <div class="modal modal--wide">
-    <div class="modal-h">
-      <h3>Ajouter des vidéos</h3>
+  <!-- Largeur en `vw` (et non en `%` d'un parent dimensionné au contenu) pour que
+       la grille 2 colonnes ne fasse pas varier la largeur selon la longueur des
+       noms de fichiers ; la hauteur reste adaptative. -->
+  <div
+    class="max-h-full w-[min(880px,92vw)] overflow-auto rounded-xl border border-border bg-surface-raised shadow-lg"
+  >
+    <div class="flex items-center justify-between gap-3 px-[22px] pt-[22px]">
+      <h3 class="font-display text-[21px] font-bold tracking-[-0.01em]">
+        Ajouter des vidéos
+      </h3>
       <button
         type="button"
-        class="close"
+        class="grid h-[34px] w-[34px] cursor-pointer place-items-center rounded-pill bg-surface-sunken text-ink-muted hover:bg-danger-tint hover:text-danger"
         aria-label="Fermer"
         onclick={closeAddVideos}
       >
-        <X />
+        <X class="h-4 w-4" />
       </button>
     </div>
 
-    <div class="modal-b">
+    <div class="flex flex-col gap-[14px] px-[22px] py-[18px]">
       <UploadVideos {pickVideo} />
 
       {#if $collectionUpdateStore.videos.length > 0}
-        <div class="implist">
+        <div class="grid grid-cols-2 gap-2 max-[620px]:grid-cols-1">
           {#each $collectionUpdateStore.videos as video}
             <VideoInformation {onRemoveFile} {play} {video} />
           {/each}
@@ -162,19 +179,23 @@
       {/if}
     </div>
 
-    <div class="modal-f">
-      <span class="count">
+    <div class="flex items-center justify-end gap-2.5 px-[22px] pb-[22px] pt-1">
+      <span class="mr-auto text-[13px] text-ink-muted">
         {$collectionUpdateStore.videos.length} vidéo{$collectionUpdateStore.videos
           .length !== 1
           ? 's'
           : ''} sélectionnée{$collectionUpdateStore.videos.length !== 1 ? 's' : ''}
       </span>
-      <button type="button" class="ghostbtn" onclick={closeAddVideos}>
+      <button
+        type="button"
+        class="inline-flex cursor-pointer items-center gap-2 rounded-md border border-border-strong bg-surface-raised px-[14px] py-[9px] text-sm font-semibold text-ink hover:border-brand hover:bg-brand-tint"
+        onclick={closeAddVideos}
+      >
         Annuler
       </button>
       <button
         type="button"
-        class="pbtn"
+        class="inline-flex cursor-pointer items-center gap-2 rounded-md bg-brand px-4 py-2.5 text-sm font-semibold text-on-brand shadow-sm hover:bg-brand-strong disabled:cursor-not-allowed disabled:opacity-50"
         disabled={$collectionUpdateStore.videos.length === 0}
         onclick={addVideosToCollection}
       >
@@ -185,13 +206,3 @@
 </Dialog>
 
 <VideoPlayer bind:this={videoPlayer} />
-
-<style>
-  /* Modale d'ajout : largeur stable. On la définit en `vw` (et non en `%` d'un
-     parent dimensionné au contenu) pour que la grille 2 colonnes ne fasse pas
-     varier la largeur selon la longueur des noms de fichiers. La hauteur reste
-     adaptative. La liste 2 colonnes est gérée globalement par `.implist`. */
-  .modal--wide {
-    width: min(880px, 92vw);
-  }
-</style>

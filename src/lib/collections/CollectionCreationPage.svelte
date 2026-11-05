@@ -118,11 +118,15 @@
   };
 </script>
 
-<div class="content">
-  <div class="collhead">
+<div
+  class="flex flex-col gap-[18px] pb-[calc(32px_+_env(safe-area-inset-bottom,0px))] pl-[max(20px,env(safe-area-inset-left,0px))] pr-[max(20px,env(safe-area-inset-right,0px))] pt-[22px]"
+>
+  <div class="flex flex-wrap items-end gap-[14px]">
     <div>
-      <h2>Nouvelle collection</h2>
-      <p class="sub">
+      <h2 class="font-display text-[26px] font-bold tracking-[-0.02em]">
+        Nouvelle collection
+      </h2>
+      <p class="mt-1 text-sm text-ink-muted">
         Importez des fichiers vidéo — la collection est nommée automatiquement par sa
         date de création.
       </p>
@@ -132,24 +136,28 @@
   <UploadVideos {pickVideo} />
 
   {#if $collectionCreationStore.videos.length > 0}
-    <div class="implist">
+    <div class="grid grid-cols-2 gap-2 max-[620px]:grid-cols-1">
       {#each $collectionCreationStore.videos as video}
         <VideoInformation {onRemoveFile} {play} {video} />
       {/each}
     </div>
   {/if}
 
-  <div class="newfoot">
-    <span class="count">
+  <div class="flex items-center justify-end gap-2.5">
+    <span class="mr-auto text-[13px] text-ink-muted">
       {$collectionCreationStore.videos.length} vidéo{$collectionCreationStore.videos
         .length !== 1
         ? 's'
         : ''} sélectionnée{$collectionCreationStore.videos.length !== 1 ? 's' : ''}
     </span>
-    <button type="button" class="ghostbtn" onclick={onCancel}>Annuler</button>
     <button
       type="button"
-      class="pbtn"
+      class="inline-flex cursor-pointer items-center gap-2 rounded-md border border-border-strong bg-surface-raised px-[14px] py-[9px] text-sm font-semibold text-ink hover:border-brand hover:bg-brand-tint"
+      onclick={onCancel}>Annuler</button
+    >
+    <button
+      type="button"
+      class="inline-flex cursor-pointer items-center gap-2 rounded-md bg-brand px-4 py-2.5 text-sm font-semibold text-on-brand shadow-sm hover:bg-brand-strong disabled:cursor-not-allowed disabled:opacity-50"
       disabled={$collectionCreationStore.videos.length === 0}
       onclick={createCollection}
     >
