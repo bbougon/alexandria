@@ -128,7 +128,7 @@
       </button>
     </div>
 
-    <div class="grid">
+    <div class="card-grid">
       {#each $selectedCollection.collection.videos as video, i (video)}
         <VideoCard bind:video={$selectedCollection.collection.videos[i]} />
       {/each}
