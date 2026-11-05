@@ -1,4 +1,10 @@
 @import 'tailwindcss';
 @import '../public/assets/styles/fonts.css';
 @import '../public/assets/styles/theme.css';
-@import '../public/assets/styles/components.css' layer(components);
+
+/* Respecte la préférence système de réduction des animations. */
+@media (prefers-reduced-motion: reduce) {
+  * {
+    transition: none !important;
+  }
+}

@@ -1,8 +1,0 @@
-/* Styles de composants portés fidèlement depuis la maquette Alexandria.
-   Les tokens (couleurs, polices, rayons, ombres) proviennent de theme.css. */
-
-@media (prefers-reduced-motion: reduce) {
-  * {
-    transition: none !important;
-  }
-}
