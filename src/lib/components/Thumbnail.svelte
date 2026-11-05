@@ -27,32 +27,44 @@
 {#if variant === 'import'}
   <button
     type="button"
-    class="impthumb"
+    class="relative grid h-[34px] w-[52px] shrink-0 grow-0 place-items-center overflow-hidden rounded-sm text-on-brand"
     style="background:{background}"
     aria-label="Lire l'aperçu"
     onclick={onplay}
   >
     {#if thumbnail}
-      <video poster={thumbnail}></video>
+      <video class="absolute inset-0 h-full w-full object-cover" poster={thumbnail}
+      ></video>
     {:else}
-      <Film />
+      <Film class="h-4 w-4 opacity-85" />
     {/if}
   </button>
 {:else}
-  <div class="thumb" style="background:{background}">
+  <div
+    class="relative grid h-28 w-44 shrink-0 grow-0 place-items-center overflow-hidden rounded-lg"
+    style="background:{background}"
+  >
     {#if thumbnail}
-      <video poster={thumbnail}></video>
+      <video class="absolute inset-0 h-full w-full object-cover" poster={thumbnail}
+      ></video>
     {/if}
 
     {#if onplay}
-      <button type="button" class="play" aria-label="Lire la vidéo" onclick={onplay}>
-        <Play fill="currentColor" />
+      <button
+        type="button"
+        class="relative z-[1] grid h-12 w-12 cursor-pointer place-items-center rounded-pill bg-brand text-on-brand shadow-[0_6px_18px_rgba(54,38,12,0.28)] transition hover:scale-[1.06] hover:bg-brand-strong"
+        aria-label="Lire la vidéo"
+        onclick={onplay}
+      >
+        <Play fill="currentColor" class="ml-0.5 h-[22px] w-[22px]" />
       </button>
     {/if}
 
     {#if duration}
-      <span class="dur">
-        <Clock />
+      <span
+        class="absolute bottom-[7px] right-[7px] z-[1] inline-flex items-center gap-1 rounded-sm bg-overlay px-[7px] py-0.5 font-mono text-[11px] font-medium text-on-media"
+      >
+        <Clock class="h-[11px] w-[11px]" />
         {duration}
       </span>
     {/if}
