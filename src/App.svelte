@@ -21,20 +21,13 @@
   ]);
 </script>
 
-<div class="flex h-screen bg-surface">
+<div class="app">
   <Sidebar />
 
-  <div class="flex min-w-0 flex-1 flex-col">
-    <header
-      class="sticky top-0 z-10 flex items-center border-b border-border bg-surface/85 px-5 py-3.5 backdrop-blur"
-    >
+  <main class="main">
+    <div class="topbar">
       <Searchbar />
-    </header>
-    <main class="flex-1 overflow-y-auto p-6">
-      <svelte:component this={PAGES.get($pageStore)} />
-    </main>
-  </div>
+    </div>
+    <svelte:component this={PAGES.get($pageStore)} />
+  </main>
 </div>
-
-<style>
-</style>

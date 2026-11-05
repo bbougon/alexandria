@@ -28,15 +28,12 @@
   };
 </script>
 
-<div class="relative w-full max-w-2xl">
-  <Search
-    class="pointer-events-none absolute left-3.5 top-1/2 size-4 -translate-y-1/2 text-brand"
-  />
+<div class="search">
+  <Search class="s" />
   <input
     name="search"
-    placeholder="Search by title, artist, song…"
-    aria-label="Search"
-    class="h-10 w-full rounded-full border border-border-strong bg-surface-raised pl-10 pr-4 text-sm text-ink outline-none transition-colors placeholder:text-ink-subtle focus-visible:border-focus focus-visible:ring-2 focus-visible:ring-focus/40"
+    placeholder="Rechercher par morceau, artiste, style ou tag…"
+    aria-label="Rechercher"
     onkeydown={(e) => search(e)}
   />
 </div>
