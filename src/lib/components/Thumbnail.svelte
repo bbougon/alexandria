@@ -41,7 +41,7 @@
   </button>
 {:else}
   <div
-    class="relative grid h-28 w-44 shrink-0 grow-0 place-items-center overflow-hidden rounded-lg"
+    class="relative grid h-28 w-44 shrink-0 grow-0 place-items-center overflow-hidden rounded-lg max-[440px]:h-[150px] max-[440px]:w-full"
     style="background:{background}"
   >
     {#if thumbnail}
