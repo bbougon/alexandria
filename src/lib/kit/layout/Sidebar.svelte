@@ -3,7 +3,7 @@
   import { selectedCollectionId } from '../../collections/collection.store';
   import type { Collection } from '../../collections/collection';
   import { pageStore } from '../pages/pageStore';
-  import { Folder, Plus, Library } from '@lucide/svelte';
+  import { Folder, Plus, Library, Palette } from '@lucide/svelte';
   import ThemeToggle from '../../components/ThemeToggle.svelte';
 
   const goToCollection = (collection: Collection) => {
@@ -15,6 +15,8 @@
     selectedCollectionId.initialize('');
     pageStore.goTo('CollectionCreationPage');
   };
+
+  let onDesignSystem = $derived($pageStore === 'DesignSystemPage');
 </script>
 
 <aside
@@ -82,9 +84,26 @@
   </ul>
 
   <div
-    class="mt-auto flex items-center justify-between border-t border-border p-2 max-[760px]:hidden"
+    class="mt-auto flex flex-col gap-1 border-t border-border p-2 max-[760px]:hidden"
   >
-    <span class="text-[13px] text-ink-muted">Thème</span>
-    <ThemeToggle />
+    <button
+      type="button"
+      class="flex w-full cursor-pointer items-center gap-2.5 rounded-md px-2.5 py-[9px] text-left text-[14.5px] font-medium text-ink hover:bg-brand-tint {onDesignSystem
+        ? 'bg-brand-tint font-semibold'
+        : ''}"
+      aria-current={onDesignSystem ? 'true' : 'false'}
+      onclick={() => pageStore.goTo('DesignSystemPage')}
+    >
+      <Palette
+        class="h-[18px] w-[18px] shrink-0 {onDesignSystem
+          ? 'text-brand-strong'
+          : 'text-ink-muted'}"
+      />
+      <span class="min-w-0 flex-1 truncate">Design system</span>
+    </button>
+    <div class="flex items-center justify-between px-0.5 py-1">
+      <span class="text-[13px] text-ink-muted">Thème</span>
+      <ThemeToggle />
+    </div>
   </div>
 </aside>

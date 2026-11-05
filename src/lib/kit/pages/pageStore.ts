@@ -4,7 +4,8 @@ export type Page =
   | 'CollectionCreationPage'
   | 'CollectionDetailsPage'
   | 'SearchResultPage'
-  | 'HomePage';
+  | 'HomePage'
+  | 'DesignSystemPage';
 
 const { set, subscribe, update } = writable<Page>('CollectionCreationPage');
 const goTo = (page: Page) => update(() => page);
