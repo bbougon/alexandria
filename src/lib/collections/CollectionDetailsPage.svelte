@@ -187,18 +187,11 @@
 <VideoPlayer bind:this={videoPlayer} />
 
 <style>
-  /* Modale d'ajout : plus large et hauteur stable (elle ne grandit plus avec le
-     contenu) — en-tête et pied figés, seul le corps défile. La liste des vidéos
-     sur 2 colonnes est gérée globalement par `.implist`. */
+  /* Modale d'ajout : largeur stable. On la définit en `vw` (et non en `%` d'un
+     parent dimensionné au contenu) pour que la grille 2 colonnes ne fasse pas
+     varier la largeur selon la longueur des noms de fichiers. La hauteur reste
+     adaptative. La liste 2 colonnes est gérée globalement par `.implist`. */
   .modal--wide {
-    width: min(880px, 100%);
-    height: min(680px, 85vh);
-    display: flex;
-    flex-direction: column;
-    overflow: hidden;
-  }
-  .modal--wide :global(.modal-b) {
-    flex: 1;
-    overflow-y: auto;
+    width: min(880px, 92vw);
   }
 </style>
