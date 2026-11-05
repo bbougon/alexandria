@@ -49,13 +49,17 @@
         />
       {/each}
     {:else if !editing}
-      <span class="rownote">Aucun style</span>
+      <span class="text-[12.5px] text-ink-subtle">Aucun style</span>
     {/if}
   {/snippet}
 
   {#snippet add()}
     {#if available.length}
-      <select class="addsel" aria-label="Ajouter un style" onchange={onSelect}>
+      <select
+        class="cursor-pointer rounded-sm border border-dashed border-border-strong bg-surface-sunken px-[9px] py-1 font-sans text-[12.5px] font-semibold text-ink-muted hover:border-brand hover:text-brand-strong"
+        aria-label="Ajouter un style"
+        onchange={onSelect}
+      >
         <option value="" selected>+ Style</option>
         {#each available as availableStyle}
           <option>{availableStyle}</option>
