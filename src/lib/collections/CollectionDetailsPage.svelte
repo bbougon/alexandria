@@ -137,7 +137,7 @@
 </div>
 
 <Dialog bind:this={addModal}>
-  <div class="modal">
+  <div class="modal modal--wide">
     <div class="modal-h">
       <h3>Ajouter des vidéos</h3>
       <button
@@ -185,3 +185,20 @@
 </Dialog>
 
 <VideoPlayer bind:this={videoPlayer} />
+
+<style>
+  /* Modale d'ajout : plus large et liste des vidéos sélectionnées sur 2 colonnes
+     (sans toucher à la liste de l'écran de création). */
+  .modal--wide {
+    width: min(880px, 100%);
+  }
+  .modal--wide :global(.implist) {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  @media (max-width: 620px) {
+    .modal--wide :global(.implist) {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>
