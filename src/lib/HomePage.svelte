@@ -11,13 +11,15 @@
   );
 </script>
 
-<div>
-  <div class="mb-8">
-    <h1 class="mb-2 text-3xl font-semibold">Your library</h1>
-    <p class="text-ink-muted">Manage your video collections and metadata</p>
+<div class="content">
+  <div class="collhead">
+    <div>
+      <h2>Votre bibliothèque</h2>
+      <p class="sub">Gérez vos collections de vidéos et leurs métadonnées.</p>
+    </div>
   </div>
 
-  <div class="mb-8 grid grid-cols-2 gap-4">
+  <div class="grid grid-cols-2 gap-4">
     <Card class="bg-brand-tint p-6">
       <div class="flex items-center gap-4">
         <div class="rounded-lg bg-brand p-3">
@@ -37,7 +39,7 @@
         </div>
         <div>
           <p class="text-2xl font-semibold">{totalVideos}</p>
-          <p class="text-sm text-ink-muted">Total Videos</p>
+          <p class="text-sm text-ink-muted">Vidéos au total</p>
         </div>
       </div>
     </Card>
