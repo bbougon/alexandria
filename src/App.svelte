@@ -9,6 +9,7 @@
   import type { Component } from 'svelte';
   import SearchResultPage from './lib/search/SearchResultPage.svelte';
   import HomePage from './lib/HomePage.svelte';
+  import DesignSystemPage from './lib/designsystem/DesignSystemPage.svelte';
 
   collectionsStore.initialize(allCollections);
   pageStore.initialize('CollectionCreationPage');
@@ -18,6 +19,7 @@
     ['CollectionDetailsPage', CollectionDetailsPage],
     ['SearchResultPage', SearchResultPage],
     ['HomePage', HomePage],
+    ['DesignSystemPage', DesignSystemPage],
   ]);
 </script>
 
