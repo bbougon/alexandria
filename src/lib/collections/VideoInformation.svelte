@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { X } from '@lucide/svelte';
+  import { Trash2 } from '@lucide/svelte';
   import type { VideoData } from './collectionCreation.store';
   import Thumbnail from '../components/Thumbnail.svelte';
 
@@ -27,6 +27,6 @@
     aria-label={`Retirer ${video.name}`}
     onclick={() => onRemoveFile(video)}
   >
-    <X />
+    <Trash2 />
   </button>
 </div>
