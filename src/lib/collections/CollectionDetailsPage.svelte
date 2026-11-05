@@ -73,6 +73,9 @@
     videoPlayer?.play({
       name: video.name,
       thumbnail: video.thumbnail,
+      path: video.path,
+      size: video.size,
+      duration: video.duration,
       play: () => fileConverter.convertFile(video.path),
     });
   };
