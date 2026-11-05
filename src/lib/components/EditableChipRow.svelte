@@ -1,7 +1,6 @@
 <script lang="ts">
   import type { Snippet } from 'svelte';
   import { Pencil, Check } from '@lucide/svelte';
-  import IconButton from './IconButton.svelte';
 
   interface Props {
     /** Rendu des chips ; reçoit l'état d'édition pour afficher ou non la croix. */
@@ -17,22 +16,25 @@
   let editing = $state(false);
 </script>
 
-<div class="flex flex-wrap items-center gap-2">
+<div class="trow">
   {@render children(editing)}
 
   {#if editing && add}
     {@render add()}
   {/if}
 
-  <IconButton
-    size="sm"
-    label={editing ? 'Terminer la modification' : editLabel}
+  <button
+    type="button"
+    class="rowic"
+    class:done={editing}
+    aria-label={editing ? 'Terminer la modification' : editLabel}
+    title={editing ? 'Terminer' : editLabel}
     onclick={() => (editing = !editing)}
   >
     {#if editing}
-      <Check class="size-4" />
+      <Check />
     {:else}
-      <Pencil class="size-4" />
+      <Pencil />
     {/if}
-  </IconButton>
+  </button>
 </div>

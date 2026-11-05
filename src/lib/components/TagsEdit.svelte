@@ -1,5 +1,4 @@
 <script lang="ts">
-  import Input from './Input.svelte';
   import Tag from './Tag.svelte';
   import EditableChipRow from './EditableChipRow.svelte';
 
@@ -45,19 +44,23 @@
 
 <EditableChipRow editLabel="Modifier les tags">
   {#snippet children(editing)}
-    {#each tags as tag}
-      <Tag label={tag} removable={editing} onremove={() => handleRemoveTag(tag)} />
-    {/each}
+    {#if tags.length}
+      {#each tags as tag}
+        <Tag label={tag} removable={editing} onremove={() => handleRemoveTag(tag)} />
+      {/each}
+    {:else if !editing}
+      <span class="rownote">Aucun tag</span>
+    {/if}
   {/snippet}
 
   {#snippet add()}
-    <Input
-      value={newTag}
-      onchange={(e) => (newTag = e.currentTarget.value)}
+    <input
+      class="addtag"
+      bind:value={newTag}
       onblur={handleAddTag}
       onkeydown={handleKeyDown}
-      placeholder="New tag..."
-      class="w-24 h-7"
+      placeholder="+ tag"
+      aria-label="Ajouter un tag"
     />
   {/snippet}
 </EditableChipRow>
