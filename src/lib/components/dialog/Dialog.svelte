@@ -26,6 +26,13 @@
 </dialog>
 
 <style lang="scss">
+  /* Le preflight de Tailwind v4 pose `margin: 0` sur `*`, ce qui écrase le
+     `margin: auto` que le navigateur applique aux `<dialog>` modaux et les
+     renvoie en haut à gauche. On le rétablit pour recentrer la modale. */
+  dialog {
+    margin: auto;
+  }
+
   ::backdrop {
     animation: backdrop-fade var(--default-transition-duration) ease forwards;
   }
