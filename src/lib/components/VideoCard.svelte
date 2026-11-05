@@ -114,10 +114,8 @@
   };
 </script>
 
-<div class="h-full">
-  <article
-    class="flex h-full gap-[18px] rounded-2xl border border-border bg-surface-raised p-3.5 transition hover:-translate-y-0.5 hover:border-border-strong hover:shadow-md"
-  >
+<div>
+  <article class="card">
     <Thumbnail
       thumbnail={video.thumbnail}
       duration={video.duration.toHumanReadable()}
@@ -125,27 +123,27 @@
       onplay={play}
     />
 
-    <div class="flex min-w-0 flex-1 flex-col gap-2">
+    <div class="cbody">
       <EditableField
-        label="Video title"
+        variant="title"
+        label="Titre de la vidéo"
         bind:value={videoName}
         onblur={onUpdateVideoName}
-        class="font-display text-base font-bold leading-snug"
       />
 
-      <div class="flex flex-wrap items-baseline gap-x-1 text-[13px] text-ink-muted">
+      <div class="cmeta">
         <EditableField
-          label="Artist"
+          variant="artist"
+          label="Artiste"
           bind:value={artistName}
           onblur={onUpdateArtistName}
-          class="w-auto min-w-[3ch] flex-none text-[13px] font-semibold text-ink [field-sizing:content]"
         />
-        <span class="text-ink-subtle">·</span>
+        <span class="sep">·</span>
         <EditableField
-          label="Song"
+          variant="song"
+          label="Morceau"
           bind:value={songName}
           onblur={onUpdateSongName}
-          class="w-auto min-w-[3ch] flex-none text-[13px] [field-sizing:content]"
         />
       </div>
 
@@ -161,8 +159,8 @@
         onremovevideotag={(tag) => onRemoveVideoTag(tag)}
       />
 
-      <div class="mt-auto pt-0.5 font-mono text-[11px] text-ink-muted">
-        {video.size.toHumanReadable()}
+      <div class="cfoot">
+        <span class="size">{video.size.toHumanReadable()}</span>
       </div>
     </div>
   </article>
