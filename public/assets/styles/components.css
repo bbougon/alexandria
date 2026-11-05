@@ -326,60 +326,12 @@
 }
 
 /* ---- Video card ---- */
-.card {
-  display: flex;
-  gap: 18px;
-  height: 100%;
-  background: var(--surface-raised);
-  border: 1px solid var(--border);
-  border-radius: var(--r-lg);
-  padding: 14px;
-  transition:
-    box-shadow 140ms,
-    transform 140ms,
-    border-color 140ms;
-}
-.card:hover {
-  box-shadow: var(--sh-md);
-  transform: translateY(-2px);
-  border-color: var(--border-strong);
-}
-.cbody {
-  flex: 1;
-  min-width: 0;
-  display: flex;
-  flex-direction: column;
-  gap: 9px;
-}
-.cmeta {
-  display: flex;
-  align-items: baseline;
-  flex-wrap: wrap;
-  gap: 2px 4px;
-  font-size: 13px;
-  color: var(--ink-muted);
-}
-.cmeta .sep {
-  color: var(--ink-subtle);
-}
 /* Encore utilisé par VideoInfoPanel ; retiré avec la conversion du lecteur. */
 .trow {
   display: flex;
   flex-wrap: wrap;
   gap: 6px;
   align-items: center;
-}
-.cfoot {
-  margin-top: auto;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 8px;
-}
-.cfoot .size {
-  font-family: var(--font-mono);
-  font-size: 11px;
-  color: var(--ink-muted);
 }
 
 /* ---- Icon action buttons ---- */
@@ -787,16 +739,6 @@
   }
   .stage {
     border-radius: var(--r-xl) var(--r-xl) 0 0;
-  }
-}
-@media (max-width: 440px) {
-  .card {
-    flex-direction: column;
-  }
-  .thumb {
-    flex-basis: auto;
-    width: 100%;
-    height: 150px;
   }
 }
 @media (prefers-reduced-motion: reduce) {

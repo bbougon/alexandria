@@ -115,7 +115,9 @@
 </script>
 
 <div>
-  <article class="card">
+  <article
+    class="flex h-full gap-[18px] rounded-lg border border-border bg-surface-raised p-[14px] transition hover:-translate-y-0.5 hover:border-border-strong hover:shadow-md max-[440px]:flex-col"
+  >
     <Thumbnail
       thumbnail={video.thumbnail}
       duration={video.duration.toHumanReadable()}
@@ -123,7 +125,7 @@
       onplay={play}
     />
 
-    <div class="cbody">
+    <div class="flex min-w-0 flex-1 flex-col gap-[9px]">
       <EditableField
         variant="title"
         label="Titre de la vidéo"
@@ -131,14 +133,16 @@
         onblur={onUpdateVideoName}
       />
 
-      <div class="cmeta">
+      <div
+        class="flex flex-wrap items-baseline gap-x-1 gap-y-0.5 text-[13px] text-ink-muted"
+      >
         <EditableField
           variant="artist"
           label="Artiste"
           bind:value={artistName}
           onblur={onUpdateArtistName}
         />
-        <span class="sep">·</span>
+        <span class="text-ink-subtle">·</span>
         <EditableField
           variant="song"
           label="Morceau"
@@ -159,8 +163,10 @@
         onremovevideotag={(tag) => onRemoveVideoTag(tag)}
       />
 
-      <div class="cfoot">
-        <span class="size">{video.size.toHumanReadable()}</span>
+      <div class="mt-auto flex items-center justify-between gap-2">
+        <span class="font-mono text-[11px] text-ink-muted"
+          >{video.size.toHumanReadable()}</span
+        >
       </div>
     </div>
   </article>
