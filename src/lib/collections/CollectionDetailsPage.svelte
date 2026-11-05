@@ -187,10 +187,19 @@
 <VideoPlayer bind:this={videoPlayer} />
 
 <style>
-  /* Modale d'ajout : plus large et liste des vidéos sélectionnées sur 2 colonnes
-     (sans toucher à la liste de l'écran de création). */
+  /* Modale d'ajout : plus large, hauteur stable (elle ne grandit plus avec le
+     contenu) — en-tête et pied figés, seul le corps défile — et liste des vidéos
+     sélectionnées sur 2 colonnes (sans toucher à la liste de l'écran de création). */
   .modal--wide {
     width: min(880px, 100%);
+    height: min(680px, 85vh);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+  .modal--wide :global(.modal-b) {
+    flex: 1;
+    overflow-y: auto;
   }
   .modal--wide :global(.implist) {
     display: grid;
