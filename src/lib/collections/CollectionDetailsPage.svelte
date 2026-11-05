@@ -1,13 +1,9 @@
 <script lang="ts">
   import { selectedCollection } from './collection.store';
-  import { Plus } from '@lucide/svelte';
+  import { Plus, X } from '@lucide/svelte';
   import VideoCard from '../components/VideoCard.svelte';
-  import Button from '../components/Button.svelte';
   import UploadVideos from './UploadVideos.svelte';
   import Dialog from '../components/dialog/Dialog.svelte';
-  import DialogContent from '../components/dialog/DialogContent.svelte';
-  import DialogHeader from '../components/dialog/DialogHeader.svelte';
-  import DialogTitle from '../components/dialog/DialogTitle.svelte';
   import { open } from '@tauri-apps/plugin-dialog';
   import { listen } from '@tauri-apps/api/event';
   import {
@@ -138,40 +134,51 @@
 </div>
 
 <Dialog bind:this={addModal}>
-  <DialogContent
-    class="max-h-[85vh] gap-4 overflow-y-auto sm:max-w-[560px]"
-    onclose={closeAddVideos}
-  >
-    <DialogHeader>
-      <DialogTitle>Add videos</DialogTitle>
-    </DialogHeader>
+  <div class="modal">
+    <div class="modal-h">
+      <h3>Ajouter des vidéos</h3>
+      <button
+        type="button"
+        class="close"
+        aria-label="Fermer"
+        onclick={closeAddVideos}
+      >
+        <X />
+      </button>
+    </div>
 
-    <UploadVideos {pickVideo} />
+    <div class="modal-b">
+      <UploadVideos {pickVideo} />
 
-    {#if $collectionUpdateStore.videos.length > 0}
-      <div class="flex flex-col gap-2">
-        {#each $collectionUpdateStore.videos as video}
-          <VideoInformation {onRemoveFile} {play} {video} />
-        {/each}
-      </div>
-    {/if}
+      {#if $collectionUpdateStore.videos.length > 0}
+        <div class="implist">
+          {#each $collectionUpdateStore.videos as video}
+            <VideoInformation {onRemoveFile} {play} {video} />
+          {/each}
+        </div>
+      {/if}
+    </div>
 
-    <div class="flex items-center gap-3 border-t border-border pt-4">
-      <span class="mr-auto text-sm text-ink-muted">
-        {$collectionUpdateStore.videos.length} video{$collectionUpdateStore.videos
+    <div class="modal-f">
+      <span class="count">
+        {$collectionUpdateStore.videos.length} vidéo{$collectionUpdateStore.videos
           .length !== 1
           ? 's'
-          : ''} selected
+          : ''} sélectionnée{$collectionUpdateStore.videos.length !== 1 ? 's' : ''}
       </span>
-      <Button variant="outline" onclick={closeAddVideos}>Cancel</Button>
-      <Button
-        enabled={$collectionUpdateStore.videos.length > 0}
+      <button type="button" class="ghostbtn" onclick={closeAddVideos}>
+        Annuler
+      </button>
+      <button
+        type="button"
+        class="pbtn"
+        disabled={$collectionUpdateStore.videos.length === 0}
         onclick={addVideosToCollection}
       >
-        Add to collection
-      </Button>
+        Ajouter à la collection
+      </button>
     </div>
-  </DialogContent>
+  </div>
 </Dialog>
 
 <VideoPlayer bind:this={videoPlayer} />

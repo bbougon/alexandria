@@ -14,7 +14,6 @@
     type VideoDataRetrievedDTO,
   } from './video.tauri';
   import { type CollectionCreated, toCollection } from './collection.tauri';
-  import Button from '../components/Button.svelte';
   import { pageStore } from '../kit/pages/pageStore';
   import {
     collectionCreationStore,
@@ -116,42 +115,43 @@
   };
 </script>
 
-<div class="mx-auto max-w-4xl">
-  <div class="mb-6">
-    <h1 class="text-3xl font-semibold">New Collection</h1>
-    <p class="mt-1 text-ink-muted">
-      Import video files — the collection is named automatically by its creation
-      date.
-    </p>
+<div class="content">
+  <div class="collhead">
+    <div>
+      <h2>Nouvelle collection</h2>
+      <p class="sub">
+        Importez des fichiers vidéo — la collection est nommée automatiquement par sa
+        date de création.
+      </p>
+    </div>
   </div>
 
-  <div class="space-y-4 rounded-2xl border border-border bg-surface-raised p-6">
-    <UploadVideos {pickVideo} />
+  <UploadVideos {pickVideo} />
 
-    {#if $collectionCreationStore.videos.length > 0}
-      <div class="flex flex-col gap-2">
-        {#each $collectionCreationStore.videos as video}
-          <VideoInformation {onRemoveFile} {play} {video} />
-        {/each}
-      </div>
-    {/if}
-
-    <div class="flex items-center gap-3 border-t border-border pt-4">
-      <span class="mr-auto text-sm text-ink-muted">
-        {$collectionCreationStore.videos.length} video{$collectionCreationStore
-          .videos.length !== 1
-          ? 's'
-          : ''} selected
-      </span>
-      <Button variant="outline" size="lg" onclick={onCancel}>Cancel</Button>
-      <Button
-        size="lg"
-        enabled={$collectionCreationStore.videos.length > 0}
-        onclick={createCollection}
-      >
-        Create collection
-      </Button>
+  {#if $collectionCreationStore.videos.length > 0}
+    <div class="implist">
+      {#each $collectionCreationStore.videos as video}
+        <VideoInformation {onRemoveFile} {play} {video} />
+      {/each}
     </div>
+  {/if}
+
+  <div class="newfoot">
+    <span class="count">
+      {$collectionCreationStore.videos.length} vidéo{$collectionCreationStore.videos
+        .length !== 1
+        ? 's'
+        : ''} sélectionnée{$collectionCreationStore.videos.length !== 1 ? 's' : ''}
+    </span>
+    <button type="button" class="ghostbtn" onclick={onCancel}>Annuler</button>
+    <button
+      type="button"
+      class="pbtn"
+      disabled={$collectionCreationStore.videos.length === 0}
+      onclick={createCollection}
+    >
+      Créer la collection
+    </button>
   </div>
 
   <VideoPlayer bind:this={videoPlayer} />
