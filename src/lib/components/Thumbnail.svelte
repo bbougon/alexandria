@@ -1,7 +1,6 @@
 <script lang="ts">
-  import { Play, Clock } from '@lucide/svelte';
-  import { cn } from './classCombinator';
-  import { styleColor, type StyleColor } from './styleColor';
+  import { Play, Clock, Film } from '@lucide/svelte';
+  import { styleColor } from './styleColor';
 
   interface Props {
     thumbnail?: string;
@@ -10,53 +9,52 @@
     /** Style musical : teinte le puits de la vignette de façon déterministe. */
     styleName?: string;
     onplay?: () => void;
-    class?: string;
+    /** `card` = vignette de carte (176×112) ; `import` = miniature de ligne d'import. */
+    variant?: 'card' | 'import';
   }
 
-  let { thumbnail, duration, styleName, onplay, class: className }: Props = $props();
+  let { thumbnail, duration, styleName, onplay, variant = 'card' }: Props = $props();
 
-  // Classes statiques pour que Tailwind conserve chaque dégradé au build.
-  const WELL: Record<StyleColor, string> = {
-    rose: 'from-tag-rose-bg',
-    amber: 'from-tag-amber-bg',
-    lime: 'from-tag-lime-bg',
-    teal: 'from-tag-teal-bg',
-    sky: 'from-tag-sky-bg',
-    violet: 'from-tag-violet-bg',
-  };
-
-  let well = $derived(styleName ? WELL[styleColor(styleName)] : 'from-brand-tint');
+  let color = $derived(styleName ? styleColor(styleName) : null);
+  // Puits dégradé repris de la maquette (teinté par le 1er style, sinon brand).
+  let background = $derived(
+    color
+      ? `radial-gradient(120% 120% at 20% 0%, color-mix(in srgb, var(--tag-${color}-fg) 32%, var(--surface-sunken)) 0%, var(--surface-sunken) 62%)`
+      : `radial-gradient(120% 120% at 20% 0%, color-mix(in srgb, var(--brand) 22%, var(--surface-sunken)) 0%, var(--surface-sunken) 62%)`
+  );
 </script>
 
-<div
-  class={cn(
-    'relative grid place-items-center overflow-hidden rounded-lg bg-gradient-to-br to-surface-sunken',
-    well,
-    className
-  )}
->
-  {#if thumbnail}
-    <video poster={thumbnail} class="absolute inset-0 h-full w-full object-cover"
-    ></video>
-  {/if}
+{#if variant === 'import'}
+  <button
+    type="button"
+    class="impthumb"
+    style="background:{background}"
+    aria-label="Lire l'aperçu"
+    onclick={onplay}
+  >
+    {#if thumbnail}
+      <video poster={thumbnail}></video>
+    {:else}
+      <Film />
+    {/if}
+  </button>
+{:else}
+  <div class="thumb" style="background:{background}">
+    {#if thumbnail}
+      <video poster={thumbnail}></video>
+    {/if}
 
-  {#if onplay}
-    <button
-      type="button"
-      aria-label="Lire la vidéo"
-      onclick={onplay}
-      class="relative z-10 grid size-12 place-items-center rounded-full bg-brand text-on-brand shadow-lg outline-none transition-transform hover:scale-105 hover:bg-brand-strong focus-visible:ring-2 focus-visible:ring-on-media"
-    >
-      <Play class="size-[22px] translate-x-0.5 fill-current" />
-    </button>
-  {/if}
+    {#if onplay}
+      <button type="button" class="play" aria-label="Lire la vidéo" onclick={onplay}>
+        <Play fill="currentColor" />
+      </button>
+    {/if}
 
-  {#if duration}
-    <div
-      class="absolute bottom-2 right-2 z-10 flex items-center gap-1 rounded-sm bg-overlay px-[7px] py-0.5 font-mono text-[11px] text-on-media"
-    >
-      <Clock class="size-3" />
-      {duration}
-    </div>
-  {/if}
-</div>
+    {#if duration}
+      <span class="dur">
+        <Clock />
+        {duration}
+      </span>
+    {/if}
+  </div>
+{/if}
