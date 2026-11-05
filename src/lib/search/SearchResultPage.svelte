@@ -20,7 +20,7 @@
       <p>Essaie un autre morceau, artiste, style ou tag.</p>
     </div>
   {:else}
-    <div class="grid">
+    <div class="card-grid">
       {#each $searchResultStore as video}
         <VideoCard {video} />
       {/each}
