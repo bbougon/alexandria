@@ -1,34 +1,48 @@
 <script lang="ts">
+  import { X } from '@lucide/svelte';
   import type { PlayableVideo } from '../collections/video';
   import StyleTag from './StyleTag.svelte';
   import Tag from './Tag.svelte';
 
   interface Props {
     video: PlayableVideo;
+    onclose: () => void;
   }
 
-  let { video }: Props = $props();
+  let { video, onclose }: Props = $props();
 </script>
 
-<div class="space-y-4">
+<div class="info">
+  <div class="phead">
+    <span></span>
+    <div class="pactions">
+      <button type="button" class="close" aria-label="Fermer" onclick={onclose}>
+        <X />
+      </button>
+    </div>
+  </div>
+
   <div>
-    <h3 class="font-display text-lg font-semibold text-ink">{video.name}</h3>
+    <h3>{video.name}</h3>
     {#if video.artist || video.song}
-      <p class="text-sm text-ink-muted">
-        {#if video.artist}<span class="font-medium text-ink">{video.artist}</span
-          >{/if}
-        {#if video.artist && video.song}
-          ·
+      <div class="by">
+        {#if video.artist}
+          <span style="color:var(--ink);font-weight:600">{video.artist}</span>
         {/if}
-        {video.song}
-      </p>
+        {#if video.artist && video.song}
+          <span class="sep">·</span>
+        {/if}
+        {#if video.song}
+          <span>{video.song}</span>
+        {/if}
+      </div>
     {/if}
   </div>
 
   {#if video.style?.length}
     <div>
-      <p class="mb-1.5 text-xs font-medium text-ink-subtle">Styles</p>
-      <div class="flex flex-wrap gap-2">
+      <p class="ptitle">Styles</p>
+      <div class="trow">
         {#each video.style as styleName}
           <StyleTag name={styleName} />
         {/each}
@@ -38,8 +52,8 @@
 
   {#if video.tags?.length}
     <div>
-      <p class="mb-1.5 text-xs font-medium text-ink-subtle">Tags</p>
-      <div class="flex flex-wrap gap-2">
+      <p class="ptitle">Tags</p>
+      <div class="trow">
         {#each video.tags as tag}
           <Tag label={tag} />
         {/each}
@@ -47,28 +61,30 @@
     </div>
   {/if}
 
-  {#if video.duration || video.size || video.path}
-    <dl class="space-y-2 border-t border-border pt-4 text-sm">
-      {#if video.duration}
-        <div class="flex justify-between gap-4">
-          <dt class="text-ink-subtle">Duration</dt>
-          <dd class="font-mono text-ink">{video.duration.toHumanReadable()}</dd>
-        </div>
-      {/if}
-      {#if video.size}
-        <div class="flex justify-between gap-4">
-          <dt class="text-ink-subtle">Size</dt>
-          <dd class="font-mono text-ink">{video.size.toHumanReadable()}</dd>
-        </div>
-      {/if}
-      {#if video.path}
-        <div>
-          <dt class="text-ink-subtle">Location</dt>
-          <dd class="mt-1 break-all font-mono text-xs text-ink-muted">
-            {video.path}
-          </dd>
-        </div>
-      {/if}
-    </dl>
+  {#if video.duration || video.size}
+    <div>
+      <p class="ptitle">Détails</p>
+      <div class="facts">
+        {#if video.duration}
+          <div class="fact">
+            <div class="k">Durée</div>
+            <div class="v">{video.duration.toHumanReadable()}</div>
+          </div>
+        {/if}
+        {#if video.size}
+          <div class="fact">
+            <div class="k">Taille</div>
+            <div class="v">{video.size.toHumanReadable()}</div>
+          </div>
+        {/if}
+      </div>
+    </div>
+  {/if}
+
+  {#if video.path}
+    <div>
+      <p class="ptitle">Emplacement</p>
+      <div class="path">{video.path}</div>
+    </div>
   {/if}
 </div>
