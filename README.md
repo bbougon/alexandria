@@ -18,6 +18,13 @@ Below you have gifs showing the app in action.
 - [How to create a collection](#create-a-collection-)
 - [How to search for videos](#video-search)
 
+## Stack
+
+Alexandria is a [Tauri 2](https://tauri.app) desktop app: a **Rust** core
+(domain, storage, full-text search with Tantivy) and a **Svelte 5 + TypeScript**
+UI styled with **Tailwind CSS v4**. See [`doc/ARCHITECTURE.md`](doc/ARCHITECTURE.md)
+for how the layers fit together and how the frontend talks to the Rust backend.
+
 ## Development
 
 ### Install `pre-commit` `hook`
@@ -48,6 +55,14 @@ pnpm run test:back
 ```
 
 ### Run application during dev
+
+Run the full desktop app (starts Vite, then opens the Tauri window):
+
+```shell
+pnpm run dev:start
+```
+
+To run only the web frontend in a browser (no Rust backend):
 
 ```shell
 pnpm run dev
